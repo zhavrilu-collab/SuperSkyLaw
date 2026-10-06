@@ -1,20 +1,21 @@
 ﻿<style>
     :root {
-        --primarna-zelena: #1b431c;
-        --primarna-tamna: #112b12;
-        --svijetlo-zelena: #f4f8f4;
+        --primarna-zelena: #6b7a31;
+        --primarna-tamna: #515d25;
+        --svijetlo-zelena: #f6f9ed;
         --bordo-crvena: #8b1414;
-        --zlatna-tradicija: #d4af37;
-        --tekst-tamni: #2b3a2b;
+        --zlatna-tradicija: #adc650;
+        --tekst-tamni: #4c5726;
+        --tema-rgb: 107, 122, 49;
         --tema: var(--primarna-zelena);
         --tema-svijetla: var(--svijetlo-zelena);
-        --tema-sjena-fokus: rgba(27, 67, 28, 0.15);
-        --tema-rub-tablica: rgba(27, 67, 28, 0.18);
+        --tema-sjena-fokus: rgba(var(--tema-rgb), 0.15);
+        --tema-rub-tablica: rgba(var(--tema-rgb), 0.18);
         --tema-greska-svijetla: #fff5f5;
     }
 
     /* === Tipografija (zadano za cijelu aplikaciju) === */
-    body { background-color: #f5f7f5; font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 13px; color: var(--tekst-tamni); }
+    body { background-color: var(--svijetlo-zelena); font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 13px; color: var(--tekst-tamni); }
     .small, small { font-size: 12px !important; }
 
     /* === Probni period — usklađeno s temom (ne Bootstrap alert-info) === */
@@ -31,11 +32,11 @@
     }
     .app-header .trial-notice {
         border-top: 0;
-        box-shadow: 0 1px 0 rgba(27, 67, 28, 0.08);
+        box-shadow: 0 1px 0 rgba(var(--tema-rgb), 0.08);
     }
     .trial-notice {
         background: linear-gradient(90deg, rgba(212, 175, 55, 0.16) 0%, var(--svijetlo-zelena) 32%, #eef4ee 100%);
-        border-bottom: 1px solid rgba(27, 67, 28, 0.12);
+        border-bottom: 1px solid rgba(var(--tema-rgb), 0.12);
         color: var(--tekst-tamni);
         font-size: 12px;
         line-height: 1.35;
@@ -63,7 +64,7 @@
         letter-spacing: .04em;
         text-transform: uppercase;
         color: var(--primarna-zelena);
-        background: rgba(27, 67, 28, 0.08);
+        background: rgba(var(--tema-rgb), 0.08);
         border: 1px solid rgba(212, 175, 55, 0.45);
         border-radius: 999px;
         padding: .2rem .55rem;
@@ -89,7 +90,7 @@
         font-weight: 700;
         color: var(--primarna-zelena);
         text-decoration: none;
-        border: 1px solid rgba(27, 67, 28, 0.28);
+        border: 1px solid rgba(var(--tema-rgb), 0.28);
         border-radius: 8px;
         padding: .25rem .65rem;
         background: #fff;
@@ -204,7 +205,7 @@
         display: flex;
         flex-direction: column;
         background: #fff;
-        border-right: 1px solid rgba(27, 67, 28, 0.12);
+        border-right: 1px solid rgba(var(--tema-rgb), 0.12);
         position: sticky;
         top: 0;
         height: 100vh;
@@ -213,22 +214,17 @@
     .app-sidebar-brand {
         display: flex;
         align-items: center;
-        gap: .55rem;
-        padding: .85rem .9rem;
+        padding: .7rem .9rem;
         text-decoration: none;
-        color: var(--primarna-tamna);
-        font-weight: 700;
-        font-size: 15px;
         border-bottom: 3px solid var(--zlatna-tradicija);
     }
-    .app-sidebar-brand:hover { color: var(--primarna-zelena); }
-    .app-sidebar-mark {
-        width: 1.7rem;
-        height: 1.7rem;
-        object-fit: contain;
-        flex: 0 0 auto;
+    .app-sidebar-logo {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        max-height: 3.4rem;
     }
-    .app-sidebar-brand-club { color: var(--primarna-zelena); }
     .app-sidebar-nav {
         flex: 1;
         overflow: auto;
@@ -313,7 +309,7 @@
         gap: 1rem;
         padding: .55rem 1rem;
         background: #fff;
-        border-bottom: 1px solid rgba(27, 67, 28, 0.1);
+        border-bottom: 1px solid rgba(var(--tema-rgb), 0.1);
         position: sticky;
         top: 0;
         z-index: 1020;
@@ -340,7 +336,7 @@
         display: none;
         color: var(--primarna-zelena);
         background: #fff;
-        border-color: rgba(27, 67, 28, 0.22);
+        border-color: rgba(var(--tema-rgb), 0.22);
     }
     .app-topbar .navbar-hamburger-btn:hover,
     .app-topbar .navbar-hamburger-btn:focus,
@@ -373,7 +369,7 @@
         overflow-y: auto;
         margin-top: .55rem !important;
         padding: .5rem 0 .4rem;
-        border: 1px solid rgba(27, 67, 28, 0.12);
+        border: 1px solid rgba(var(--tema-rgb), 0.12);
         border-radius: 10px;
         border-top: 3px solid var(--zlatna-tradicija);
         box-shadow: 0 10px 28px rgba(17, 43, 18, 0.14) !important;
@@ -408,7 +404,7 @@
         color: #6a7a6a;
         padding: 0;
         cursor: pointer;
-        border-left: 1px solid rgba(27, 67, 28, 0.08);
+        border-left: 1px solid rgba(var(--tema-rgb), 0.08);
     }
     .navbar-modules-group-toggle:hover,
     .navbar-modules-group-toggle:focus {
@@ -434,8 +430,8 @@
         display: none;
         padding: .15rem 0 .35rem;
         background: #f7faf7;
-        border-top: 1px solid rgba(27, 67, 28, 0.06);
-        border-bottom: 1px solid rgba(27, 67, 28, 0.06);
+        border-top: 1px solid rgba(var(--tema-rgb), 0.06);
+        border-bottom: 1px solid rgba(var(--tema-rgb), 0.06);
     }
     .navbar-modules-group.is-open > .navbar-modules-submenu {
         display: block;
@@ -463,13 +459,13 @@
         font-weight: 700;
     }
     .navbar-modules-group--nested > .navbar-modules-group-head .navbar-modules-group-toggle {
-        border-left-color: rgba(27, 67, 28, 0.06);
+        border-left-color: rgba(var(--tema-rgb), 0.06);
         color: #7a8a7a;
     }
     .navbar-modules-group--nested > .navbar-modules-submenu {
         background: #eef4ee;
-        border-top-color: rgba(27, 67, 28, 0.05);
-        border-bottom-color: rgba(27, 67, 28, 0.05);
+        border-top-color: rgba(var(--tema-rgb), 0.05);
+        border-bottom-color: rgba(var(--tema-rgb), 0.05);
     }
     .navbar-modules-group--nested > .navbar-modules-submenu .dropdown-item {
         padding-left: 2.45rem;
@@ -484,7 +480,7 @@
         gap: .35rem;
         min-height: 2.4rem;
         padding: .35rem .7rem;
-        border: 1px solid rgba(27, 67, 28, 0.22);
+        border: 1px solid rgba(var(--tema-rgb), 0.22);
         border-radius: 8px;
         background: #fff8e8;
         color: #142016 !important;
@@ -505,13 +501,13 @@
         background: var(--svijetlo-zelena);
         border-color: var(--primarna-zelena);
         color: var(--primarna-tamna);
-        box-shadow: 0 0 0 2px rgba(27, 67, 28, 0.12);
+        box-shadow: 0 0 0 2px rgba(var(--tema-rgb), 0.12);
     }
     .navbar-fiscal-year-menu {
         min-width: 11rem;
         margin-top: .5rem !important;
         padding: .45rem 0 .35rem;
-        border: 1px solid rgba(27, 67, 28, 0.12);
+        border: 1px solid rgba(var(--tema-rgb), 0.12);
         border-radius: 10px;
         border-top: 3px solid var(--zlatna-tradicija);
         box-shadow: 0 10px 28px rgba(17, 43, 18, 0.14) !important;
@@ -578,7 +574,7 @@
         margin-bottom: .55rem;
         border-radius: 10px;
         background: linear-gradient(135deg, #f4f8f4 0%, #eef4ee 100%);
-        border: 1px solid rgba(27, 67, 28, 0.08);
+        border: 1px solid rgba(var(--tema-rgb), 0.08);
     }
     .navbar-modules-user-avatar {
         flex-shrink: 0;
@@ -610,7 +606,7 @@
     }
     .btn-navbar-logout {
         border-radius: 9px !important;
-        border: 1px solid rgba(27, 67, 28, 0.22) !important;
+        border: 1px solid rgba(var(--tema-rgb), 0.22) !important;
         background: #fff !important;
         color: var(--primarna-zelena) !important;
         font-size: 12px !important;
@@ -664,7 +660,7 @@
         max-width: 12rem;
     }
     .btn-navbar-logout--header {
-        border-color: rgba(27, 67, 28, 0.22) !important;
+        border-color: rgba(var(--tema-rgb), 0.22) !important;
         background: #fff !important;
         color: var(--primarna-zelena) !important;
         white-space: nowrap;
@@ -678,7 +674,7 @@
 
     .navbar-modules-menu .dropdown-divider {
         margin: .35rem .75rem;
-        border-top-color: rgba(27, 67, 28, 0.1);
+        border-top-color: rgba(var(--tema-rgb), 0.1);
     }
     .navbar-modules-menu .dropdown-item {
         font-size: 13px;
@@ -708,7 +704,7 @@
         min-width: 12rem;
         margin-top: .35rem !important;
         padding: .4rem 0 .3rem;
-        border: 1px solid rgba(27, 67, 28, 0.12);
+        border: 1px solid rgba(var(--tema-rgb), 0.12);
         border-radius: 10px;
         border-top: 3px solid var(--zlatna-tradicija);
         box-shadow: 0 10px 28px rgba(17, 43, 18, 0.14) !important;
@@ -718,7 +714,7 @@
     }
     .app-menu .dropdown-divider {
         margin: .35rem .75rem;
-        border-top-color: rgba(27, 67, 28, 0.1);
+        border-top-color: rgba(var(--tema-rgb), 0.1);
         opacity: 1;
     }
     .app-menu .dropdown-item {
@@ -771,7 +767,7 @@
     }
     .btn-app-menu {
         border-radius: 9px !important;
-        border: 1px solid rgba(27, 67, 28, 0.28) !important;
+        border: 1px solid rgba(var(--tema-rgb), 0.28) !important;
         background: #fff !important;
         color: var(--primarna-zelena) !important;
         font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
@@ -871,7 +867,7 @@
     }
     .btn-outline-primary {
         color: var(--primarna-zelena) !important;
-        border-color: rgba(27, 67, 28, 0.45) !important;
+        border-color: rgba(var(--tema-rgb), 0.45) !important;
         background: #fff !important;
     }
     .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
@@ -916,8 +912,8 @@
         color: var(--primarna-zelena) !important;
     }
     .accordion-button:focus {
-        border-color: rgba(27, 67, 28, 0.2);
-        box-shadow: 0 0 0 0.2rem rgba(27, 67, 28, 0.12) !important;
+        border-color: rgba(var(--tema-rgb), 0.2);
+        box-shadow: 0 0 0 0.2rem rgba(var(--tema-rgb), 0.12) !important;
     }
     .accordion-button::after {
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231b431c'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
@@ -1001,7 +997,7 @@
     }
     .form-check-input:focus {
         border-color: var(--primarna-zelena);
-        box-shadow: 0 0 0 0.2rem rgba(27, 67, 28, 0.2);
+        box-shadow: 0 0 0 0.2rem rgba(var(--tema-rgb), 0.2);
     }
     .form-check-label { font-size: 12px; cursor: pointer; }
 
@@ -1052,11 +1048,33 @@
         overflow-x: auto;
     }
 
-    .guest-shell { min-height: 100vh; background: #f5f7f5; }
+    .guest-shell { min-height: 100vh; background: var(--svijetlo-zelena); }
     .guest-shell .card { border: 1px solid rgba(0,0,0,.04); border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.04); }
-    .app-brand-lockup { display: flex; align-items: center; justify-content: center; gap: .55rem; font-weight: 700; font-size: 22px; color: #112b12; margin-bottom: 1rem; letter-spacing: -.01em; }
-    .app-brand-mark { width: 2rem; height: 2rem; object-fit: contain; flex: 0 0 auto; }
-    .app-brand-lockup span { color: var(--primarna-zelena); }
+    .app-brand-lockup { display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+    .app-brand-logo { display: block; width: min(10.75rem, 78%); height: auto; }
+    .app-brand-logo-wide { display: block; width: min(15rem, 100%); height: auto; }
+    .office-theme-options { display: flex; flex-wrap: wrap; gap: .75rem; }
+    .office-theme-option {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .35rem;
+        width: 7.4rem;
+        margin: 0;
+        padding: .55rem .4rem .45rem;
+        border: 2px solid rgba(var(--tema-rgb), 0.16);
+        border-radius: 12px;
+        background: #fff;
+        cursor: pointer;
+    }
+    .office-theme-option img { width: 4.4rem; height: auto; }
+    .office-theme-option span { font-size: 12px; font-weight: 600; color: var(--tekst-tamni); }
+    .office-theme-option:has(input:checked) {
+        border-color: var(--primarna-zelena);
+        box-shadow: 0 0 0 3px var(--tema-sjena-fokus);
+    }
+    .office-theme-option input { margin: 0; }
     .pocetna-mreza { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
     @media (min-width: 992px) { .pocetna-mreza { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     .kartica-modula { background: white; border-radius: 14px; padding: 22px 14px; text-align: center; box-shadow: 0 5px 18px rgba(0,0,0,0.07); border: 2px solid transparent; transition: all 0.25s ease; text-decoration: none; color: inherit; display: block; height: 100%; }

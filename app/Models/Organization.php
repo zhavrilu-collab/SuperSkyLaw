@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OrganizationStatus;
+use App\Support\OfficeThemes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -30,6 +31,7 @@ class Organization extends Model
         'stripe_subscription_id',
         'calendar_feed_token',
         'mail_intake_token',
+        'theme_color',
     ];
 
     protected function casts(): array
@@ -44,6 +46,11 @@ class Organization extends Model
     public function navbarBrandPrefix(): string
     {
         return mb_strtoupper($this->name);
+    }
+
+    public function themeColor(): string
+    {
+        return OfficeThemes::resolve($this->theme_color);
     }
 
     public function onTrial(): bool

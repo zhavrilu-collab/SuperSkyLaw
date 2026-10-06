@@ -21,6 +21,21 @@
     <div class="row">
         <div class="col-md-6 mb-3"><label class="form-label">IBAN depozitnog računa</label><input name="trust_iban" class="form-control" value="{{ old('trust_iban', $organization->trust_iban) }}"><div class="form-text">Odvojen od poslovnog IBAN-a. Sredstva stranaka ne ulaze u prihod ureda.</div></div>
     </div>
+    @php($selectedTheme = \App\Support\OfficeThemes::resolve(old('theme_color', $organization->theme_color)))
+    <fieldset class="mb-3">
+        <legend class="form-label mb-1">Boja ureda</legend>
+        <p class="form-text mt-0 mb-2">Zadana boja je zelena. Odaberite jednu od pet službenih boja.</p>
+        <div class="office-theme-options">
+            @foreach($themes as $key => $theme)
+                <label class="office-theme-option">
+                    <input type="radio" name="theme_color" value="{{ $key }}" @checked($selectedTheme === $key) required>
+                    <img src="{{ asset('brand/product/'.$key.'.png') }}" alt="">
+                    <span>{{ $theme['label'] }}</span>
+                </label>
+            @endforeach
+        </div>
+        @error('theme_color')<div class="text-danger small mt-2">{{ $message }}</div>@enderror
+    </fieldset>
     <button class="btn btn-primary" type="submit">Spremi</button>
 </form>
 @endsection
