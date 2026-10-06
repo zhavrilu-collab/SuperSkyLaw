@@ -78,6 +78,12 @@ class OfficeThemes
         ];
     }
 
+    /** @return list<string> */
+    public static function styleKeys(): array
+    {
+        return ThemeRecipes::styleKeys();
+    }
+
     public static function resolve(?string $key): string
     {
         $key = $key ?: self::DEFAULT;
@@ -88,9 +94,16 @@ class OfficeThemes
     /**
      * @return array{label: string, primary: string, dark: string, gold: string, light: string, text: string, accent: string, onPrimary: string, rgb: string}
      */
-    public static function palette(?string $key): array
+    public static function palette(?string $key, ?string $style = null): array
     {
-        return self::all()[self::resolve($key)];
+        $resolved = self::resolve($key);
+        $palette = ThemeRecipes::apply(self::all()[$resolved], $resolved, $style);
+
+        if (! empty($palette['styled'])) {
+            $palette['rgb'] = ThemeRecipes::rgb($palette['primary']);
+        }
+
+        return $palette;
     }
 
     /** @return array<string, array<string, string>> */
@@ -99,23 +112,70 @@ class OfficeThemes
         $payload = [];
 
         foreach (self::all() as $key => $palette) {
-            $payload[$key] = [
-                'label' => $palette['label'],
-                'primary' => $palette['primary'],
-                'dark' => $palette['dark'],
-                'gold' => $palette['gold'],
-                'light' => $palette['light'],
-                'text' => $palette['text'],
-                'accent' => $palette['accent'],
-                'onPrimary' => $palette['onPrimary'],
-                'rgb' => $palette['rgb'],
-                'focusShadow' => 'rgba('.$palette['rgb'].', 0.15)',
-                'tableBorder' => 'rgba('.$palette['rgb'].', 0.18)',
-                'horizontalLogo' => asset(self::horizontalPath($key)),
-            ];
+            $payload[$key] = self::decoratePreview($palette, $key);
         }
 
         return $payload;
+    }
+
+    /** @return array<string, mixed> */
+    public static function clientPreview(?string $color = null, ?string $style = null): array
+    {
+        $resolved = self::resolve($color);
+
+        return [
+            'savedColor' => $resolved,
+            'savedStyle' => ThemeRecipes::resolveStyle($style),
+            'palettes' => self::previewPayload(),
+            'styles' => ThemeRecipes::styles(),
+            'combinations' => self::combinationPayload(),
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    public static function combinationPayload(): array
+    {
+        $payload = [];
+
+        foreach (self::keys() as $color) {
+            foreach (ThemeRecipes::styleKeys() as $style) {
+                $payload[$color.'|'.$style] = self::decoratePreview(self::palette($color, $style), $color);
+            }
+        }
+
+        return $payload;
+    }
+
+    /** @param  array<string, mixed>  $palette */
+    private static function decoratePreview(array $palette, string $colorKey): array
+    {
+        $rgb = $palette['rgb'] ?? ThemeRecipes::rgb($palette['primary']);
+
+        return [
+            'label' => $palette['label'],
+            'styleLabel' => $palette['styleLabel'] ?? null,
+            'styled' => (bool) ($palette['styled'] ?? false),
+            'primary' => $palette['primary'],
+            'dark' => $palette['dark'],
+            'gold' => $palette['gold'],
+            'light' => $palette['light'],
+            'text' => $palette['text'],
+            'accent' => $palette['accent'],
+            'onPrimary' => $palette['onPrimary'],
+            'rgb' => $rgb,
+            'focusShadow' => 'rgba('.$rgb.', 0.15)',
+            'tableBorder' => 'rgba('.$rgb.', 0.18)',
+            'horizontalLogo' => asset(self::horizontalPath($colorKey)),
+            'logoMark' => $palette['logoMark'] ?? null,
+            'navBg' => $palette['navBg'] ?? null,
+            'navFg' => $palette['navFg'] ?? null,
+            'navBar' => $palette['navBar'] ?? null,
+            'btnBg' => $palette['btnBg'] ?? null,
+            'btnFg' => $palette['btnFg'] ?? null,
+            'btnBorder' => $palette['btnBorder'] ?? null,
+            'btnHoverBg' => $palette['btnHoverBg'] ?? null,
+            'btnHoverFg' => $palette['btnHoverFg'] ?? null,
+        ];
     }
 
     public static function verticalPath(?string $key): string

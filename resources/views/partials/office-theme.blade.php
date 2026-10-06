@@ -13,5 +13,6 @@
         --tema-rgb: {{ $officeTheme['rgb'] }};
         --tema: var(--primarna-zelena);
         --tema-svijetla: var(--svijetlo-zelena);
+        {!! \App\Support\ThemeRecipes::chromeDeclarations($officeTheme) !!}
     }
 </style>

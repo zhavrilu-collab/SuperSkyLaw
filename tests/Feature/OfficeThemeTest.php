@@ -31,6 +31,8 @@ class OfficeThemeTest extends TestCase
             ->assertSee('data-tema="crvena"', false)
             ->assertSee('data-tema="zuta"', false)
             ->assertSee('data-tema="narancasta"', false)
+            ->assertSee('data-stil="tiha"', false)
+            ->assertDontSee('data-stil="obrnuto"', false)
             ->assertSee('BOJA TEME');
 
         $this->actingAs($owner)
@@ -39,12 +41,40 @@ class OfficeThemeTest extends TestCase
             ->assertSessionHasNoErrors();
 
         $this->assertSame('plava', $organization->fresh()->theme_color);
+        $this->assertNull($organization->fresh()->theme_style);
 
         $this->actingAs($owner)
             ->get(route('organization.dashboard', $organization->slug))
             ->assertOk()
             ->assertSee('brand/product/plava-horizontal.png', false)
             ->assertSee('#50abde', false);
+
+        $this->actingAs($owner)
+            ->put(route('organization.settings.theme', $organization->slug), [
+                'theme_color' => 'zelena',
+                'theme_style' => 'tiha',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('tiha', $organization->fresh()->theme_style);
+
+        $this->actingAs($owner)
+            ->get(route('organization.dashboard', $organization->slug))
+            ->assertOk()
+            ->assertSee('#5d6241', false)
+            ->assertSee('brand/product/zelena-horizontal.png', false);
+
+        $this->actingAs($owner)
+            ->from(route('organization.settings.edit', $organization->slug))
+            ->put(route('organization.settings.theme', $organization->slug), [
+                'theme_color' => 'zelena',
+                'theme_style' => 'obrnuto',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasErrors('theme_style');
+
+        $this->assertSame('tiha', $organization->fresh()->theme_style);
     }
 
     public function test_settings_reject_colors_outside_the_palette(): void

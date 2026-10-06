@@ -48,12 +48,19 @@ class OfficeSettingsController extends Controller
 
         $data = $request->validate([
             'theme_color' => ['required', 'string', Rule::in(OfficeThemes::keys())],
+            'theme_style' => ['nullable', 'string', Rule::in(OfficeThemes::styleKeys())],
         ], [
             'theme_color.required' => 'Odaberite boju ureda.',
             'theme_color.in' => 'Odaberite jednu od službenih boja.',
+            'theme_style.in' => 'Odaberite jednu od ponuđenih tema.',
         ]);
 
-        $this->office()->update($data);
+        $update = ['theme_color' => $data['theme_color']];
+        if ($request->exists('theme_style')) {
+            $update['theme_style'] = $data['theme_style'] ?? null;
+        }
+
+        $this->office()->update($update);
 
         return back()->with('status', 'Tema ureda je spremljena.');
     }

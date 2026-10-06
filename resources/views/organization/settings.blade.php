@@ -25,12 +25,16 @@
 </form>
 
 @php($activeTheme = \App\Support\OfficeThemes::resolve(old('theme_color', $organization->theme_color)))
+@php($activeStyle = \App\Support\ThemeRecipes::resolveStyle(old('theme_style', $organization->theme_style)))
 @php($catalog = \App\Support\OfficeThemes::all())
+@php($themeStyles = \App\Support\ThemeRecipes::styles())
+@php($themeCards = \App\Support\OfficeThemes::combinationPayload())
 <form method="POST" action="{{ route('organization.settings.theme', $organization->slug) }}" id="formTemaUreda" class="kartica-kontejner mt-3">
     @csrf
     @method('PUT')
     <span class="fw-bold text-muted small d-block mb-2">BOJA TEME</span>
     <input type="hidden" name="theme_color" id="themeColorInput" value="{{ $activeTheme }}">
+    <input type="hidden" name="theme_style" id="themeStyleInput" value="{{ $activeStyle }}">
     <img id="temaLogoPregled"
          src="{{ asset(\App\Support\OfficeThemes::horizontalPath($activeTheme)) }}"
          alt="SuperSkyLaw"
@@ -47,9 +51,37 @@
                         aria-label="{{ $theme['label'] }}"></button>
             @endforeach
         </div>
-        <div class="form-text">Zelena je zadana. Odabirom boje odmah se vidi službeni prozirni logo.</div>
+        <div class="form-text">Boja bira logotip i obitelj nijansi. Klik odmah mijenja zaslon.</div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label small fw-bold mb-2">Tema</label>
+        <div class="tema-smjerovi" id="temaSmjerIzbor">
+            @foreach($themeStyles as $styleKey => $style)
+                @php($card = $themeCards[$activeTheme.'|'.$styleKey])
+                <button type="button"
+                        class="tema-kartica @if($styleKey === $activeStyle) aktivna @endif"
+                        data-stil="{{ $styleKey }}"
+                        title="{{ $style['note'] }}"
+                        aria-label="{{ $style['label'] }}">
+                    <span class="tema-kartica-naziv">{{ $style['label'] }}</span>
+                    <span class="tema-kartica-okvir">
+                        <span class="tema-kartica-strana">
+                            <span class="tema-kartica-kugla" style="background:{{ $card['logoMark'] }}"></span>
+                            <span class="tema-kartica-stavka" style="background:{{ $card['navBg'] }};color:{{ $card['navFg'] }};border-left-color:{{ $card['navBar'] }}">Osobe</span>
+                        </span>
+                        <span class="tema-kartica-sadrzaj" style="background:{{ $card['light'] }};color:{{ $card['text'] }}">
+                            <span class="tema-kartica-gumb" style="background:{{ $card['btnBg'] }};color:{{ $card['btnFg'] }};border-color:{{ $card['btnBorder'] }}">Spremi</span>
+                        </span>
+                    </span>
+                </button>
+            @endforeach
+        </div>
+        <div class="form-text">Tema bira kako se nijanse slažu. Klik odmah pokazuje cijeli zaslon.</div>
     </div>
     @error('theme_color')
+        <div class="text-danger small mb-2">{{ $message }}</div>
+    @enderror
+    @error('theme_style')
         <div class="text-danger small mb-2">{{ $message }}</div>
     @enderror
     <button type="submit" class="btn btn-success btn-sm btn-spremi">Spremi temu</button>
@@ -59,10 +91,7 @@
 
 @push('scripts')
 <script>
-window.THEME_PREVIEW = {
-    savedTheme: @json($activeTheme),
-    palettes: @json(\App\Support\OfficeThemes::previewPayload()),
-};
+window.THEME_PREVIEW = @json(\App\Support\OfficeThemes::clientPreview($organization->theme_color, $organization->theme_style));
 </script>
 <script src="{{ asset('js/theme-preview.js') }}"></script>
 @endpush

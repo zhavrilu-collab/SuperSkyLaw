@@ -32,6 +32,7 @@ class Organization extends Model
         'calendar_feed_token',
         'mail_intake_token',
         'theme_color',
+        'theme_style',
     ];
 
     protected function casts(): array

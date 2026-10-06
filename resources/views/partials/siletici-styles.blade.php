@@ -251,9 +251,10 @@
     }
     .app-sidebar-link.active,
     .app-sidebar-group-link.active {
-        background: var(--svijetlo-zelena);
-        color: var(--primarna-zelena);
+        background: var(--odabir-pozadina, var(--svijetlo-zelena));
+        color: var(--odabir-tekst, var(--primarna-zelena));
         font-weight: 600;
+        box-shadow: inset 3px 0 0 var(--odabir-crta, transparent);
     }
     .app-sidebar-icon {
         width: 1.05rem;
@@ -812,8 +813,9 @@
         color: #555;
     }
     .settings-subnav .nav-link.active {
-        background: var(--primarna-zelena);
-        color: #fff;
+        background: var(--postavke-odabir-pozadina, var(--primarna-zelena));
+        color: var(--postavke-odabir-tekst, #fff);
+        box-shadow: inset 3px 0 0 var(--postavke-odabir-crta, transparent);
     }
 
     /* === Gumbi === */
@@ -847,26 +849,28 @@
         border-radius: 9px !important;
     }
     .btn-success {
-        background-color: var(--primarna-zelena) !important;
-        border-color: var(--primarna-zelena) !important;
-        color: var(--tekst-na-primarnoj) !important;
+        background-color: var(--gumb-pozadina, var(--primarna-zelena)) !important;
+        border-color: var(--gumb-rub, var(--primarna-zelena)) !important;
+        border-width: var(--gumb-debljina, 1px) !important;
+        color: var(--gumb-tekst, var(--tekst-na-primarnoj)) !important;
     }
     .btn-success:hover {
-        background-color: var(--primarna-tamna) !important;
-        border-color: var(--primarna-tamna) !important;
-        color: #fff !important;
+        background-color: var(--gumb-hover-pozadina, var(--primarna-tamna)) !important;
+        border-color: var(--gumb-hover-pozadina, var(--primarna-tamna)) !important;
+        color: var(--gumb-hover-tekst, #fff) !important;
     }
     .btn-outline-success { color: var(--primarna-zelena); border-color: var(--primarna-zelena); }
     .btn-outline-success:hover { background: var(--primarna-zelena); border-color: var(--primarna-zelena); color: var(--tekst-na-primarnoj); }
     .btn-primary {
-        background-color: var(--primarna-zelena) !important;
-        border-color: var(--primarna-zelena) !important;
-        color: var(--tekst-na-primarnoj) !important;
+        background-color: var(--gumb-pozadina, var(--primarna-zelena)) !important;
+        border-color: var(--gumb-rub, var(--primarna-zelena)) !important;
+        border-width: var(--gumb-debljina, 1px) !important;
+        color: var(--gumb-tekst, var(--tekst-na-primarnoj)) !important;
     }
     .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-        background-color: var(--primarna-tamna) !important;
-        border-color: var(--primarna-tamna) !important;
-        color: #fff !important;
+        background-color: var(--gumb-hover-pozadina, var(--primarna-tamna)) !important;
+        border-color: var(--gumb-hover-pozadina, var(--primarna-tamna)) !important;
+        color: var(--gumb-hover-tekst, #fff) !important;
     }
     .btn-outline-primary {
         color: var(--primarna-zelena) !important;
@@ -1078,6 +1082,24 @@
         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
         transform: scale(1.1);
     }
+    .tema-smjerovi { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tema-kartica {
+        width: 148px;
+        border: 1px solid rgba(0,0,0,.12);
+        border-radius: 10px;
+        background: #fff;
+        padding: 6px 6px 8px;
+        text-align: left;
+        cursor: pointer;
+    }
+    .tema-kartica.aktivna { box-shadow: 0 0 0 2px var(--zlatna-tradicija); }
+    .tema-kartica-naziv { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; color: #1c1c1a; }
+    .tema-kartica-okvir { display: grid; grid-template-columns: 46px 1fr; height: 72px; border: 1px solid rgba(0,0,0,.08); overflow: hidden; border-radius: 6px; }
+    .tema-kartica-strana { background: #fff; border-right: 1px solid rgba(0,0,0,.06); padding: 4px; }
+    .tema-kartica-kugla { display: block; width: 16px; height: 16px; border-radius: 50%; margin: 0 auto 4px; border: 1px solid #3a3a3a; }
+    .tema-kartica-stavka { display: block; font-size: 8px; line-height: 1.2; padding: 2px 3px; border-radius: 3px; border-left: 2px solid transparent; }
+    .tema-kartica-sadrzaj { padding: 4px; display: flex; align-items: flex-end; }
+    .tema-kartica-gumb { display: inline-block; font-size: 8px; font-weight: 700; border-radius: 4px; padding: 2px 5px; border: 1px solid transparent; }
     .pocetna-mreza { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
     @media (min-width: 992px) { .pocetna-mreza { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     .kartica-modula { background: white; border-radius: 14px; padding: 22px 14px; text-align: center; box-shadow: 0 5px 18px rgba(0,0,0,0.07); border: 2px solid transparent; transition: all 0.25s ease; text-decoration: none; color: inherit; display: block; height: 100%; }
