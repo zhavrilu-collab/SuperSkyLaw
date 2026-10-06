@@ -8,13 +8,7 @@ class ThemeRecipes
     public static function styles(): array
     {
         return [
-            'tiha' => ['label' => 'Tiha', 'note' => 'Manje zasićena, siva pozadina.'],
-            'duboka' => ['label' => 'Duboka', 'note' => 'Težak gumb, nijansa pozadine.'],
-            'kontrast' => ['label' => 'Kontrast', 'note' => 'Taman gumb, svijetla stranica.'],
-            'topla' => ['label' => 'Topla', 'note' => 'Ton pomaknut prema zlatu i bakru.'],
-            'hladna' => ['label' => 'Hladna', 'note' => 'Ton pomaknut prema kadulji i škriljevcu.'],
             'kreda' => ['label' => 'Kreda', 'note' => 'Odabir je pastel. Gumb je tamna tinta.'],
-            'papir' => ['label' => 'Papir', 'note' => 'Cijela ploha je obojena, gumb je taman.'],
             'obrub' => ['label' => 'Obrub', 'note' => 'Gumb je bijel, boja je na rubu i crti.'],
             'pruga' => ['label' => 'Pruga', 'note' => 'Sučelje je sivo. Boja logotipa je crta.'],
         ];
@@ -126,28 +120,7 @@ class ThemeRecipes
         $h = $color['h'];
         $s = $color['s'];
         $logo = $color['logo'];
-        $tint = self::hsl($h, 32, 96);
         $ink = self::hsl($h, 28, 12);
-
-        if ($kind === 'tiha') {
-            return self::solid(self::hsl($h, $s * 0.28, 32), '#f4f3ef', '#1c1c1a');
-        }
-
-        if ($kind === 'duboka') {
-            return self::solid(self::hsl($h, $s * 0.78, 22), $tint, $ink);
-        }
-
-        if ($kind === 'kontrast') {
-            return self::solid(self::hsl($h, $s * 0.62, 16), '#f7f7f5', '#1c1c1a');
-        }
-
-        if ($kind === 'topla') {
-            return self::solid(self::hsl(self::toward($h, 32, 0.55), 58, 30), '#f7f3ea', '#2a241c');
-        }
-
-        if ($kind === 'hladna') {
-            return self::solid(self::hsl(self::toward($h, 168, 0.5), 38, 30), '#eef2f1', '#1a2220');
-        }
 
         if ($kind === 'kreda') {
             $wash = self::hsl($h, 46, 86);
@@ -165,10 +138,6 @@ class ThemeRecipes
                 'btnFg' => $buttonText,
                 'btnBorder' => $primary,
             ];
-        }
-
-        if ($kind === 'papir') {
-            return self::solid(self::hsl($h, $s * 0.7, 20), self::hsl($h, 48, 90), $ink);
         }
 
         if ($kind === 'obrub') {
@@ -200,24 +169,6 @@ class ThemeRecipes
         ];
     }
 
-    /** @return array{primary: string, light: string, text: string, navBg: string, navFg: string, navBar: string, btnBg: string, btnFg: string, btnBorder: string} */
-    private static function solid(string $primary, string $light, string $text): array
-    {
-        $ink = self::onColor($primary);
-
-        return [
-            'primary' => $primary,
-            'light' => $light,
-            'text' => $text,
-            'navBg' => $primary,
-            'navFg' => $ink,
-            'navBar' => 'transparent',
-            'btnBg' => $primary,
-            'btnFg' => $ink,
-            'btnBorder' => $primary,
-        ];
-    }
-
     /** @return array{bg: string, fg: string} */
     private static function hover(string $buttonBackground, string $primary): array
     {
@@ -228,13 +179,6 @@ class ThemeRecipes
         $background = self::shade($buttonBackground, -0.16);
 
         return ['bg' => $background, 'fg' => self::onColor($background)];
-    }
-
-    private static function toward(float $h, float $target, float $amount): float
-    {
-        $delta = fmod($target - $h + 540, 360) - 180;
-
-        return fmod($h + ($delta * $amount) + 360, 360);
     }
 
     private static function hsl(float $h, float $s, float $l): string

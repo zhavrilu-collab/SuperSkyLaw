@@ -31,7 +31,10 @@ class OfficeThemeTest extends TestCase
             ->assertSee('data-tema="crvena"', false)
             ->assertSee('data-tema="zuta"', false)
             ->assertSee('data-tema="narancasta"', false)
-            ->assertSee('data-stil="tiha"', false)
+            ->assertSee('data-stil="kreda"', false)
+            ->assertSee('data-stil="obrub"', false)
+            ->assertSee('data-stil="pruga"', false)
+            ->assertDontSee('data-stil="tiha"', false)
             ->assertDontSee('data-stil="obrnuto"', false)
             ->assertSee('BOJA TEME');
 
@@ -52,17 +55,17 @@ class OfficeThemeTest extends TestCase
         $this->actingAs($owner)
             ->put(route('organization.settings.theme', $organization->slug), [
                 'theme_color' => 'zelena',
-                'theme_style' => 'tiha',
+                'theme_style' => 'kreda',
             ])
             ->assertRedirect()
             ->assertSessionHasNoErrors();
 
-        $this->assertSame('tiha', $organization->fresh()->theme_style);
+        $this->assertSame('kreda', $organization->fresh()->theme_style);
 
         $this->actingAs($owner)
             ->get(route('organization.dashboard', $organization->slug))
             ->assertOk()
-            ->assertSee('#5d6241', false)
+            ->assertSee('#5b651f', false)
             ->assertSee('brand/product/zelena-horizontal.png', false);
 
         $this->actingAs($owner)
@@ -74,7 +77,7 @@ class OfficeThemeTest extends TestCase
             ->assertRedirect()
             ->assertSessionHasErrors('theme_style');
 
-        $this->assertSame('tiha', $organization->fresh()->theme_style);
+        $this->assertSame('kreda', $organization->fresh()->theme_style);
     }
 
     public function test_settings_reject_colors_outside_the_palette(): void
