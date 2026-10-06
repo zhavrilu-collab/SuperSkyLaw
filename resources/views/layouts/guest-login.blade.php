@@ -33,7 +33,7 @@
         .login-links { margin-top: 1rem; }
         .login-links p { height: 1.5em; line-height: 1.5; margin: 0; }
         .btn-login {
-            --bs-btn-color: #fff;
+            --bs-btn-color: {{ $loginPalette['onPrimary'] }};
             --bs-btn-bg: var(--primarna-zelena);
             --bs-btn-border-color: var(--primarna-zelena);
             --bs-btn-hover-color: #fff;
@@ -43,7 +43,7 @@
             --bs-btn-active-color: #fff;
             --bs-btn-active-bg: var(--primarna-tamna);
             --bs-btn-active-border-color: var(--primarna-tamna);
-            --bs-btn-disabled-color: #fff;
+            --bs-btn-disabled-color: {{ $loginPalette['onPrimary'] }};
             --bs-btn-disabled-bg: var(--primarna-zelena);
             --bs-btn-disabled-border-color: var(--primarna-zelena);
         }

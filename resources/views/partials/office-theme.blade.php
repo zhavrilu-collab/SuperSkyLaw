@@ -6,8 +6,10 @@
         --primarna-zelena: {{ $officeTheme['primary'] }};
         --primarna-tamna: {{ $officeTheme['dark'] }};
         --svijetlo-zelena: {{ $officeTheme['light'] }};
-        --zlatna-tradicija: {{ $officeTheme['accent'] }};
+        --bordo-crvena: {{ $officeTheme['accent'] }};
+        --zlatna-tradicija: {{ $officeTheme['gold'] }};
         --tekst-tamni: {{ $officeTheme['text'] }};
+        --tekst-na-primarnoj: {{ $officeTheme['onPrimary'] }};
         --tema-rgb: {{ $officeTheme['rgb'] }};
         --tema: var(--primarna-zelena);
         --tema-svijetla: var(--svijetlo-zelena);

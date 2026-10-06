@@ -24,14 +24,17 @@ class OfficeThemeTest extends TestCase
             ->get(route('organization.settings.edit', $organization->slug))
             ->assertOk()
             ->assertDontSee('type="color"', false)
-            ->assertSee('value="zelena"', false)
-            ->assertSee('value="plava"', false)
-            ->assertSee('value="crvena"', false)
-            ->assertSee('value="zuta"', false)
-            ->assertSee('value="narancasta"', false);
+            ->assertDontSee('office-theme-option', false)
+            ->assertSee('tema-svatch', false)
+            ->assertSee('data-tema="zelena"', false)
+            ->assertSee('data-tema="plava"', false)
+            ->assertSee('data-tema="crvena"', false)
+            ->assertSee('data-tema="zuta"', false)
+            ->assertSee('data-tema="narancasta"', false)
+            ->assertSee('BOJA TEME');
 
         $this->actingAs($owner)
-            ->put(route('organization.settings.update', $organization->slug), $this->payload('plava'))
+            ->put(route('organization.settings.theme', $organization->slug), ['theme_color' => 'plava'])
             ->assertRedirect()
             ->assertSessionHasNoErrors();
 
@@ -41,7 +44,7 @@ class OfficeThemeTest extends TestCase
             ->get(route('organization.dashboard', $organization->slug))
             ->assertOk()
             ->assertSee('brand/product/plava-horizontal.png', false)
-            ->assertSee('#3b7ba0', false);
+            ->assertSee('#50abde', false);
     }
 
     public function test_settings_reject_colors_outside_the_palette(): void
@@ -51,7 +54,7 @@ class OfficeThemeTest extends TestCase
         foreach (['bordo', 'ljubicasta', '#ff00ff', 'white', ''] as $color) {
             $this->actingAs($owner)
                 ->from(route('organization.settings.edit', $organization->slug))
-                ->put(route('organization.settings.update', $organization->slug), $this->payload($color))
+                ->put(route('organization.settings.theme', $organization->slug), ['theme_color' => $color])
                 ->assertRedirect(route('organization.settings.edit', $organization->slug))
                 ->assertSessionHasErrors('theme_color');
         }

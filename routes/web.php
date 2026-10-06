@@ -84,6 +84,7 @@ Route::prefix('{slug}')
     ->group(function () {
         Route::get('/', OrganizationDashboardController::class)->name('organization.dashboard');
         Route::get('/ured', [OfficeSettingsController::class, 'edit'])->name('organization.settings.edit');
+        Route::put('/ured/tema', [OfficeSettingsController::class, 'updateTheme'])->name('organization.settings.theme');
         Route::put('/ured', [OfficeSettingsController::class, 'update'])->name('organization.settings.update');
         Route::get('/tim', [OrganizationTeamController::class, 'index'])->name('organization.team.index');
         Route::post('/tim/pozivnice', [OrganizationTeamController::class, 'storeInvite'])->name('organization.team.invite');

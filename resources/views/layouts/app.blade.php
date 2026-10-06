@@ -27,7 +27,7 @@
     <div class="app-sidebar-backdrop" id="appSidebarBackdrop" hidden></div>
     <aside class="app-sidebar" id="appSidebar">
         <a class="app-sidebar-brand" href="{{ route('organization.dashboard', $org->slug) }}">
-            <img src="{{ asset(\App\Support\OfficeThemes::horizontalPath($org->themeColor())) }}" class="app-sidebar-logo" alt="SuperSkyLaw">
+            <img id="appSidebarBrandLogo" src="{{ asset(\App\Support\OfficeThemes::horizontalPath($org->themeColor())) }}" class="app-sidebar-logo" alt="SuperSkyLaw">
         </a>
         @include('partials.app-sidebar')
     </aside>

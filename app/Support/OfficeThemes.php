@@ -15,55 +15,65 @@ class OfficeThemes
     }
 
     /**
-     * @return array<string, array{label: string, primary: string, dark: string, accent: string, light: string, text: string, rgb: string}>
+     * @return array<string, array{label: string, primary: string, dark: string, gold: string, light: string, text: string, accent: string, onPrimary: string, rgb: string}>
      */
     public static function all(): array
     {
         return [
             'zelena' => [
                 'label' => 'Zelena',
-                'primary' => '#6b7a31',
-                'dark' => '#515d25',
-                'accent' => '#adc650',
-                'light' => '#f6f9ed',
-                'text' => '#4c5726',
-                'rgb' => '107, 122, 49',
+                'primary' => '#b0cb1f',
+                'dark' => '#434d0c',
+                'gold' => '#ffd310',
+                'light' => '#f7fae9',
+                'text' => '#272d07',
+                'accent' => '#e31e24',
+                'onPrimary' => '#1a1a1a',
+                'rgb' => '176, 203, 31',
             ],
             'plava' => [
                 'label' => 'Plava',
-                'primary' => '#3b7ba0',
-                'dark' => '#2d5e7a',
-                'accent' => '#53acdf',
-                'light' => '#edf6fb',
-                'text' => '#2d586f',
-                'rgb' => '59, 123, 160',
+                'primary' => '#50abde',
+                'dark' => '#1e4154',
+                'gold' => '#ffd310',
+                'light' => '#eef7fc',
+                'text' => '#122631',
+                'accent' => '#e31e24',
+                'onPrimary' => '#1a1a1a',
+                'rgb' => '80, 171, 222',
             ],
             'crvena' => [
                 'label' => 'Crvena',
-                'primary' => '#c43534',
-                'dark' => '#a42c2b',
-                'accent' => '#e24b48',
-                'light' => '#f9eaea',
-                'text' => '#862a28',
-                'rgb' => '196, 53, 52',
+                'primary' => '#e31e24',
+                'dark' => '#560b0e',
+                'gold' => '#ffd310',
+                'light' => '#fce8e9',
+                'text' => '#320708',
+                'accent' => '#560b0e',
+                'onPrimary' => '#ffffff',
+                'rgb' => '227, 30, 36',
             ],
             'zuta' => [
                 'label' => 'Žuta',
-                'primary' => '#84732e',
-                'dark' => '#635623',
-                'accent' => '#ffdf5a',
-                'light' => '#fffbee',
-                'text' => '#5c5324',
-                'rgb' => '132, 115, 46',
+                'primary' => '#ffd310',
+                'dark' => '#615006',
+                'gold' => '#ef7f1a',
+                'light' => '#fffbe7',
+                'text' => '#382e04',
+                'accent' => '#e31e24',
+                'onPrimary' => '#1a1a1a',
+                'rgb' => '255, 211, 16',
             ],
             'narancasta' => [
                 'label' => 'Narančasta',
-                'primary' => '#a5652a',
-                'dark' => '#7e4d20',
-                'accent' => '#f3953e',
-                'light' => '#fdf4eb',
-                'text' => '#724a22',
-                'rgb' => '165, 101, 42',
+                'primary' => '#ef7f1a',
+                'dark' => '#5b300a',
+                'gold' => '#ffd310',
+                'light' => '#fdf2e8',
+                'text' => '#351c06',
+                'accent' => '#e31e24',
+                'onPrimary' => '#1a1a1a',
+                'rgb' => '239, 127, 26',
             ],
         ];
     }
@@ -76,11 +86,36 @@ class OfficeThemes
     }
 
     /**
-     * @return array{label: string, primary: string, dark: string, accent: string, light: string, text: string, rgb: string}
+     * @return array{label: string, primary: string, dark: string, gold: string, light: string, text: string, accent: string, onPrimary: string, rgb: string}
      */
     public static function palette(?string $key): array
     {
         return self::all()[self::resolve($key)];
+    }
+
+    /** @return array<string, array<string, string>> */
+    public static function previewPayload(): array
+    {
+        $payload = [];
+
+        foreach (self::all() as $key => $palette) {
+            $payload[$key] = [
+                'label' => $palette['label'],
+                'primary' => $palette['primary'],
+                'dark' => $palette['dark'],
+                'gold' => $palette['gold'],
+                'light' => $palette['light'],
+                'text' => $palette['text'],
+                'accent' => $palette['accent'],
+                'onPrimary' => $palette['onPrimary'],
+                'rgb' => $palette['rgb'],
+                'focusShadow' => 'rgba('.$palette['rgb'].', 0.15)',
+                'tableBorder' => 'rgba('.$palette['rgb'].', 0.18)',
+                'horizontalLogo' => asset(self::horizontalPath($key)),
+            ];
+        }
+
+        return $payload;
     }
 
     public static function verticalPath(?string $key): string

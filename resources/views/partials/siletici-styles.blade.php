@@ -1,12 +1,13 @@
 ﻿<style>
     :root {
-        --primarna-zelena: #6b7a31;
-        --primarna-tamna: #515d25;
-        --svijetlo-zelena: #f6f9ed;
-        --bordo-crvena: #8b1414;
-        --zlatna-tradicija: #adc650;
-        --tekst-tamni: #4c5726;
-        --tema-rgb: 107, 122, 49;
+        --primarna-zelena: #b0cb1f;
+        --primarna-tamna: #434d0c;
+        --svijetlo-zelena: #f7fae9;
+        --bordo-crvena: #e31e24;
+        --zlatna-tradicija: #ffd310;
+        --tekst-tamni: #272d07;
+        --tekst-na-primarnoj: #1a1a1a;
+        --tema-rgb: 176, 203, 31;
         --tema: var(--primarna-zelena);
         --tema-svijetla: var(--svijetlo-zelena);
         --tema-sjena-fokus: rgba(var(--tema-rgb), 0.15);
@@ -848,17 +849,19 @@
     .btn-success {
         background-color: var(--primarna-zelena) !important;
         border-color: var(--primarna-zelena) !important;
+        color: var(--tekst-na-primarnoj) !important;
     }
     .btn-success:hover {
         background-color: var(--primarna-tamna) !important;
         border-color: var(--primarna-tamna) !important;
+        color: #fff !important;
     }
     .btn-outline-success { color: var(--primarna-zelena); border-color: var(--primarna-zelena); }
-    .btn-outline-success:hover { background: var(--primarna-zelena); border-color: var(--primarna-zelena); color: #fff; }
+    .btn-outline-success:hover { background: var(--primarna-zelena); border-color: var(--primarna-zelena); color: var(--tekst-na-primarnoj); }
     .btn-primary {
         background-color: var(--primarna-zelena) !important;
         border-color: var(--primarna-zelena) !important;
-        color: #fff !important;
+        color: var(--tekst-na-primarnoj) !important;
     }
     .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
         background-color: var(--primarna-tamna) !important;
@@ -873,9 +876,9 @@
     .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
         background-color: var(--primarna-zelena) !important;
         border-color: var(--primarna-zelena) !important;
-        color: #fff !important;
+        color: var(--tekst-na-primarnoj) !important;
     }
-    .text-bg-primary { background-color: var(--primarna-zelena) !important; }
+    .text-bg-primary { background-color: var(--primarna-zelena) !important; color: var(--tekst-na-primarnoj) !important; }
 
     /* === List group / linkovi (bez Bootstrap plave) === */
     .list-group-item.active {
@@ -1053,28 +1056,28 @@
     .app-brand-lockup { display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
     .app-brand-logo { display: block; width: min(10.75rem, 78%); height: auto; }
     .app-brand-logo-wide { display: block; width: min(15rem, 100%); height: auto; }
-    .office-theme-options { display: flex; flex-wrap: wrap; gap: .75rem; }
-    .office-theme-option {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: .35rem;
-        width: 7.4rem;
-        margin: 0;
-        padding: .55rem .4rem .45rem;
-        border: 2px solid rgba(var(--tema-rgb), 0.16);
-        border-radius: 12px;
-        background: #fff;
+    .tema-logo-pregled {
+        display: block;
+        height: 4rem;
+        width: auto;
+        max-width: 100%;
+        margin: 0 0 .85rem;
+        object-fit: contain;
+        object-position: left center;
+    }
+    .tema-svatch {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
         cursor: pointer;
+        border: 3px solid transparent;
+        padding: 0;
     }
-    .office-theme-option img { width: 4.4rem; height: auto; }
-    .office-theme-option span { font-size: 12px; font-weight: 600; color: var(--tekst-tamni); }
-    .office-theme-option:has(input:checked) {
-        border-color: var(--primarna-zelena);
-        box-shadow: 0 0 0 3px var(--tema-sjena-fokus);
+    .tema-svatch.aktivna {
+        border-color: #333;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
+        transform: scale(1.1);
     }
-    .office-theme-option input { margin: 0; }
     .pocetna-mreza { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
     @media (min-width: 992px) { .pocetna-mreza { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     .kartica-modula { background: white; border-radius: 14px; padding: 22px 14px; text-align: center; box-shadow: 0 5px 18px rgba(0,0,0,0.07); border: 2px solid transparent; transition: all 0.25s ease; text-decoration: none; color: inherit; display: block; height: 100%; }

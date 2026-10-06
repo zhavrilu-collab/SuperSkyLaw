@@ -35,6 +35,18 @@ class OfficeSettingsController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'iban' => ['nullable', 'string', 'max:34'],
             'trust_iban' => ['nullable', 'string', 'max:34'],
+        ]);
+
+        $this->office()->update($data);
+
+        return back()->with('status', 'Podaci ureda su spremljeni.');
+    }
+
+    public function updateTheme(Request $request, string $slug): RedirectResponse
+    {
+        $this->authorizePerm('settings.manage');
+
+        $data = $request->validate([
             'theme_color' => ['required', 'string', Rule::in(OfficeThemes::keys())],
         ], [
             'theme_color.required' => 'Odaberite boju ureda.',
@@ -43,6 +55,6 @@ class OfficeSettingsController extends Controller
 
         $this->office()->update($data);
 
-        return back()->with('status', 'Podaci ureda su spremljeni.');
+        return back()->with('status', 'Tema ureda je spremljena.');
     }
 }

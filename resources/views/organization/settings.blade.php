@@ -21,21 +21,48 @@
     <div class="row">
         <div class="col-md-6 mb-3"><label class="form-label">IBAN depozitnog računa</label><input name="trust_iban" class="form-control" value="{{ old('trust_iban', $organization->trust_iban) }}"><div class="form-text">Odvojen od poslovnog IBAN-a. Sredstva stranaka ne ulaze u prihod ureda.</div></div>
     </div>
-    @php($selectedTheme = \App\Support\OfficeThemes::resolve(old('theme_color', $organization->theme_color)))
-    <fieldset class="mb-3">
-        <legend class="form-label mb-1">Boja ureda</legend>
-        <p class="form-text mt-0 mb-2">Zadana boja je zelena. Odaberite jednu od pet službenih boja.</p>
-        <div class="office-theme-options">
-            @foreach($themes as $key => $theme)
-                <label class="office-theme-option">
-                    <input type="radio" name="theme_color" value="{{ $key }}" @checked($selectedTheme === $key) required>
-                    <img src="{{ asset('brand/product/'.$key.'.png') }}" alt="">
-                    <span>{{ $theme['label'] }}</span>
-                </label>
-            @endforeach
-        </div>
-        @error('theme_color')<div class="text-danger small mt-2">{{ $message }}</div>@enderror
-    </fieldset>
     <button class="btn btn-primary" type="submit">Spremi</button>
 </form>
+
+@php($activeTheme = \App\Support\OfficeThemes::resolve(old('theme_color', $organization->theme_color)))
+@php($catalog = \App\Support\OfficeThemes::all())
+<form method="POST" action="{{ route('organization.settings.theme', $organization->slug) }}" id="formTemaUreda" class="kartica-kontejner mt-3">
+    @csrf
+    @method('PUT')
+    <span class="fw-bold text-muted small d-block mb-2">BOJA TEME</span>
+    <input type="hidden" name="theme_color" id="themeColorInput" value="{{ $activeTheme }}">
+    <img id="temaLogoPregled"
+         src="{{ asset(\App\Support\OfficeThemes::horizontalPath($activeTheme)) }}"
+         alt="SuperSkyLaw"
+         class="tema-logo-pregled">
+    <div class="mb-2">
+        <label class="form-label small fw-bold mb-2">Službena boja</label>
+        <div class="d-flex gap-2 mb-2 flex-wrap align-items-center" id="temaBojaIzbor">
+            @foreach($catalog as $key => $theme)
+                <button type="button"
+                        class="tema-svatch @if($key === $activeTheme) aktivna @endif"
+                        data-tema="{{ $key }}"
+                        style="background:{{ $theme['primary'] }};"
+                        title="{{ $theme['label'] }}"
+                        aria-label="{{ $theme['label'] }}"></button>
+            @endforeach
+        </div>
+        <div class="form-text">Zelena je zadana. Odabirom boje odmah se vidi službeni prozirni logo.</div>
+    </div>
+    @error('theme_color')
+        <div class="text-danger small mb-2">{{ $message }}</div>
+    @enderror
+    <button type="submit" class="btn btn-success btn-sm btn-spremi">Spremi temu</button>
+    <span id="temaPoruka" class="ms-2 small text-muted"></span>
+</form>
 @endsection
+
+@push('scripts')
+<script>
+window.THEME_PREVIEW = {
+    savedTheme: @json($activeTheme),
+    palettes: @json(\App\Support\OfficeThemes::previewPayload()),
+};
+</script>
+<script src="{{ asset('js/theme-preview.js') }}"></script>
+@endpush
