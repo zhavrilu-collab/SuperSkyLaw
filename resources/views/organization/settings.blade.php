@@ -65,12 +65,21 @@
                         aria-label="{{ $style['label'] }}">
                     <span class="tema-kartica-naziv">{{ $style['label'] }}</span>
                     <span class="tema-kartica-okvir">
-                        <span class="tema-kartica-strana">
+                        <span class="tema-kartica-strana" style="background:{{ $card['sideBg'] ?? '#ffffff' }};color:{{ $card['idle'] ?? '#2a2a28' }}">
                             <span class="tema-kartica-kugla" style="background:{{ $card['logoMark'] }}"></span>
-                            <span class="tema-kartica-stavka" style="background:{{ $card['navBg'] }};color:{{ $card['navFg'] }};border-left-color:{{ $card['navBar'] }}">Osobe</span>
+                            <span class="tema-kartica-red">Početna</span>
+                            <span class="tema-kartica-red">Udruga</span>
+                            <span class="tema-kartica-red">Članovi</span>
+                            <span class="tema-kartica-red"><b>Komunikacija</b></span>
+                            <span class="tema-kartica-stavka" style="background:{{ $card['navBg'] }};color:{{ $card['navFg'] }};border-left-color:{{ $card['navBar'] }};font-weight:{{ $card['navWeight'] ?? '650' }}">Poruke</span>
+                            <span class="tema-kartica-red tema-kartica-pod">Predlošci</span>
                         </span>
                         <span class="tema-kartica-sadrzaj" style="background:{{ $card['light'] }};color:{{ $card['text'] }}">
-                            <span class="tema-kartica-gumb" style="background:{{ $card['btnBg'] }};color:{{ $card['btnFg'] }};border-color:{{ $card['btnBorder'] }}">Spremi</span>
+                            <span class="tema-kartica-gumbi">
+                                <span class="tema-kartica-gumb" style="background:{{ $card['btnBg'] }};color:{{ $card['btnFg'] }};border-color:{{ $card['btnBorder'] }}">Poziv</span>
+                                <span class="tema-kartica-gumb tema-kartica-obrub" style="background:#fff;color:{{ $card['primary'] }};border-color:{{ $card['primary'] }}">Obavijest</span>
+                            </span>
+                            <span class="tema-kartica-lista">Ivan Pudak<br>Daria Macan</span>
                         </span>
                     </span>
                 </button>

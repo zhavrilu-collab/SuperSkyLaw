@@ -11,6 +11,9 @@ class ThemeRecipes
             'kreda' => ['label' => 'Kreda', 'note' => 'Odabir je pastel. Gumb je tamna tinta.'],
             'obrub' => ['label' => 'Obrub', 'note' => 'Gumb je bijel, boja je na rubu i crti.'],
             'pruga' => ['label' => 'Pruga', 'note' => 'Sučelje je sivo. Boja logotipa je crta.'],
+            'sjena' => ['label' => 'Sjena', 'note' => 'Cijeli izbornik je pastel. Odabrana stavka je bijela.'],
+            'slovo' => ['label' => 'Slovo', 'note' => 'Odabir nema podlogu. Obojen je samo tekst stavke.'],
+            'noc' => ['label' => 'Noć', 'note' => 'Izbornik je taman. Stranica i gumb ostaju svijetli.'],
         ];
     }
 
@@ -59,6 +62,9 @@ class ThemeRecipes
             'navBg' => $built['navBg'],
             'navFg' => $built['navFg'],
             'navBar' => $built['navBar'],
+            'navWeight' => $built['navWeight'],
+            'sideBg' => $built['sideBg'],
+            'idle' => $built['idle'],
             'btnBg' => $built['btnBg'],
             'btnFg' => $built['btnFg'],
             'btnBorder' => $built['btnBorder'],
@@ -84,6 +90,9 @@ class ThemeRecipes
             '--odabir-pozadina: '.$palette['navBg'],
             '--odabir-tekst: '.$palette['navFg'],
             '--odabir-crta: '.$palette['navBar'],
+            '--odabir-tezina: '.$palette['navWeight'],
+            '--izbornik-pozadina: '.$palette['sideBg'],
+            '--izbornik-tekst: '.$palette['idle'],
             '--postavke-odabir-pozadina: '.$palette['navBg'],
             '--postavke-odabir-tekst: '.$palette['navFg'],
             '--postavke-odabir-crta: '.$palette['navBar'],
@@ -113,7 +122,7 @@ class ThemeRecipes
 
     /**
      * @param  array{h: float, s: float, logo: string}  $color
-     * @return array{primary: string, light: string, text: string, navBg: string, navFg: string, navBar: string, btnBg: string, btnFg: string, btnBorder: string}
+     * @return array{primary: string, light: string, text: string, navBg: string, navFg: string, navBar: string, navWeight: string, sideBg: string, idle: string, btnBg: string, btnFg: string, btnBorder: string}
      */
     private static function build(array $color, string $kind): array
     {
@@ -121,52 +130,99 @@ class ThemeRecipes
         $s = $color['s'];
         $logo = $color['logo'];
         $ink = self::hsl($h, 28, 12);
+        $paper = [
+            'light' => '#f7f7f5',
+            'text' => '#1c1c1a',
+            'sideBg' => '#ffffff',
+            'idle' => '#2a2a28',
+            'navWeight' => '650',
+        ];
 
         if ($kind === 'kreda') {
             $wash = self::hsl($h, 46, 86);
             $primary = self::hsl($h, $s * 0.72, 26);
-            $buttonText = self::onColor($primary);
 
-            return [
+            return array_merge($paper, [
                 'primary' => $primary,
-                'light' => '#f7f7f5',
-                'text' => '#1c1c1a',
                 'navBg' => $wash,
                 'navFg' => $ink,
                 'navBar' => 'transparent',
                 'btnBg' => $primary,
-                'btnFg' => $buttonText,
+                'btnFg' => self::onColor($primary),
                 'btnBorder' => $primary,
-            ];
+            ]);
         }
 
         if ($kind === 'obrub') {
             $primary = self::hsl($h, $s * 0.8, 24);
 
-            return [
+            return array_merge($paper, [
                 'primary' => $primary,
-                'light' => '#f7f7f5',
-                'text' => '#1c1c1a',
                 'navBg' => '#ffffff',
                 'navFg' => '#1c1c1a',
                 'navBar' => $logo,
                 'btnBg' => '#ffffff',
                 'btnFg' => $primary,
                 'btnBorder' => $primary,
-            ];
+            ]);
         }
 
-        return [
-            'primary' => '#2a2a28',
-            'light' => '#f7f7f5',
-            'text' => '#1c1c1a',
-            'navBg' => '#ececea',
-            'navFg' => '#1c1c1a',
+        if ($kind === 'pruga') {
+            return array_merge($paper, [
+                'primary' => '#2a2a28',
+                'navBg' => '#ececea',
+                'navFg' => '#1c1c1a',
+                'navBar' => $logo,
+                'btnBg' => '#2a2a28',
+                'btnFg' => '#ffffff',
+                'btnBorder' => '#2a2a28',
+            ]);
+        }
+
+        if ($kind === 'sjena') {
+            $primary = self::hsl($h, $s * 0.7, 26);
+
+            return array_merge($paper, [
+                'primary' => $primary,
+                'sideBg' => self::hsl($h, 38, 88),
+                'idle' => $ink,
+                'navBg' => '#ffffff',
+                'navFg' => $ink,
+                'navBar' => 'transparent',
+                'btnBg' => $primary,
+                'btnFg' => self::onColor($primary),
+                'btnBorder' => $primary,
+            ]);
+        }
+
+        if ($kind === 'slovo') {
+            $primary = self::hsl($h, $s * 0.78, 28);
+
+            return array_merge($paper, [
+                'primary' => $primary,
+                'navBg' => 'transparent',
+                'navFg' => $primary,
+                'navBar' => 'transparent',
+                'navWeight' => '700',
+                'btnBg' => $primary,
+                'btnFg' => self::onColor($primary),
+                'btnBorder' => $primary,
+            ]);
+        }
+
+        $side = self::hsl($h, 24, 13);
+
+        return array_merge($paper, [
+            'primary' => $side,
+            'sideBg' => $side,
+            'idle' => '#eceae4',
+            'navBg' => self::hsl($h, 18, 20),
+            'navFg' => '#ffffff',
             'navBar' => $logo,
-            'btnBg' => '#2a2a28',
-            'btnFg' => '#ffffff',
-            'btnBorder' => '#2a2a28',
-        ];
+            'btnBg' => '#ffffff',
+            'btnFg' => $side,
+            'btnBorder' => $side,
+        ]);
     }
 
     /** @return array{bg: string, fg: string} */

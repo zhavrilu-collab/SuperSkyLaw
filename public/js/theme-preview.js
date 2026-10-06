@@ -16,6 +16,9 @@
         '--odabir-pozadina',
         '--odabir-tekst',
         '--odabir-crta',
+        '--odabir-tezina',
+        '--izbornik-pozadina',
+        '--izbornik-tekst',
         '--postavke-odabir-pozadina',
         '--postavke-odabir-tekst',
         '--postavke-odabir-crta',
@@ -61,6 +64,9 @@
             root.style.setProperty('--odabir-pozadina', palette.navBg);
             root.style.setProperty('--odabir-tekst', palette.navFg);
             root.style.setProperty('--odabir-crta', palette.navBar);
+            root.style.setProperty('--odabir-tezina', palette.navWeight || '650');
+            root.style.setProperty('--izbornik-pozadina', palette.sideBg || '#ffffff');
+            root.style.setProperty('--izbornik-tekst', palette.idle || '#2a2a28');
             root.style.setProperty('--postavke-odabir-pozadina', palette.navBg);
             root.style.setProperty('--postavke-odabir-tekst', palette.navFg);
             root.style.setProperty('--postavke-odabir-crta', palette.navBar);
@@ -139,17 +145,24 @@
             }
 
             var sphere = card.querySelector('.tema-kartica-kugla');
+            var side = card.querySelector('.tema-kartica-strana');
             var item = card.querySelector('.tema-kartica-stavka');
             var body = card.querySelector('.tema-kartica-sadrzaj');
-            var button = card.querySelector('.tema-kartica-gumb');
+            var button = card.querySelector('.tema-kartica-gumb:not(.tema-kartica-obrub)');
+            var outline = card.querySelector('.tema-kartica-obrub');
 
             if (sphere) {
                 sphere.style.background = palette.logoMark || palette.primary;
+            }
+            if (side) {
+                side.style.background = palette.sideBg || '#ffffff';
+                side.style.color = palette.idle || '#2a2a28';
             }
             if (item) {
                 item.style.background = palette.navBg;
                 item.style.color = palette.navFg;
                 item.style.borderLeftColor = palette.navBar || 'transparent';
+                item.style.fontWeight = palette.navWeight || '650';
             }
             if (body) {
                 body.style.background = palette.light;
@@ -159,6 +172,10 @@
                 button.style.background = palette.btnBg;
                 button.style.color = palette.btnFg;
                 button.style.borderColor = palette.btnBorder;
+            }
+            if (outline && palette.primary) {
+                outline.style.color = palette.primary;
+                outline.style.borderColor = palette.primary;
             }
         });
     }

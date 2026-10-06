@@ -205,7 +205,7 @@
         flex: 0 0 16.75rem;
         display: flex;
         flex-direction: column;
-        background: #fff;
+        background: var(--izbornik-pozadina, #fff);
         border-right: 1px solid rgba(var(--tema-rgb), 0.12);
         position: sticky;
         top: 0;
@@ -239,7 +239,7 @@
         min-width: 0;
         padding: .38rem .5rem;
         border-radius: 8px;
-        color: var(--tekst-tamni);
+        color: var(--izbornik-tekst, var(--tekst-tamni));
         text-decoration: none;
         font-size: 13px;
         line-height: 1.25;
@@ -253,14 +253,14 @@
     .app-sidebar-group-link.active {
         background: var(--odabir-pozadina, var(--svijetlo-zelena));
         color: var(--odabir-tekst, var(--primarna-zelena));
-        font-weight: 600;
+        font-weight: var(--odabir-tezina, 600);
         box-shadow: inset 3px 0 0 var(--odabir-crta, transparent);
     }
     .app-sidebar-icon {
         width: 1.05rem;
         height: 1.05rem;
         flex: 0 0 1.05rem;
-        color: var(--primarna-zelena);
+        color: var(--izbornik-tekst, var(--primarna-zelena));
     }
     .app-sidebar-group-head {
         display: flex;
@@ -1082,24 +1082,29 @@
         box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
         transform: scale(1.1);
     }
-    .tema-smjerovi { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tema-smjerovi { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
     .tema-kartica {
-        width: 148px;
+        width: 248px;
         border: 1px solid rgba(0,0,0,.12);
         border-radius: 10px;
         background: #fff;
-        padding: 6px 6px 8px;
+        padding: 8px 8px 10px;
         text-align: left;
         cursor: pointer;
     }
     .tema-kartica.aktivna { box-shadow: 0 0 0 2px var(--zlatna-tradicija); }
-    .tema-kartica-naziv { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; color: #1c1c1a; }
-    .tema-kartica-okvir { display: grid; grid-template-columns: 46px 1fr; height: 72px; border: 1px solid rgba(0,0,0,.08); overflow: hidden; border-radius: 6px; }
-    .tema-kartica-strana { background: #fff; border-right: 1px solid rgba(0,0,0,.06); padding: 4px; }
-    .tema-kartica-kugla { display: block; width: 16px; height: 16px; border-radius: 50%; margin: 0 auto 4px; border: 1px solid #3a3a3a; }
-    .tema-kartica-stavka { display: block; font-size: 8px; line-height: 1.2; padding: 2px 3px; border-radius: 3px; border-left: 2px solid transparent; }
-    .tema-kartica-sadrzaj { padding: 4px; display: flex; align-items: flex-end; }
-    .tema-kartica-gumb { display: inline-block; font-size: 8px; font-weight: 700; border-radius: 4px; padding: 2px 5px; border: 1px solid transparent; }
+    .tema-kartica-naziv { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #1c1c1a; }
+    .tema-kartica-okvir { display: grid; grid-template-columns: 112px 1fr; height: 168px; border: 1px solid rgba(0,0,0,.08); border-radius: 8px; overflow: hidden; }
+    .tema-kartica-strana { border-right: 1px solid rgba(0,0,0,.06); padding: 6px 5px; }
+    .tema-kartica-kugla { display: block; width: 14px; height: 14px; border-radius: 50%; margin: 0 0 6px 2px; border: 1px solid #3a3a3a; }
+    .tema-kartica-red,
+    .tema-kartica-stavka { display: block; font-size: 9px; line-height: 1.25; padding: 2px 4px; border-radius: 4px; color: inherit; }
+    .tema-kartica-pod { padding-left: 10px; }
+    .tema-kartica-stavka { border-left: 2px solid transparent; margin-left: 6px; }
+    .tema-kartica-sadrzaj { padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .tema-kartica-gumbi { display: flex; justify-content: flex-end; gap: 3px; flex-wrap: wrap; }
+    .tema-kartica-gumb { display: inline-block; font-size: 8px; font-weight: 700; border-radius: 5px; padding: 3px 5px; border: 1.5px solid transparent; }
+    .tema-kartica-lista { background: #fff; border-radius: 5px; padding: 4px 5px; color: #1c1c1a; font-size: 8px; line-height: 1.45; }
     .pocetna-mreza { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
     @media (min-width: 992px) { .pocetna-mreza { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     .kartica-modula { background: white; border-radius: 14px; padding: 22px 14px; text-align: center; box-shadow: 0 5px 18px rgba(0,0,0,0.07); border: 2px solid transparent; transition: all 0.25s ease; text-decoration: none; color: inherit; display: block; height: 100%; }
