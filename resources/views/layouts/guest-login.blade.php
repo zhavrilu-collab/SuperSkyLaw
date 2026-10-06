@@ -27,7 +27,7 @@
             --primarna-tamna: {{ $loginPalette['dark'] }};
             --tema-sjena-fokus: {{ $loginFocus }};
         }
-        .login-tagline { min-height: 3em; }
+        .login-tagline { min-height: 1.5em; }
         .btn-login {
             --bs-btn-color: #fff;
             --bs-btn-bg: var(--primarna-zelena);

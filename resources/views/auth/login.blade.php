@@ -2,7 +2,7 @@
 
 @section('title', 'Prijava — SuperSkyLaw')
 
-@section('tagline', 'Prijava u SuperSkyLaw - platformu za upravljanje odvjetničkim društvima.')
+@section('tagline', 'Platforma za upravljanje odvjetničkim društvima.')
 
 @section('content')
 @if (session('status') || session('success'))
