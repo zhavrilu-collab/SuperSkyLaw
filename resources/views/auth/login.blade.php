@@ -45,7 +45,9 @@
 
 <div class="login-links">
     <p class="text-center small"></p>
-    <p class="text-center small"></p>
+    <p class="text-center small">
+        Nemate račun? <a href="{{ route('register.organization') }}">Registrirajte se</a>
+    </p>
 </div>
 
 @if(!empty($googleLoginUrl) || !empty($microsoftLoginUrl))
