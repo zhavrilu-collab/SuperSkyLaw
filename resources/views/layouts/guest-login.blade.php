@@ -27,7 +27,11 @@
             --primarna-tamna: {{ $loginPalette['dark'] }};
             --tema-sjena-fokus: {{ $loginFocus }};
         }
-        .login-tagline { min-height: 1.5em; }
+        .login-page { padding-top: 4.5rem; }
+        .login-logo { display: block; width: 210px; height: 156px; object-fit: contain; object-position: center bottom; margin: 0 auto 1rem; }
+        .login-tagline { height: 3em; line-height: 1.5; overflow: hidden; }
+        .login-links { margin-top: 1rem; }
+        .login-links p { height: 1.5em; line-height: 1.5; margin: 0; }
         .btn-login {
             --bs-btn-color: #fff;
             --bs-btn-bg: var(--primarna-zelena);
@@ -55,12 +59,12 @@
         }
     </style>
 </head>
-<body class="bg-light d-flex align-items-center min-vh-100">
-<div class="container">
+<body class="bg-light">
+<div class="container login-page">
     <div class="row justify-content-center">
         <div class="col-md-5 col-lg-4">
             <div class="text-center mb-4">
-                <img src="{{ $loginLogo }}" alt="SuperSkyLaw" class="d-block mx-auto mb-3" style="max-width: 210px; width: 100%; height: auto;">
+                <img src="{{ $loginLogo }}" alt="SuperSkyLaw" class="login-logo">
                 <p class="text-muted small mb-0 login-tagline">@yield('tagline')</p>
             </div>
             <div class="card border-0 shadow-sm login-card">

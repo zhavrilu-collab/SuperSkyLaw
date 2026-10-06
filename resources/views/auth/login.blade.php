@@ -43,6 +43,11 @@
     </div>
 </form>
 
+<div class="login-links">
+    <p class="text-center small"></p>
+    <p class="text-center small"></p>
+</div>
+
 @if(!empty($googleLoginUrl) || !empty($microsoftLoginUrl))
     <div class="d-grid gap-2 mt-3">
         @if(!empty($googleLoginUrl))

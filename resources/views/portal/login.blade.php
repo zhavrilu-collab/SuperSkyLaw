@@ -42,4 +42,9 @@
         <button type="submit" class="btn btn-login">Prijavi se</button>
     </div>
 </form>
+
+<div class="login-links">
+    <p class="text-center small"></p>
+    <p class="text-center small"></p>
+</div>
 @endsection
