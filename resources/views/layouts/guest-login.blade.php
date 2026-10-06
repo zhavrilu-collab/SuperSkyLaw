@@ -20,6 +20,7 @@
     <meta name="theme-color" content="{{ $loginPalette['primary'] }}">
     <title>@yield('title', 'Prijava — SuperSkyLaw')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    @stack('styles')
     <style>
         .login-page { padding-top: 4.5rem; }
         .login-logo { display: block; width: 210px; height: 156px; object-fit: contain; object-position: center bottom; margin: 0 auto 1rem; }
@@ -42,7 +43,7 @@
         }
         .login-card a { color: #0d6efd; }
         .login-card a:hover { color: #0a58ca; }
-        .form-control:focus, .form-check-input:focus {
+        .form-control:focus, .form-select:focus, .form-check-input:focus {
             border-color: #86b7fe;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
@@ -55,7 +56,7 @@
 <body class="bg-light">
 <div class="container login-page">
     <div class="row justify-content-center">
-        <div class="col-md-5 col-lg-4">
+        <div class="@yield('shell-width', 'col-md-5 col-lg-4')">
             <div class="text-center mb-4">
                 <img src="{{ $loginLogo }}" alt="SuperSkyLaw" class="login-logo">
                 <p class="text-muted small mb-0 login-tagline">@yield('tagline')</p>
@@ -69,5 +70,6 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@stack('scripts')
 </body>
 </html>
