@@ -28,6 +28,7 @@ class LoginController extends Controller
             'coreAuthEnabled' => $this->coreAuth->isEnabled(),
             'googleLoginUrl' => $this->coreAuth->isGoogleLoginAvailable() ? $this->coreAuth->googleRedirectUrl() : null,
             'microsoftLoginUrl' => $this->coreAuth->isMicrosoftLoginAvailable() ? $this->coreAuth->microsoftRedirectUrl() : null,
+            'passwordResetUrl' => $this->coreAuth->forgotPasswordUrl(),
         ]);
     }
 

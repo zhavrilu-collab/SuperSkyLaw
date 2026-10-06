@@ -215,6 +215,17 @@ class CoreAuthService
         ]);
     }
 
+    public function forgotPasswordUrl(): ?string
+    {
+        if (! $this->isEnabled()) {
+            return null;
+        }
+
+        $base = rtrim((string) config('identity.core_api_url'), '/');
+
+        return $base !== '' ? $base.'/zaboravljena-lozinka' : null;
+    }
+
     private function oauthRedirectUrl(string $provider): string
     {
         $returnUrl = route('auth.core.callback', [], true);

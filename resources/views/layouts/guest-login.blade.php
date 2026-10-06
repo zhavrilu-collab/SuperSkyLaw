@@ -22,6 +22,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     @stack('styles')
     <style>
+        html { scrollbar-gutter: stable; }
         .login-page { padding-top: 4.5rem; }
         .login-logo { display: block; width: 210px; height: 156px; object-fit: contain; object-position: center bottom; margin: 0 auto 1rem; }
         .login-tagline { height: 3em; line-height: 1.5; overflow: hidden; }
@@ -55,12 +56,12 @@
 </head>
 <body class="bg-light">
 <div class="container login-page">
+    <div class="text-center mb-4">
+        <img src="{{ $loginLogo }}" alt="SuperSkyLaw" class="login-logo">
+        <p class="text-muted small mb-0 login-tagline">@yield('tagline')</p>
+    </div>
     <div class="row justify-content-center">
         <div class="@yield('shell-width', 'col-md-5 col-lg-4')">
-            <div class="text-center mb-4">
-                <img src="{{ $loginLogo }}" alt="SuperSkyLaw" class="login-logo">
-                <p class="text-muted small mb-0 login-tagline">@yield('tagline')</p>
-            </div>
             <div class="card border-0 shadow-sm login-card">
                 <div class="card-body p-4">
                     @yield('content')

@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\CoreOAuthCallbackController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\OrganizationRegistrationController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\StaffInviteAcceptController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CalendarFeedController;
@@ -60,6 +62,10 @@ Route::prefix('{slug}/portal')
 Route::middleware('guest')->group(function () {
     Route::get('/prijava', [LoginController::class, 'create'])->name('login');
     Route::post('/prijava', [LoginController::class, 'store']);
+    Route::get('/zaboravljena-lozinka', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('/zaboravljena-lozinka', [PasswordResetLinkController::class, 'store'])->name('password.email')->middleware('throttle:6,1');
+    Route::get('/resetiranje-lozinke/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('/resetiranje-lozinke', [NewPasswordController::class, 'store'])->name('password.store')->middleware('throttle:6,1');
     Route::get('/auth/core/callback', [CoreOAuthCallbackController::class, 'create'])->name('auth.core.callback');
     Route::get('/poziv/{token}', [StaffInviteAcceptController::class, 'show'])->name('staff-invite.show');
     Route::post('/poziv/{token}', [StaffInviteAcceptController::class, 'store'])->name('staff-invite.store');

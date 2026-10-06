@@ -44,7 +44,9 @@
 </form>
 
 <div class="login-links">
-    <p class="text-center small"></p>
+    <p class="text-center small">
+        <a href="{{ $passwordResetUrl ?: route('password.request') }}">Zaboravili ste lozinku?</a>
+    </p>
     <p class="text-center small">
         Nemate račun? <a href="{{ route('register.organization') }}">Registrirajte se</a>
     </p>
