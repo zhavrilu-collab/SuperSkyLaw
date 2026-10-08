@@ -274,7 +274,9 @@
         color: var(--izbornik-tekst, var(--tekst-tamni));
         text-decoration: none;
         font-size: 13px;
+        font-weight: 400;
         line-height: 1.25;
+        outline: none;
     }
     .app-sidebar-link:hover,
     .app-sidebar-group-link:hover {
@@ -285,7 +287,7 @@
     .app-sidebar-group-link.active {
         background: var(--odabir-pozadina, var(--svijetlo-zelena));
         color: var(--odabir-tekst, var(--primarna-zelena));
-        font-weight: var(--odabir-tezina, 600);
+        font-weight: 400;
         box-shadow: inset 3px 0 0 var(--odabir-crta, transparent);
     }
     .app-sidebar-icon {
@@ -309,11 +311,21 @@
         padding: 0;
         border: 0;
         border-radius: 6px;
+        outline: none;
         background: transparent;
         color: #5d6e5d;
         flex: 0 0 auto;
     }
     .app-sidebar-group-toggle:hover { background: var(--svijetlo-zelena); color: var(--primarna-zelena); }
+    .app-sidebar-link:focus,
+    .app-sidebar-link:focus-visible,
+    .app-sidebar-group-link:focus,
+    .app-sidebar-group-link:focus-visible,
+    .app-sidebar-group-toggle:focus,
+    .app-sidebar-group-toggle:focus-visible {
+        outline: none;
+        box-shadow: none;
+    }
     .app-sidebar-chevron {
         display: block;
         width: .38rem;
@@ -470,9 +482,9 @@
         display: block;
     }
     .navbar-modules-submenu .dropdown-item {
-        font-size: 12px;
+        font-size: 13px;
         padding: .38rem 1rem .38rem 1.65rem;
-        font-weight: 500;
+        font-weight: 400;
         color: #445044;
     }
     .navbar-modules-submenu .dropdown-item:hover,
@@ -484,12 +496,12 @@
     }
     .navbar-modules-group--nested > .navbar-modules-group-head .navbar-modules-group-link {
         padding-left: 1.65rem;
-        font-size: 12px;
-        font-weight: 500;
+        font-size: 13px;
+        font-weight: 400;
         color: #445044;
     }
     .navbar-modules-group--nested > .navbar-modules-group-head .navbar-modules-group-link.active {
-        font-weight: 700;
+        font-weight: 400;
     }
     .navbar-modules-group--nested > .navbar-modules-group-head .navbar-modules-group-toggle {
         border-left-color: rgba(var(--tema-rgb), 0.06);
@@ -502,7 +514,8 @@
     }
     .navbar-modules-group--nested > .navbar-modules-submenu .dropdown-item {
         padding-left: 2.45rem;
-        font-size: 11.5px;
+        font-size: 13px;
+        font-weight: 400;
         color: #556055;
     }
 
@@ -582,7 +595,7 @@
     .navbar-fiscal-year-menu .dropdown-item.active {
         background: var(--svijetlo-zelena) !important;
         color: var(--primarna-zelena) !important;
-        font-weight: 700;
+        font-weight: 400;
         border-left-color: var(--crta-zaglavlja, var(--primarna-zelena));
     }
     .navbar-fiscal-year-locked {
@@ -728,7 +741,7 @@
     .navbar-modules-menu .dropdown-item:active {
         background: var(--svijetlo-zelena) !important;
         color: var(--primarna-zelena) !important;
-        font-weight: 700;
+        font-weight: 400;
         border-left-color: var(--crta-zaglavlja, var(--primarna-zelena));
     }
 
@@ -761,7 +774,7 @@
         color: var(--tekst-tamni);
         font-family: inherit;
         font-size: 13px;
-        font-weight: 500;
+        font-weight: 400;
         line-height: 1.3;
         text-align: left;
     }
@@ -778,7 +791,7 @@
     .app-menu .dropdown-item.active {
         background: var(--svijetlo-zelena) !important;
         color: var(--primarna-zelena) !important;
-        font-weight: 700;
+        font-weight: 400;
         border-left-color: var(--crta-zaglavlja, var(--primarna-zelena));
     }
     .app-menu .dropdown-item:disabled,
@@ -827,18 +840,19 @@
     /* === Tabovi === */
     .nav-tabs .nav-link {
         color: #555;
-        font-size: 12px;
-        font-weight: 500;
+        font-size: 13px;
+        font-weight: 400;
         padding: 8px 14px;
     }
     .nav-tabs .nav-link.active {
         color: var(--primarna-zelena);
-        font-weight: 700;
-        font-size: 12px;
+        font-weight: 400;
+        font-size: 13px;
         border-bottom-color: var(--primarna-zelena);
     }
     .settings-subnav .nav-link {
-        font-size: 12px;
+        font-size: 13px;
+        font-weight: 400;
         padding: 6px 12px;
         border-radius: 20px;
         color: #555;
