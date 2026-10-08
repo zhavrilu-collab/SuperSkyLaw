@@ -51,7 +51,8 @@ class AppServiceProvider extends ServiceProvider
             $office = $this->officeForTheme($view);
             $key = OfficeThemes::resolve($office?->theme_color);
             $view->with('officeThemeKey', $key);
-            $view->with('officeTheme', OfficeThemes::palette($key, $office?->theme_style));
+            $style = $office ? \App\Support\ThemeRecipes::effectiveStyle($office->theme_style) : null;
+            $view->with('officeTheme', OfficeThemes::palette($key, $style));
         });
     }
 

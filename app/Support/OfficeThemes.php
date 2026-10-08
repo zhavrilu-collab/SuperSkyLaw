@@ -125,7 +125,7 @@ class OfficeThemes
 
         return [
             'savedColor' => $resolved,
-            'savedStyle' => ThemeRecipes::resolveStyle($style),
+            'savedStyle' => ThemeRecipes::effectiveStyle($style),
             'palettes' => self::previewPayload(),
             'styles' => ThemeRecipes::styles(),
             'combinations' => self::combinationPayload(),

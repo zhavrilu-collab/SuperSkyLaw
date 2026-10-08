@@ -25,7 +25,7 @@
 </form>
 
 @php($activeTheme = \App\Support\OfficeThemes::resolve(old('theme_color', $organization->theme_color)))
-@php($activeStyle = \App\Support\ThemeRecipes::resolveStyle(old('theme_style', $organization->theme_style)))
+@php($activeStyle = \App\Support\ThemeRecipes::effectiveStyle(old('theme_style', $organization->theme_style)))
 @php($catalog = \App\Support\OfficeThemes::all())
 @php($themeStyles = \App\Support\ThemeRecipes::styles())
 @php($themeCards = \App\Support\OfficeThemes::combinationPayload())
@@ -102,5 +102,5 @@
 <script>
 window.THEME_PREVIEW = @json(\App\Support\OfficeThemes::clientPreview($organization->theme_color, $organization->theme_style));
 </script>
-<script src="{{ asset('js/theme-preview.js') }}"></script>
+<script src="{{ asset('js/theme-preview.js') }}?v={{ filemtime(public_path('js/theme-preview.js')) }}"></script>
 @endpush

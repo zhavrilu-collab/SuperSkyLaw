@@ -4,6 +4,8 @@ namespace App\Support;
 
 class ThemeRecipes
 {
+    public const DEFAULT_STYLE = 'pruga';
+
     /** @return array<string, array{label: string, note: string}> */
     public static function styles(): array
     {
@@ -30,6 +32,11 @@ class ThemeRecipes
         }
 
         return array_key_exists($style, self::styles()) ? $style : null;
+    }
+
+    public static function effectiveStyle(?string $style): string
+    {
+        return self::resolveStyle($style) ?? self::DEFAULT_STYLE;
     }
 
     /**

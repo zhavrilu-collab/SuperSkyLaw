@@ -17,7 +17,6 @@
     $orgUser = app()->bound('currentOrganizationUser') ? app('currentOrganizationUser') : null;
     $navUser = auth()->user();
     $navEmail = $navUser?->email ?? '';
-    $navModule = trim($__env->yieldContent('nav-suffix'));
     $unreadNotifications = ($org && $navUser)
         ? \App\Models\OfficeNotification::query()->where('user_id', $navUser->id)->whereNull('read_at')->count()
         : 0;
@@ -27,7 +26,12 @@
     <div class="app-sidebar-backdrop" id="appSidebarBackdrop" hidden></div>
     <aside class="app-sidebar" id="appSidebar">
         <a class="app-sidebar-brand" href="{{ route('organization.dashboard', $org->slug) }}">
-            <img id="appSidebarBrandLogo" src="{{ asset(\App\Support\OfficeThemes::horizontalPath($org->themeColor())) }}" class="app-sidebar-logo" alt="SuperSkyLaw">
+            <span class="app-sidebar-lockup" id="appSidebarBrandLogo"
+                  style="--lockup: url('{{ asset(\App\Support\OfficeThemes::horizontalPath($org->themeColor())) }}')">
+                <span class="app-sidebar-mark" aria-hidden="true"></span>
+                <span class="app-sidebar-word" aria-hidden="true"></span>
+                <span class="visually-hidden">SuperSkyLaw</span>
+            </span>
         </a>
         @include('partials.app-sidebar')
     </aside>
@@ -40,9 +44,6 @@
                 </button>
                 <p class="app-topbar-title">
                     <span class="app-topbar-title-prefix">{{ $org->navbarBrandPrefix() }}</span>
-                    @if($navModule !== '')
-                        <span> — {{ $navModule }}</span>
-                    @endif
                 </p>
             </div>
             <div class="app-topbar-user">

@@ -42,6 +42,7 @@
             '--tema-svijetla': palette.light,
             '--tema-sjena-fokus': palette.focusShadow,
             '--tema-rub-tablica': palette.tableBorder,
+            '--crta-zaglavlja': palette.logoMark || palette.primary,
         };
 
         if (palette.rgb) {
@@ -86,9 +87,18 @@
         }
 
         ['appSidebarBrandLogo', 'temaLogoPregled'].forEach(function (id) {
-            var img = document.getElementById(id);
-            if (img) {
-                img.src = palette.horizontalLogo;
+            var el = document.getElementById(id);
+            if (!el) {
+                return;
+            }
+            if (el.tagName === 'IMG') {
+                el.src = palette.horizontalLogo;
+            } else {
+                var lockup = 'url("' + palette.horizontalLogo + '")';
+                el.style.setProperty('--lockup', lockup);
+                el.querySelectorAll('.app-sidebar-mark, .app-sidebar-word').forEach(function (part) {
+                    part.style.backgroundImage = lockup;
+                });
             }
         });
 
