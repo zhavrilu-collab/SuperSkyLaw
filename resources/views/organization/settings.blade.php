@@ -7,7 +7,11 @@
     @csrf @method('PUT')
     <div class="row">
         <div class="col-md-6 mb-3"><label class="form-label">Naziv</label><input name="name" class="form-control" value="{{ old('name', $organization->name) }}" required></div>
-        <div class="col-md-6 mb-3"><label class="form-label">OIB</label><input class="form-control" value="{{ $organization->oib }}" disabled></div>
+        <div class="col-md-3 mb-3"><label class="form-label">OIB</label><input class="form-control" value="{{ $organization->oib }}" disabled></div>
+        <div class="col-md-3 mb-3"><label class="form-label">MBS</label><input class="form-control" value="{{ $organization->mbs ?: '—' }}" disabled></div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3"><label class="form-label">Oblik</label><input class="form-control" value="{{ $organization->office_kind?->label() ?? '—' }}" disabled></div>
     </div>
     <div class="row">
         <div class="col-md-6 mb-3"><label class="form-label">E-mail</label><input name="email" class="form-control" value="{{ old('email', $organization->email) }}" required></div>

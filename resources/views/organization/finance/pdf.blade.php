@@ -11,7 +11,7 @@ th { color: #1b431c; }
 </head>
 <body>
 <h1>{{ $organization->name }}</h1>
-<p>OIB: {{ $organization->oib }}<br>{{ $organization->address }} {{ $organization->city }}<br>{{ $organization->email }}</p>
+<p>OIB: {{ $organization->oib }}<br>{{ $organization->address }} {{ $organization->city }}<br>{{ $organization->email }}@if($organization->iban)<br>IBAN: {{ $organization->iban }}@endif</p>
 <h2>Račun {{ $invoice->number }}</h2>
 <p>Datum: {{ $invoice->issue_date->format('d.m.Y.') }} · Dospijeće: {{ $invoice->due_date->format('d.m.Y.') }}</p>
 <p><strong>Kupac:</strong> {{ $invoice->buyer_name }}<br>OIB: {{ $invoice->buyer_oib }}<br>{{ $invoice->buyer_address }}</p>

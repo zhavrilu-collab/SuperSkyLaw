@@ -16,11 +16,8 @@ use App\Http\Controllers\DocumentTemplateController;
 use App\Http\Controllers\EInvoiceController;
 use App\Http\Controllers\ESignController;
 use App\Http\Controllers\EthicalWallController;
-use App\Http\Controllers\LimitationController;
-use App\Http\Controllers\SmsNoticeController;
-use App\Http\Controllers\SpnftController;
-use App\Http\Controllers\TrustAccountController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LimitationController;
 use App\Http\Controllers\MailIntakeController;
 use App\Http\Controllers\MatterController;
 use App\Http\Controllers\NotificationController;
@@ -33,8 +30,11 @@ use App\Http\Controllers\PartyController;
 use App\Http\Controllers\Portal\HomeController as PortalHomeController;
 use App\Http\Controllers\Portal\LoginController as PortalLoginController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SmsNoticeController;
+use App\Http\Controllers\SpnftController;
 use App\Http\Controllers\TariffController;
 use App\Http\Controllers\TimeEntryController;
+use App\Http\Controllers\TrustAccountController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -72,6 +72,12 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/registracija', [OrganizationRegistrationController::class, 'create'])->name('register.organization');
+Route::get('/registracija/imenik', [OrganizationRegistrationController::class, 'directory'])
+    ->middleware('throttle:30,1')
+    ->name('register.organization.directory');
+Route::get('/registracija/sudski-registar', [OrganizationRegistrationController::class, 'court'])
+    ->middleware('throttle:6,1')
+    ->name('register.organization.court');
 Route::post('/registracija', [OrganizationRegistrationController::class, 'store'])
     ->middleware('throttle:6,1');
 
