@@ -18,12 +18,8 @@ class LoginController extends Controller
         private readonly CoreAuthService $coreAuth,
     ) {}
 
-    public function create(): View|RedirectResponse
+    public function create(): View
     {
-        if ($this->coreAuth->isUnifiedLoginEnabled()) {
-            return redirect()->away($this->coreAuth->unifiedLoginUrl());
-        }
-
         return view('auth.login', [
             'coreAuthEnabled' => $this->coreAuth->isEnabled(),
             'googleLoginUrl' => $this->coreAuth->isGoogleLoginAvailable() ? $this->coreAuth->googleRedirectUrl() : null,
