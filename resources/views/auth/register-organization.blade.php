@@ -164,7 +164,29 @@
         el.readOnly = Boolean(lock && el.value);
     }
 
+    function lockKind(lock) {
+        let mirror = document.getElementById('officeKindMirror');
+        if (lock && kindInput.value) {
+            kindInput.disabled = true;
+            if (!mirror) {
+                mirror = document.createElement('input');
+                mirror.type = 'hidden';
+                mirror.id = 'officeKindMirror';
+                mirror.name = 'office_kind';
+                kindInput.insertAdjacentElement('afterend', mirror);
+            }
+            mirror.value = kindInput.value;
+            kindInput.removeAttribute('name');
+            return;
+        }
+
+        kindInput.disabled = false;
+        kindInput.name = 'office_kind';
+        if (mirror) mirror.remove();
+    }
+
     function unlock() {
+        lockKind(false);
         ['name', 'address', 'city', 'phone', 'oib'].forEach(function (id) {
             const el = document.getElementById(id);
             if (el) el.readOnly = false;
@@ -243,6 +265,7 @@
         if (adminName && !adminTouched && entry.office_kind === soleKind) {
             adminName.value = entry.name;
         }
+        lockKind(true);
         if (usesCourt()) lookupCourt();
         else statusEl.textContent = 'Podaci su iz imenika. OIB upišite sami.';
     }
