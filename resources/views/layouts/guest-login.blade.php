@@ -42,6 +42,7 @@
             --bs-btn-disabled-bg: #212529;
             --bs-btn-disabled-border-color: #212529;
         }
+        @include('partials.form-field-scale')
         .login-card a { color: #0d6efd; }
         .login-card a:hover { color: #0a58ca; }
         .form-control:focus, .form-select:focus, .form-check-input:focus {

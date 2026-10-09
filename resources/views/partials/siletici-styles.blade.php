@@ -971,9 +971,8 @@
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231b431c'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
     }
 
-    /* === Forme === */
-    .form-label { font-size: 12px; margin-bottom: 4px; }
-    .form-control-sm, .form-select-sm { font-size: 12px; }
+    /* === Forme (veličina kao unos događaja) === */
+    @include('partials.form-field-scale')
     .form-control:focus, .form-select:focus {
         border-color: var(--primarna-zelena) !important;
         box-shadow: 0 0 0 3px var(--tema-sjena-fokus) !important;

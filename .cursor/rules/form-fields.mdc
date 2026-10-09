@@ -1,0 +1,21 @@
+---
+description: Veličina polja i fontova na formama — kao unos događaja u Clubu
+alwaysApply: true
+---
+
+# Polja za unos
+
+Uzor je forma za unos događaja u Clubu: `form-control-sm` / `form-select-sm`, natpis 12px i podebljan.
+
+Vrijedi za Club, Crew i Law, uključujući prijavu, portal i javne forme. Ne vrijedi za SuperSkyControl.
+
+## Mjere
+
+- Natpis (`.form-label`, `.forma-label`): 12px, težina 700, razmak ispod 4px
+- Polje (input, select, textarea): Segoe UI, 12px, težina 400, padding `.25rem .5rem`, line-height 1.5
+- Jednoredno polje i gumb u `.input-group`: visina `calc(1.5em + .5rem + 2px)`
+- Textarea i `select[multiple]`: isti font i padding, visina prema sadržaju
+- Natpis checkboxa i radio gumba: 12px, težina 400
+- Pomoćni tekst i greška uz polje: 12px
+
+Stil je u `partials/form-field-scale.blade.php`. Nova forma ne smije uvesti veći font, `form-control-lg` niti drugačiji padding. Širina polja ostaje prema rasporedu forme. Gumb prijave ostaje crn.
