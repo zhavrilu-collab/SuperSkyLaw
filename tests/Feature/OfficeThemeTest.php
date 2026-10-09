@@ -166,4 +166,30 @@ class OfficeThemeTest extends TestCase
             'theme_color' => $themeColor,
         ];
     }
+
+    public function test_error_pages_use_the_selected_color_and_style(): void
+    {
+        [, $organization] = $this->office();
+        $organization->forceFill([
+            'theme_color' => 'zuta',
+            'theme_style' => 'slovo',
+        ])->save();
+        $palette = OfficeThemes::palette($organization->theme_color, $organization->theme_style);
+
+        $missing = $this->get('/ured-horvat-tema/nema-ove-stranice');
+        $missing->assertNotFound();
+        $missing->assertSee($palette['logoMark'], false);
+        $missing->assertSee($palette['light'], false);
+        $missing->assertSee($palette['btnBg'], false);
+        $missing->assertSee($palette['btnFg'], false);
+        $missing->assertDontSee('#f7fae9', false);
+
+        $exception = new \Symfony\Component\HttpKernel\Exception\HttpException(403);
+        foreach (['403', '404', '419', '429', '500', '503'] as $code) {
+            $html = view('errors.'.$code, ['exception' => $exception])->render();
+            $this->assertStringContainsString($palette['logoMark'], $html);
+            $this->assertStringContainsString($palette['btnBg'], $html);
+            $this->assertStringContainsString($palette['btnFg'], $html);
+        }
+    }
 }

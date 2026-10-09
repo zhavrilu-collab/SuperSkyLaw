@@ -4,12 +4,26 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Greška') · SuperSkyLaw</title>
+    @php
+        $errorPalette = \App\Support\ErrorPageTheme::palette();
+        $errorMark = $errorPalette['logoMark'] ?? $errorPalette['primary'];
+        $errorButtonBg = $errorPalette['btnBg'] ?? $errorPalette['dark'];
+        $errorButtonFg = $errorPalette['btnFg'] ?? '#ffffff';
+        $errorButtonBorder = $errorPalette['btnBorder'] ?? $errorButtonBg;
+        $errorButtonHoverBg = $errorPalette['btnHoverBg'] ?? $errorButtonBg;
+        $errorButtonHoverFg = $errorPalette['btnHoverFg'] ?? $errorButtonFg;
+    @endphp
     <style>
         :root {
-            --sluzbena-zelena: #b0cb1f;
-            --sluzbena-tamna: #434d0c;
-            --sluzbena-svijetla: #f7fae9;
-            --sluzbena-tinta: #272d07;
+            --sluzbena-zelena: {{ $errorMark }};
+            --sluzbena-tamna: {{ $errorPalette['dark'] }};
+            --sluzbena-svijetla: {{ $errorPalette['light'] }};
+            --sluzbena-tinta: {{ $errorPalette['text'] }};
+            --gumb-pozadina: {{ $errorButtonBg }};
+            --gumb-tekst: {{ $errorButtonFg }};
+            --gumb-rub: {{ $errorButtonBorder }};
+            --gumb-hover-pozadina: {{ $errorButtonHoverBg }};
+            --gumb-hover-tekst: {{ $errorButtonHoverFg }};
         }
         * { box-sizing: border-box; }
         html, body { height: 100%; margin: 0; }
@@ -86,11 +100,15 @@
             cursor: pointer;
         }
         .error-btn--primary {
-            background: var(--sluzbena-tamna);
-            border-color: var(--sluzbena-tamna);
-            color: #fff;
+            background: var(--gumb-pozadina);
+            border: 2px solid var(--gumb-rub);
+            color: var(--gumb-tekst);
         }
-        .error-btn--primary:hover { filter: brightness(1.08); }
+        .error-btn--primary:hover {
+            background: var(--gumb-hover-pozadina);
+            border-color: var(--gumb-hover-pozadina);
+            color: var(--gumb-hover-tekst);
+        }
         .error-btn--ghost {
             background: #fff;
             color: var(--sluzbena-tinta);
