@@ -15,7 +15,6 @@ class ThemeRecipes
             'pruga' => ['label' => 'Pruga', 'note' => 'Sučelje je sivo. Boja logotipa je crta.'],
             'sjena' => ['label' => 'Sjena', 'note' => 'Cijeli izbornik je pastel. Odabrana stavka je bijela.'],
             'slovo' => ['label' => 'Slovo', 'note' => 'Odabir nema podlogu. Obojen je samo tekst stavke.'],
-            'noc' => ['label' => 'Noć', 'note' => 'Izbornik je taman. Stranica i gumb ostaju svijetli.'],
         ];
     }
 
@@ -217,18 +216,14 @@ class ThemeRecipes
             ]);
         }
 
-        $side = self::hsl($h, 24, 13);
-
         return array_merge($paper, [
-            'primary' => $side,
-            'sideBg' => $side,
-            'idle' => '#eceae4',
-            'navBg' => self::hsl($h, 18, 20),
-            'navFg' => '#ffffff',
+            'primary' => '#2a2a28',
+            'navBg' => '#ececea',
+            'navFg' => '#1c1c1a',
             'navBar' => $logo,
-            'btnBg' => '#ffffff',
-            'btnFg' => $side,
-            'btnBorder' => $side,
+            'btnBg' => '#2a2a28',
+            'btnFg' => '#ffffff',
+            'btnBorder' => '#2a2a28',
         ]);
     }
 
