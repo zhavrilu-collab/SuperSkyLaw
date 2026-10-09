@@ -103,5 +103,6 @@
 })();
 </script>
 @stack('scripts')
+@include('partials.obrazac-provjera')
 </body>
 </html>

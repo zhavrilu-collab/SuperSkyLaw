@@ -1039,8 +1039,25 @@
         color: #fff !important;
     }
     .text-danger { color: var(--sustav-greska, #e31e24) !important; }
-    .invalid-feedback, .invalid-tooltip { color: var(--sustav-greska, #e31e24) !important; }
+    .invalid-feedback, .invalid-tooltip { color: var(--sustav-greska, #e31e24) !important; font-size: 12px; }
     .form-control.is-invalid, .form-select.is-invalid { border-color: var(--sustav-greska, #e31e24) !important; }
+    .obavezno { color: var(--sustav-greska, #e31e24); font-weight: 700; }
+    .predmet-akcije { align-items: center; }
+    .predmet-akcije form { margin: 0; display: flex; }
+    .predmet-akcije .btn {
+        height: 28px;
+        padding: 0 10px !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        line-height: 26px !important;
+        border-width: 1px !important;
+        border-radius: 9px !important;
+    }
+    .predmet-akcije .btn-outline-danger {
+        background: #fff !important;
+        color: var(--sustav-greska, #e31e24) !important;
+        border-color: var(--sustav-greska, #e31e24) !important;
+    }
     .text-primary, .link-primary { color: var(--crta-zaglavlja, var(--primarna-zelena)) !important; }
 
     .flash-toast-kontejner {

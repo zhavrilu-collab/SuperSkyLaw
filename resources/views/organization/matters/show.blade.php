@@ -14,7 +14,7 @@
             @if($matter->outcome)<span>· {{ $matter->outcome->label() }}</span>@endif
         </div>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 predmet-akcije">
         @perm('matters.manage')
         @if($matter->status->value !== 'archived')
         <form method="POST" action="{{ route('organization.matters.pause', [$org->slug, $matter->id]) }}">

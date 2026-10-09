@@ -22,5 +22,6 @@
         @yield('content')
     </div>
 </div>
+@include('partials.obrazac-provjera')
 </body>
 </html>

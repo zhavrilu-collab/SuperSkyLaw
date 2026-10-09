@@ -252,6 +252,13 @@ class MatterCatalogAndDeadlineTest extends TestCase
         $this->assertSame('active', $matter->status->value);
         $this->assertNull($matter->outcome);
         $this->assertSame('new', $matter->phase()->value);
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id]))
+            ->assertOk()
+            ->assertSee('data-obrazac-provjera', false)
+            ->assertSee('Pauziraj')
+            ->assertSee('Arhiviraj')
+            ->assertSee('predmet-akcije', false);
 
         $this->actingAs($user)
             ->post(route('organization.matters.pause', [$org->slug, $matter->id]))
