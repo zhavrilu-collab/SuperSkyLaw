@@ -3,9 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\Organization;
+use App\Support\AdminConsoleHttp;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class NotifyAdminConsoleJob implements ShouldQueue
@@ -36,9 +36,7 @@ class NotifyAdminConsoleJob implements ShouldQueue
             return;
         }
 
-        Http::withToken($webhookSecret)
-            ->acceptJson()
-            ->timeout(10)
+        AdminConsoleHttp::client($webhookSecret)
             ->post($webhookUrl, [
                 'application_slug' => $applicationSlug,
                 'organization' => [

@@ -21,6 +21,7 @@ class TariffCharge extends Model
         'points',
         'amount_cents',
         'invoice_id',
+        'court_event_id',
         'created_by_user_id',
     ];
 

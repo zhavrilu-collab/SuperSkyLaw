@@ -17,6 +17,7 @@ use App\Http\Controllers\EInvoiceController;
 use App\Http\Controllers\ESignController;
 use App\Http\Controllers\EthicalWallController;
 use App\Http\Controllers\LimitationController;
+use App\Http\Controllers\MatterDeadlineController;
 use App\Http\Controllers\SmsNoticeController;
 use App\Http\Controllers\SpnftController;
 use App\Http\Controllers\TrustAccountController;
@@ -90,8 +91,9 @@ Route::prefix('{slug}')
     ->group(function () {
         Route::get('/', OrganizationDashboardController::class)->name('organization.dashboard');
         Route::get('/ured', [OfficeSettingsController::class, 'edit'])->name('organization.settings.edit');
-        Route::put('/ured/tema', [OfficeSettingsController::class, 'updateTheme'])->name('organization.settings.theme');
         Route::put('/ured', [OfficeSettingsController::class, 'update'])->name('organization.settings.update');
+        Route::get('/postavke', [OfficeSettingsController::class, 'appearance'])->name('organization.settings.appearance');
+        Route::put('/postavke/tema', [OfficeSettingsController::class, 'updateTheme'])->name('organization.settings.theme');
         Route::get('/tim', [OrganizationTeamController::class, 'index'])->name('organization.team.index');
         Route::post('/tim/pozivnice', [OrganizationTeamController::class, 'storeInvite'])->name('organization.team.invite');
         Route::patch('/tim/{member}/uloga', [OrganizationTeamController::class, 'updateRole'])->name('organization.team.update-role');
@@ -110,6 +112,7 @@ Route::prefix('{slug}')
         Route::post('/predmeti/{matter}/spnft', [SpnftController::class, 'required'])->whereNumber('matter')->name('organization.matters.spnft.required');
         Route::post('/predmeti/{matter}/spnft/stavka', [SpnftController::class, 'toggle'])->whereNumber('matter')->name('organization.matters.spnft.toggle');
         Route::post('/predmeti/{matter}/zastara', [LimitationController::class, 'store'])->whereNumber('matter')->name('organization.matters.limitation.store');
+        Route::post('/predmeti/{matter}/rok', [MatterDeadlineController::class, 'store'])->whereNumber('matter')->name('organization.matters.deadline.store');
 
         Route::get('/stranke', [PartyController::class, 'index'])->name('organization.parties.index');
         Route::get('/stranke/nova', [PartyController::class, 'create'])->name('organization.parties.create');
@@ -122,6 +125,7 @@ Route::prefix('{slug}')
         Route::get('/kalendar', [CalendarController::class, 'index'])->name('organization.calendar.index');
         Route::post('/kalendar', [CalendarController::class, 'store'])->name('organization.calendar.store');
         Route::post('/kalendar/{event}/zavrsi', [CalendarController::class, 'complete'])->whereNumber('event')->name('organization.calendar.complete');
+        Route::post('/kalendar/{event}/tarifa', [CalendarController::class, 'charge'])->whereNumber('event')->name('organization.calendar.charge');
         Route::post('/kalendar/{event}/sms', [SmsNoticeController::class, 'store'])->whereNumber('event')->name('organization.calendar.sms');
         Route::get('/kalendar/izvoz.ics', [CalendarFeedController::class, 'export'])->name('organization.calendar.export');
         Route::post('/kalendar/uvoz', [CalendarFeedController::class, 'import'])->name('organization.calendar.import');

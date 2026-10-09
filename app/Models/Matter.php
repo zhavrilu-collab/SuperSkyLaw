@@ -3,9 +3,15 @@
 namespace App\Models;
 
 use App\Enums\BillingMethod;
+use App\Enums\CourtEventType;
 use App\Enums\MatterKind;
+use App\Enums\MatterOutcome;
+use App\Enums\MatterPhase;
 use App\Enums\MatterStatus;
+use App\Enums\OfficePosition;
 use App\Enums\OrganizationRole;
+use App\Enums\PartySide;
+use App\Services\CroatianCalendar;
 use App\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -23,8 +29,13 @@ class Matter extends Model
         'internal_number',
         'kind',
         'status',
+        'office_position',
+        'outcome',
         'spnft_required',
+        'court_id',
+        'dispute_category_id',
         'court_name',
+        'court_case_number',
         'case_mark',
         'case_number',
         'case_year',
@@ -41,9 +52,20 @@ class Matter extends Model
         return [
             'kind' => MatterKind::class,
             'status' => MatterStatus::class,
+            'office_position' => OfficePosition::class,
+            'outcome' => MatterOutcome::class,
             'billing_method' => BillingMethod::class,
             'spnft_required' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Matter $matter): void {
+            if (blank($matter->court_case_number) && filled($matter->case_mark) && filled($matter->case_number) && filled($matter->case_year)) {
+                $matter->court_case_number = $matter->case_mark.'-'.$matter->case_number.'/'.$matter->case_year;
+            }
+        });
     }
 
     public function assignees(): BelongsToMany
@@ -106,6 +128,16 @@ class Matter extends Model
         return $this->hasOne(LimitationEstimate::class);
     }
 
+    public function court(): BelongsTo
+    {
+        return $this->belongsTo(Court::class);
+    }
+
+    public function disputeCategory(): BelongsTo
+    {
+        return $this->belongsTo(DisputeCategory::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
@@ -124,11 +156,84 @@ class Matter extends Model
 
     public function courtReference(): string
     {
-        $parts = array_filter([
-            $this->court_name,
-            trim(implode('-', array_filter([$this->case_mark, $this->case_number, $this->case_year]))),
-        ]);
+        $number = $this->court_case_number;
+        if (! $number && $this->case_mark) {
+            $number = trim(implode('-', array_filter([$this->case_mark, $this->case_number, $this->case_year])));
+        }
+
+        $parts = array_filter([$this->court_name, $number]);
 
         return $parts === [] ? '—' : implode(' ', $parts);
+    }
+
+    public function clientLabel(): string
+    {
+        $parties = $this->relationLoaded('parties')
+            ? $this->parties
+            : $this->parties()->with('party')->get();
+
+        return $parties
+            ->filter(fn (MatterParty $party) => $party->side === PartySide::Client && filled($party->party?->name))
+            ->map(fn (MatterParty $party) => $party->party->name)
+            ->implode(', ');
+    }
+
+    public function courtLabel(): string
+    {
+        return $this->court?->name ?: (string) ($this->court_name ?? '');
+    }
+
+    public function phase(): MatterPhase
+    {
+        if ($this->status === MatterStatus::Archived) {
+            return MatterPhase::Archived;
+        }
+
+        $events = $this->relationLoaded('courtEvents')
+            ? $this->courtEvents
+            : $this->courtEvents()->get();
+
+        $today = now(CroatianCalendar::TIMEZONE)->startOfDay();
+        $horizon = $today->copy()->addDays(7);
+        $openDeadlines = $events->filter(fn (CourtEvent $event) => $event->completed_at === null && $this->isWritingDeadline($event));
+
+        $dueToday = $openDeadlines->contains(function (CourtEvent $event) use ($today): bool {
+            return $event->starts_at->timezone(CroatianCalendar::TIMEZONE)->startOfDay()->lte($today);
+        });
+        if ($dueToday) {
+            return MatterPhase::DueToday;
+        }
+
+        $urgent = $openDeadlines->contains(function (CourtEvent $event) use ($horizon): bool {
+            return $event->starts_at->timezone(CroatianCalendar::TIMEZONE)->startOfDay()->lte($horizon);
+        });
+        if ($urgent) {
+            return MatterPhase::Urgent;
+        }
+
+        if ($openDeadlines->isNotEmpty()) {
+            return MatterPhase::InTime;
+        }
+
+        $hearing = $events->contains(fn (CourtEvent $event) => $event->completed_at === null
+            && in_array($event->type, [CourtEventType::Hearing, CourtEventType::Inspection], true)
+            && $event->starts_at->greaterThan(now()));
+        if ($hearing) {
+            return MatterPhase::HearingSet;
+        }
+
+        $finishedDeadline = $events->contains(fn (CourtEvent $event) => $event->completed_at !== null && $this->isWritingDeadline($event));
+        if ($finishedDeadline) {
+            return MatterPhase::Waiting;
+        }
+
+        return MatterPhase::NewMatter;
+    }
+
+    private function isWritingDeadline(CourtEvent $event): bool
+    {
+        return $event->is_preclusive
+            || $event->type->isDeadline()
+            || in_array($event->origin, ['statutory', 'court_ordered'], true);
     }
 }

@@ -115,6 +115,7 @@ class MatterIsolationAndConflictTest extends TestCase
             'title' => $title,
             'kind' => 'civil',
             'status' => 'active',
+            'office_position' => 'plaintiff',
             'billing_method' => 'hourly',
             'hourly_rate' => 100,
             'client_name' => 'Klijent '.$title,

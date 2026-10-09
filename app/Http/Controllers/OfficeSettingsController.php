@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OrganizationRole;
 use App\Http\Controllers\Concerns\ResolvesOffice;
+use App\Models\OrganizationUser;
+use App\Models\StaffInvite;
 use App\Support\OfficeThemes;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,10 +19,31 @@ class OfficeSettingsController extends Controller
     public function edit(string $slug): View
     {
         $this->authorizePerm('settings.manage');
+        $organization = $this->office();
 
         return view('organization.settings', [
+            'organization' => $organization,
+            'members' => OrganizationUser::query()
+                ->with('user')
+                ->where('organization_id', $organization->id)
+                ->orderBy('role')
+                ->get(),
+            'pendingInvites' => StaffInvite::query()
+                ->where('organization_id', $organization->id)
+                ->whereNull('accepted_at')
+                ->where('expires_at', '>', now())
+                ->orderByDesc('created_at')
+                ->get(),
+            'roles' => OrganizationRole::cases(),
+        ]);
+    }
+
+    public function appearance(string $slug): View
+    {
+        $this->authorizePerm('settings.manage');
+
+        return view('organization.appearance', [
             'organization' => $this->office(),
-            'themes' => OfficeThemes::all(),
         ]);
     }
 

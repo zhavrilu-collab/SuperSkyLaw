@@ -5,14 +5,47 @@
 <div class="d-flex justify-content-between mb-3">
     <div>
         <h1 class="h5 text-tema mb-0">{{ $matter->internal_number }} — {{ $matter->title }}</h1>
-        <div class="text-muted">{{ $matter->kind->label() }} · {{ $matter->status->label() }} · {{ $matter->courtReference() }}</div>
+        <div class="text-muted d-flex flex-wrap gap-2 align-items-center">
+            <span>{{ $matter->kind->label() }}</span>
+            @if($matter->office_position)<span>· {{ $matter->office_position->label() }}</span>@endif
+            @if($matter->disputeCategory)<span>· {{ $matter->disputeCategory->name }}</span>@endif
+            <span>· {{ $matter->courtReference() }}</span>
+            @include('partials.matter-phase', ['matter' => $matter])
+            @if($matter->outcome)<span>· {{ $matter->outcome->label() }}</span>@endif
+        </div>
     </div>
     @perm('matters.delete')
-    <form method="POST" action="{{ route('organization.matters.destroy', [$org->slug, $matter->id]) }}">@csrf @method('DELETE')
-        <button class="btn btn-outline-danger btn-sm" type="submit">Arhiviraj</button>
-    </form>
+    @if($matter->status->value !== 'archived')
+    <button class="btn btn-outline-danger btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#arhivaPredmeta">Arhiviraj</button>
+    @endif
     @endperm
 </div>
+@perm('matters.delete')
+<div class="modal fade" id="arhivaPredmeta" tabindex="-1" aria-labelledby="arhivaPredmetaNaslov" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" method="POST" action="{{ route('organization.matters.destroy', [$org->slug, $matter->id]) }}">
+            @csrf @method('DELETE')
+            <div class="modal-header">
+                <h2 class="modal-title h6" id="arhivaPredmetaNaslov">Arhiviranje predmeta</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label" for="ishodArhive">Ishod</label>
+                <select name="outcome" id="ishodArhive" class="form-select" required>
+                    <option value="">Odaberite ishod</option>
+                    @foreach(\App\Enums\MatterOutcome::cases() as $outcome)
+                        <option value="{{ $outcome->value }}">{{ $outcome->label() }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-dismiss="modal">Odustani</button>
+                <button class="btn btn-danger btn-sm" type="submit">Arhiviraj</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endperm
 <div class="row g-3">
     <div class="col-lg-7">
         @perm('matters.manage')
@@ -22,6 +55,33 @@
             <button class="btn btn-primary btn-sm" type="submit">Spremi</button>
         </form>
         @endperm
+        @if(!empty($deadlineRules))
+        <div class="kartica-kontejner mb-3">
+            <h2 class="h6 text-tema">Zakonski rok</h2>
+            <p class="small text-muted">{{ config('statutory_deadlines.disclaimer') }}</p>
+            @if(!empty($deadlinePreview))
+                <div class="alert alert-warning">
+                    {{ $deadlinePreview['label'] }} istječe <strong>{{ \Illuminate\Support\Carbon::parse($deadlinePreview['due_on'])->format('d.m.Y.') }}</strong>.
+                    {{ $deadlinePreview['basis'] }}
+                </div>
+            @endif
+            @foreach($deadlineRules as $rule)
+                <form method="POST" action="{{ route('organization.matters.deadline.store', [$org->slug, $matter->id]) }}" class="border-top py-2">
+                    @csrf
+                    <input type="hidden" name="rule" value="{{ $rule['key'] }}">
+                    <div class="fw-semibold">{{ $rule['label'] }}</div>
+                    <div class="small text-muted">{{ $rule['trigger'] }} · {{ $rule['amount'] }} {{ ['days' => 'dana', 'months' => 'mjeseci', 'years' => 'godina'][$rule['unit']] }} · {{ $rule['basis'] }}</div>
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-6"><input type="date" name="receipt_on" class="form-control" required value="{{ old('rule') === $rule['key'] ? old('receipt_on') : '' }}"></div>
+                        <div class="col-md-6 d-flex gap-2">
+                            <button class="btn btn-outline-secondary btn-sm" name="intent" value="preview" type="submit">Izračunaj</button>
+                            <button class="btn btn-primary btn-sm" name="intent" value="save" type="submit">Upiši rok</button>
+                        </div>
+                    </div>
+                </form>
+            @endforeach
+        </div>
+        @endif
         <div class="kartica-kontejner">
             <h2 class="h6 text-tema">Kronologija</h2>
             @foreach($matter->timelineEntries->sortByDesc('occurred_at') as $entry)

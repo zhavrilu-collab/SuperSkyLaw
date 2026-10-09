@@ -12,7 +12,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use Illuminate\View\View;
 
 class OrganizationTeamController extends Controller
 {
@@ -21,30 +20,12 @@ class OrganizationTeamController extends Controller
         private readonly PlanFeatureService $plans,
     ) {}
 
-    public function index(string $slug): View
+    public function index(string $slug): RedirectResponse
     {
         $organization = app('currentOrganization');
         $this->rbac->authorize($organization->id, (int) Auth::id(), 'team.manage');
 
-        $members = OrganizationUser::query()
-            ->with('user')
-            ->where('organization_id', $organization->id)
-            ->orderBy('role')
-            ->get();
-
-        $pendingInvites = StaffInvite::query()
-            ->where('organization_id', $organization->id)
-            ->whereNull('accepted_at')
-            ->where('expires_at', '>', now())
-            ->orderByDesc('created_at')
-            ->get();
-
-        return view('organization.team', [
-            'organization' => $organization,
-            'members' => $members,
-            'pendingInvites' => $pendingInvites,
-            'roles' => OrganizationRole::cases(),
-        ]);
+        return redirect()->route('organization.settings.edit', $organization->slug);
     }
 
     public function storeInvite(Request $request, string $slug): RedirectResponse

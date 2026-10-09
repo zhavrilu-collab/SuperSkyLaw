@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\CoreAuthService;
+use App\Support\AdminConsoleHttp;
+use App\Support\CoreApiUrl;
 use App\Support\UserOrganizationNavigation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,10 +27,8 @@ class CoreOAuthCallbackController extends Controller
             ]);
         }
 
-        $response = \Illuminate\Support\Facades\Http::withToken($token)
-            ->acceptJson()
-            ->timeout(8)
-            ->get(\App\Support\CoreApiUrl::endpoint('/auth/me'));
+        $response = AdminConsoleHttp::client($token)
+            ->get(CoreApiUrl::endpoint('/auth/me'));
 
         if (! $response->successful()) {
             return redirect()->route('login')->withErrors([

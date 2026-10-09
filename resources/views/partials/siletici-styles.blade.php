@@ -1193,4 +1193,14 @@
         box-shadow: 0 16px 40px rgba(0,0,0,.12);
     }
     .modal-footer { background: #fafafa; }
+    .faza { font-weight: 700; white-space: nowrap; }
+    .faza::before { content: ""; display: inline-block; width: .55rem; height: .55rem; border-radius: 50%; margin-right: .35rem; background: currentColor; vertical-align: middle; }
+    .faza-nova { color: #1d4ed8; }
+    .faza-roku { color: #15803d; }
+    .faza-hitno { color: #a16207; }
+    .faza-danas { color: #b91c1c; animation: faza-blink 1s step-start infinite; }
+    .faza-ceka { color: #6b7280; }
+    .faza-rociste { color: #7e22ce; }
+    .faza-arhiv { color: #111827; }
+    @keyframes faza-blink { 50% { opacity: .25; } }
 </style>

@@ -19,9 +19,7 @@ class PartyController extends Controller
     {
         $this->authorizePerm('parties.view');
 
-        $kind = $request->query('kind');
         $parties = Party::query()
-            ->when(PartyKind::tryFrom((string) $kind) !== null, fn ($query) => $query->where('kind', $kind))
             ->when($request->filled('q'), function ($query) use ($request) {
                 $term = '%'.$request->string('q').'%';
                 $query->where(function ($inner) use ($term) {
@@ -33,7 +31,6 @@ class PartyController extends Controller
 
         return view('organization.parties.index', [
             'parties' => $parties,
-            'kind' => $kind,
         ]);
     }
 

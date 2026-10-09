@@ -20,9 +20,11 @@ class OrganizationTeamTest extends TestCase
         [$owner, $organization] = $this->seedOrganizationWithOwner();
 
         $this->actingAs($owner)
+            ->followingRedirects()
             ->get(route('organization.team.index', $organization->slug))
             ->assertOk()
-            ->assertSee('Tim');
+            ->assertSee('Tim')
+            ->assertSee('Osnovni podaci');
     }
 
     public function test_lawyer_cannot_manage_team(): void

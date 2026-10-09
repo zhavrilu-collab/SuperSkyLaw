@@ -22,6 +22,9 @@ class CourtEvent extends Model
         'ends_at',
         'responsible_user_id',
         'is_preclusive',
+        'origin',
+        'statutory_rule',
+        'receipt_on',
         'notes',
         'e_oglasna_url',
         'completed_at',
@@ -36,6 +39,7 @@ class CourtEvent extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'completed_at' => 'datetime',
+            'receipt_on' => 'date',
             'is_preclusive' => 'boolean',
         ];
     }

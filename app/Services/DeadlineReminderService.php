@@ -13,8 +13,11 @@ use Illuminate\Support\Facades\Mail;
 
 class DeadlineReminderService
 {
-    /** @var list<int> */
-    public const OFFSETS = [10080, 1440, 60];
+    /** @var list<int> 30 dana, 7 dana, 3 dana, dan prije */
+    public const DEADLINE_OFFSETS = [43200, 10080, 4320, 1440];
+
+    /** @var list<int> dan prije i sat prije */
+    public const HEARING_OFFSETS = [1440, 60];
 
     public function sendDue(): int
     {
@@ -28,10 +31,14 @@ class DeadlineReminderService
             ->get();
 
         foreach ($events as $event) {
-            foreach (self::OFFSETS as $offset) {
+            $offsets = ($event->type->isDeadline() || $event->is_preclusive || in_array($event->origin, ['statutory', 'court_ordered'], true))
+                ? self::DEADLINE_OFFSETS
+                : self::HEARING_OFFSETS;
+
+            foreach ($offsets as $offset) {
                 $dueAt = $event->starts_at->copy()->subMinutes($offset);
 
-                if (now()->lt($dueAt)) {
+                if ($dueAt->lt($event->created_at) || now()->lt($dueAt)) {
                     continue;
                 }
 

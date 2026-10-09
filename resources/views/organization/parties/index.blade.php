@@ -9,7 +9,6 @@
     @endperm
 </div>
 <form class="mb-3" method="GET">
-    @if($kind)<input type="hidden" name="kind" value="{{ $kind }}">@endif
     <input class="form-control" name="q" value="{{ request('q') }}" placeholder="Ime ili OIB">
 </form>
 <div class="kartica-kontejner">

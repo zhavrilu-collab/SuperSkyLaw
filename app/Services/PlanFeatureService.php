@@ -29,6 +29,6 @@ class PlanFeatureService
         $plan = $organization->plan ?: 'basic';
         $features = config('plan_features.'.$plan, config('plan_features.basic'));
 
-        return $features[$feature] ?? false;
+        return array_key_exists($feature, $features) ? $features[$feature] : false;
     }
 }

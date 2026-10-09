@@ -34,6 +34,17 @@
     @endif
 </div>
 
+@if($critical->isNotEmpty())
+<div class="kartica-kontejner mb-3">
+    <h2 class="h6 text-tema">Kritični predmeti</h2>
+    @foreach($critical as $matter)
+        <div class="d-flex justify-content-between border-bottom py-2">
+            <a href="{{ route('organization.matters.show', [$organization->slug, $matter->id]) }}">{{ $matter->internal_number }} — {{ $matter->title }}</a>
+            @include('partials.matter-phase', ['matter' => $matter])
+        </div>
+    @endforeach
+</div>
+@endif
 <div class="row g-3">
     <div class="col-lg-4">
         <div class="kartica-kontejner h-100">

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\MatterPhase;
+use App\Enums\MatterStatus;
 use App\Http\Controllers\Concerns\ResolvesOffice;
 use App\Models\CourtEvent;
 use App\Models\Invoice;
@@ -50,6 +52,15 @@ class OrganizationDashboardController extends Controller
             ->whereBetween('issue_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])
             ->get();
 
+        $critical = Matter::query()
+            ->visibleTo($membership)
+            ->with('courtEvents')
+            ->where('status', '!=', MatterStatus::Archived->value)
+            ->get()
+            ->filter(fn (Matter $matter) => in_array($matter->phase(), [MatterPhase::DueToday, MatterPhase::Urgent], true))
+            ->sortBy(fn (Matter $matter) => $matter->phase() === MatterPhase::DueToday ? 0 : 1)
+            ->values();
+
         return view('organization.dashboard', [
             'organization' => $organization,
             'membership' => $membership,
@@ -57,6 +68,7 @@ class OrganizationDashboardController extends Controller
             'canFinance' => $this->rbac->can($organization->id, $userId, 'finance.view'),
             'upcoming' => $events,
             'overdue' => $overdue,
+            'critical' => $critical,
             'unread' => OfficeNotification::query()->where('user_id', $userId)->whereNull('read_at')->count(),
             'invoiced' => $invoices->sum('total_cents'),
             'collected' => $invoices->sum('paid_cents'),

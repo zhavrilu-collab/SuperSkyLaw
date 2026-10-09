@@ -13,6 +13,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call([
+            CourtSeeder::class,
+            DisputeCategorySeeder::class,
+        ]);
+
         $partner = User::query()->updateOrCreate(
             ['email' => 'partner@law.test'],
             [

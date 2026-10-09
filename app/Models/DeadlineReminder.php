@@ -30,7 +30,9 @@ class DeadlineReminder extends Model
     public function label(): string
     {
         return match ($this->offset_minutes) {
+            43200 => '30 dana',
             10080 => '7 dana',
+            4320 => '3 dana',
             1440 => '1 dan',
             60 => '1 sat',
             default => $this->offset_minutes.' min',

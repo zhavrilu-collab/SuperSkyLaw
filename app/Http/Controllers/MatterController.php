@@ -6,8 +6,11 @@ use App\Enums\AuditAction;
 use App\Enums\BillingMethod;
 use App\Enums\ConflictResult;
 use App\Enums\MatterKind;
+use App\Enums\MatterOutcome;
 use App\Enums\MatterPartyRole;
+use App\Enums\MatterPhase;
 use App\Enums\MatterStatus;
+use App\Enums\OfficePosition;
 use App\Enums\OrganizationRole;
 use App\Enums\PartyKind;
 use App\Enums\PartySide;
@@ -15,16 +18,22 @@ use App\Enums\TimelineEntryType;
 use App\Http\Controllers\Concerns\ResolvesOffice;
 use App\Models\AuditLog;
 use App\Models\ConflictCheck;
+use App\Models\Court;
+use App\Models\DisputeCategory;
 use App\Models\Matter;
 use App\Models\MatterParty;
 use App\Models\OrganizationUser;
 use App\Models\Party;
 use App\Models\TimelineEntry;
+use App\Rules\CourtCaseNumberRule;
 use App\Rules\ValidOib;
 use App\Services\ConflictCheckService;
+use App\Services\StatutoryDeadlineCatalog;
+use App\Support\CourtCaseNumber;
 use App\Services\PlanFeatureService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -38,17 +47,50 @@ class MatterController extends Controller
         private readonly PlanFeatureService $plans,
     ) {}
 
-    public function index(string $slug): View
+    public function index(Request $request, string $slug): View
     {
         $this->authorizePerm('matters.view');
 
+        $sort = $request->string('sort')->toString();
+        if (! in_array($sort, ['number', 'party', 'title', 'case_number', 'kind', 'dispute', 'court', 'status'], true)) {
+            $sort = 'number';
+        }
+        $dir = $request->string('dir')->toString() === 'asc' ? 'asc' : 'desc';
+
+        $filters = [
+            'q' => trim($request->string('q')->toString()),
+            'kind' => MatterKind::tryFrom($request->string('kind')->toString())?->value ?? '',
+            'dispute' => ctype_digit($request->string('dispute')->toString()) ? $request->string('dispute')->toString() : '',
+            'court' => $request->string('court')->toString(),
+            'status' => MatterPhase::tryFrom($request->string('status')->toString())?->value ?? '',
+        ];
+        if (! ctype_digit($filters['court']) && ! str_starts_with($filters['court'], 'text:')) {
+            $filters['court'] = '';
+        }
+
         $matters = Matter::query()
             ->visibleTo($this->membership())
-            ->with('assignees')
-            ->orderByDesc('id')
+            ->with(['assignees', 'courtEvents', 'parties.party', 'court', 'disputeCategory'])
             ->get();
 
-        return view('organization.matters.index', ['matters' => $matters]);
+        $extraCourts = $matters
+            ->filter(fn (Matter $matter) => $matter->court_id === null && filled($matter->court_name))
+            ->map(fn (Matter $matter) => $matter->court_name)
+            ->unique()
+            ->sort()
+            ->values();
+
+        $matters = $this->filterMatters($matters, $filters);
+        $matters = $this->sortMatters($matters, $sort, $dir);
+
+        return view('organization.matters.index', [
+            'matters' => $matters,
+            'filters' => $filters,
+            'sort' => $sort,
+            'dir' => $dir,
+            'extraCourts' => $extraCourts,
+            ...$this->formCatalogs(),
+        ]);
     }
 
     public function create(string $slug): View
@@ -59,6 +101,7 @@ class MatterController extends Controller
             'matter' => new Matter(['status' => MatterStatus::Active, 'billing_method' => BillingMethod::Hourly]),
             'lawyers' => $this->lawyers(),
             'conflict' => session('conflict'),
+            ...$this->formCatalogs(),
         ]);
     }
 
@@ -88,19 +131,9 @@ class MatterController extends Controller
             $matter = Matter::query()->create([
                 'title' => $data['title'],
                 'internal_number' => $this->nextInternalNumber(),
-                'kind' => $data['kind'],
-                'status' => $data['status'],
-                'court_name' => $data['court_name'] ?? null,
-                'case_mark' => $data['case_mark'] ?? null,
-                'case_number' => $data['case_number'] ?? null,
-                'case_year' => $data['case_year'] ?? null,
-                'dispute_value_cents' => $this->eurosToCents($data['dispute_value'] ?? null),
-                'billing_method' => $data['billing_method'],
-                'hourly_rate_cents' => $this->eurosToCents($data['hourly_rate'] ?? null),
-                'flat_fee_cents' => $this->eurosToCents($data['flat_fee'] ?? null),
-                'success_fee_note' => $data['success_fee_note'] ?? null,
                 'spnft_required' => in_array($data['kind'], config('spnft.kinds'), true),
                 'created_by_user_id' => auth()->id(),
+                ...$this->matterAttributes($data),
             ]);
 
             $assignees = array_unique(array_merge($data['assignee_ids'] ?? [], [(int) auth()->id()]));
@@ -135,7 +168,7 @@ class MatterController extends Controller
     {
         $this->authorizePerm('matters.view');
         $model = $this->findVisibleMatter($matter);
-        $model->load(['assignees', 'parties.party', 'conflictChecks.checker', 'timelineEntries.user', 'documents', 'ethicalWalls.user', 'spnftChecks', 'limitationEstimate']);
+        $model->load(['assignees', 'parties.party', 'conflictChecks.checker', 'timelineEntries.user', 'documents', 'ethicalWalls.user', 'spnftChecks', 'limitationEstimate', 'courtEvents', 'disputeCategory', 'court']);
         AuditLog::record(AuditAction::View, $model, 'Pregled predmeta '.$model->internal_number);
 
         return view('organization.matters.show', [
@@ -143,6 +176,9 @@ class MatterController extends Controller
             'lawyers' => $this->lawyers(),
             'parties' => Party::query()->orderBy('name')->get(),
             'members' => OrganizationUser::query()->with('user')->where('organization_id', $this->office()->id)->get(),
+            'deadlineRules' => app(StatutoryDeadlineCatalog::class)->forMatter($model),
+            'deadlinePreview' => session('deadline_preview'),
+            ...$this->formCatalogs(),
         ]);
     }
 
@@ -154,17 +190,7 @@ class MatterController extends Controller
 
         $model->update([
             'title' => $data['title'],
-            'kind' => $data['kind'],
-            'status' => $data['status'],
-            'court_name' => $data['court_name'] ?? null,
-            'case_mark' => $data['case_mark'] ?? null,
-            'case_number' => $data['case_number'] ?? null,
-            'case_year' => $data['case_year'] ?? null,
-            'dispute_value_cents' => $this->eurosToCents($data['dispute_value'] ?? null),
-            'billing_method' => $data['billing_method'],
-            'hourly_rate_cents' => $this->eurosToCents($data['hourly_rate'] ?? null),
-            'flat_fee_cents' => $this->eurosToCents($data['flat_fee'] ?? null),
-            'success_fee_note' => $data['success_fee_note'] ?? null,
+            ...$this->matterAttributes($data),
         ]);
 
         if (isset($data['assignee_ids'])) {
@@ -176,11 +202,17 @@ class MatterController extends Controller
         return back()->with('status', 'Predmet je ažuriran.');
     }
 
-    public function destroy(string $slug, int $matter): RedirectResponse
+    public function destroy(Request $request, string $slug, int $matter): RedirectResponse
     {
         $this->authorizePerm('matters.delete');
         $model = $this->findVisibleMatter($matter);
-        $model->update(['status' => MatterStatus::Archived]);
+        $data = $request->validate([
+            'outcome' => ['required', Rule::enum(MatterOutcome::class)],
+        ]);
+        $model->update([
+            'status' => MatterStatus::Archived,
+            'outcome' => $data['outcome'],
+        ]);
         AuditLog::record(AuditAction::Update, $model, 'Arhiviranje predmeta '.$model->internal_number);
 
         return redirect()
@@ -264,10 +296,12 @@ class MatterController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'kind' => ['required', Rule::enum(MatterKind::class)],
             'status' => ['required', Rule::enum(MatterStatus::class)],
+            'office_position' => ['required', Rule::enum(OfficePosition::class)],
+            'outcome' => [$request->input('status') === MatterStatus::Archived->value ? 'required' : 'nullable', Rule::enum(MatterOutcome::class)],
+            'court_id' => ['nullable'],
             'court_name' => ['nullable', 'string', 'max:255'],
-            'case_mark' => ['nullable', 'string', 'max:20'],
-            'case_number' => ['nullable', 'string', 'max:30'],
-            'case_year' => ['nullable', 'integer', 'min:1990', 'max:2100'],
+            'court_case_number' => ['nullable', 'string', 'max:40', new CourtCaseNumberRule],
+            'dispute_category_id' => ['nullable', 'integer', Rule::exists('dispute_categories', 'id')->where('kind', (string) $request->input('kind'))],
             'dispute_value' => ['nullable', 'numeric', 'min:0'],
             'billing_method' => ['required', Rule::enum(BillingMethod::class)],
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
@@ -290,6 +324,58 @@ class MatterController extends Controller
         }
 
         return $request->validate($rules);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function matterAttributes(array $data): array
+    {
+        $case = CourtCaseNumber::parts($data['court_case_number'] ?? null) ?? [];
+        $courtId = null;
+        $courtName = null;
+        $selectedCourt = $data['court_id'] ?? null;
+
+        if ($selectedCourt && $selectedCourt !== 'other') {
+            $court = Court::query()->whereKey($selectedCourt)->where('active', true)->first();
+            if ($court === null) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'court_id' => 'Odabrani sud nije na popisu.',
+                ]);
+            }
+            $courtId = $court->id;
+            $courtName = $court->name;
+        } elseif ($selectedCourt === 'other') {
+            $courtName = $data['court_name'] ?? null;
+        }
+
+        return [
+            'kind' => $data['kind'],
+            'status' => $data['status'],
+            'office_position' => $data['office_position'],
+            'outcome' => ($data['status'] ?? null) === MatterStatus::Archived->value ? ($data['outcome'] ?? null) : null,
+            'court_id' => $courtId,
+            'court_name' => $courtName,
+            'dispute_category_id' => $data['dispute_category_id'] ?? null,
+            'dispute_value_cents' => $this->eurosToCents($data['dispute_value'] ?? null),
+            'billing_method' => $data['billing_method'],
+            'hourly_rate_cents' => $this->eurosToCents($data['hourly_rate'] ?? null),
+            'flat_fee_cents' => $this->eurosToCents($data['flat_fee'] ?? null),
+            'success_fee_note' => $data['success_fee_note'] ?? null,
+            ...$case,
+        ];
+    }
+
+    /**
+     * @return array{courts: \Illuminate\Support\Collection<int, Court>, categories: \Illuminate\Support\Collection<int, DisputeCategory>}
+     */
+    private function formCatalogs(): array
+    {
+        return [
+            'courts' => Court::query()->where('active', true)->orderBy('sort')->get(),
+            'categories' => DisputeCategory::query()->where('active', true)->orderBy('sort')->get(),
+        ];
     }
 
     /**
@@ -365,6 +451,94 @@ class MatterController extends Controller
     /**
      * @return \Illuminate\Support\Collection<int, OrganizationUser>
      */
+    /**
+     * @param  Collection<int, Matter>  $matters
+     * @param  array{q: string, kind: string, dispute: string, court: string, status: string}  $filters
+     * @return Collection<int, Matter>
+     */
+    private function filterMatters(Collection $matters, array $filters): Collection
+    {
+        return $matters->filter(function (Matter $matter) use ($filters): bool {
+            if ($filters['kind'] !== '' && $matter->kind->value !== $filters['kind']) {
+                return false;
+            }
+            if ($filters['dispute'] !== '' && (string) $matter->dispute_category_id !== $filters['dispute']) {
+                return false;
+            }
+            if ($filters['status'] !== '' && $matter->phase()->value !== $filters['status']) {
+                return false;
+            }
+            if (str_starts_with($filters['court'], 'text:')) {
+                $name = substr($filters['court'], 5);
+                if ($matter->court_id !== null || $matter->court_name !== $name) {
+                    return false;
+                }
+            } elseif ($filters['court'] !== '' && (string) $matter->court_id !== $filters['court']) {
+                return false;
+            }
+            if ($filters['q'] === '') {
+                return true;
+            }
+
+            $haystack = mb_strtolower(implode(' ', array_filter([
+                $matter->internal_number,
+                $matter->clientLabel(),
+                $matter->title,
+                $matter->court_case_number,
+                $matter->kind->label(),
+                $matter->disputeCategory?->name,
+                $matter->courtLabel(),
+                $matter->phase()->label(),
+                ...$matter->parties->map(fn (MatterParty $party) => $party->party?->name)->all(),
+            ])));
+
+            return str_contains($haystack, mb_strtolower($filters['q']));
+        })->values();
+    }
+
+    /**
+     * @param  Collection<int, Matter>  $matters
+     * @return Collection<int, Matter>
+     */
+    private function sortMatters(Collection $matters, string $sort, string $dir): Collection
+    {
+        $collator = class_exists(\Collator::class) ? new \Collator('hr') : null;
+
+        return $matters->sort(function (Matter $left, Matter $right) use ($sort, $dir, $collator): int {
+            $a = $this->sortValue($left, $sort);
+            $b = $this->sortValue($right, $sort);
+
+            if ($a === '' || $b === '') {
+                if ($a === $b) {
+                    return $left->id <=> $right->id;
+                }
+
+                return $a === '' ? 1 : -1;
+            }
+
+            $cmp = $collator ? $collator->compare($a, $b) : strcasecmp($a, $b);
+            if ($cmp === 0) {
+                $cmp = $left->id <=> $right->id;
+            }
+
+            return $dir === 'desc' ? -$cmp : $cmp;
+        })->values();
+    }
+
+    private function sortValue(Matter $matter, string $sort): string
+    {
+        return match ($sort) {
+            'party' => $matter->clientLabel(),
+            'title' => (string) $matter->title,
+            'case_number' => (string) ($matter->court_case_number ?? ''),
+            'kind' => $matter->kind->label(),
+            'dispute' => (string) ($matter->disputeCategory?->name ?? ''),
+            'court' => $matter->courtLabel(),
+            'status' => $matter->phase()->label(),
+            default => (string) $matter->internal_number,
+        };
+    }
+
     private function lawyers()
     {
         return OrganizationUser::query()

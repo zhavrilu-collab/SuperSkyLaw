@@ -1,69 +1,24 @@
 @include('partials.nav-icons')
 @php
     $slug = $org->slug;
-    $navTab = request('kind') ?? request('filter');
 @endphp
 <nav class="app-sidebar-nav" aria-label="Moduli">
     <a class="app-sidebar-link @if(request()->routeIs('organization.dashboard')) active @endif" href="{{ route('organization.dashboard', $slug) }}">@include('partials.nav-icon', ['name' => 'home'])Početna</a>
 
     @perm('settings.manage')
-    @php $officeOpen = request()->routeIs('organization.settings.*', 'organization.team.*'); @endphp
-    <div class="app-sidebar-group @if($officeOpen) is-open @endif">
-        <div class="app-sidebar-group-head">
-            <a class="app-sidebar-group-link @if($officeOpen) active @endif" href="{{ route('organization.settings.edit', $slug) }}">@include('partials.nav-icon', ['name' => 'building'])Ured</a>
-            <button type="button" class="app-sidebar-group-toggle" aria-expanded="{{ $officeOpen ? 'true' : 'false' }}"><span class="app-sidebar-chevron"></span></button>
-        </div>
-        <div class="app-sidebar-submenu">
-            <a class="app-sidebar-link @if(request()->routeIs('organization.settings.*')) active @endif" href="{{ route('organization.settings.edit', $slug) }}">@include('partials.nav-icon', ['name' => 'id-card'])Osnovni podaci</a>
-            @perm('team.manage')
-            <a class="app-sidebar-link @if(request()->routeIs('organization.team.*')) active @endif" href="{{ route('organization.team.index', $slug) }}">@include('partials.nav-icon', ['name' => 'people'])Tim</a>
-            @endperm
-        </div>
-    </div>
+    <a class="app-sidebar-link @if(request()->routeIs('organization.settings.edit', 'organization.team.*')) active @endif" href="{{ route('organization.settings.edit', $slug) }}">@include('partials.nav-icon', ['name' => 'building'])Ured</a>
     @endperm
 
     @perm('matters.view')
-    @php $mattersOpen = request()->routeIs('organization.matters.*'); @endphp
-    <div class="app-sidebar-group @if($mattersOpen) is-open @endif">
-        <div class="app-sidebar-group-head">
-            <a class="app-sidebar-group-link @if($mattersOpen) active @endif" href="{{ route('organization.matters.index', $slug) }}">@include('partials.nav-icon', ['name' => 'briefcase'])Predmeti</a>
-            <button type="button" class="app-sidebar-group-toggle" aria-expanded="{{ $mattersOpen ? 'true' : 'false' }}"><span class="app-sidebar-chevron"></span></button>
-        </div>
-        <div class="app-sidebar-submenu">
-            <a class="app-sidebar-link @if(request()->routeIs('organization.matters.index', 'organization.matters.show')) active @endif" href="{{ route('organization.matters.index', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Popis</a>
-            @perm('matters.manage')
-            <a class="app-sidebar-link @if(request()->routeIs('organization.matters.create')) active @endif" href="{{ route('organization.matters.create', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Novi predmet</a>
-            @endperm
-        </div>
-    </div>
+    <a class="app-sidebar-link @if(request()->routeIs('organization.matters.*')) active @endif" href="{{ route('organization.matters.index', $slug) }}">@include('partials.nav-icon', ['name' => 'briefcase'])Predmeti</a>
     @endperm
 
     @perm('parties.view')
-    @php $partiesOpen = request()->routeIs('organization.parties.*'); @endphp
-    <div class="app-sidebar-group @if($partiesOpen) is-open @endif">
-        <div class="app-sidebar-group-head">
-            <a class="app-sidebar-group-link @if($partiesOpen) active @endif" href="{{ route('organization.parties.index', $slug) }}">@include('partials.nav-icon', ['name' => 'people'])Stranke</a>
-            <button type="button" class="app-sidebar-group-toggle" aria-expanded="{{ $partiesOpen ? 'true' : 'false' }}"><span class="app-sidebar-chevron"></span></button>
-        </div>
-        <div class="app-sidebar-submenu">
-            <a class="app-sidebar-link @if($partiesOpen && $navTab === 'person') active @endif" href="{{ route('organization.parties.index', ['slug' => $slug, 'kind' => 'person']) }}">@include('partials.nav-icon', ['name' => 'user'])Fizičke</a>
-            <a class="app-sidebar-link @if($partiesOpen && $navTab === 'company') active @endif" href="{{ route('organization.parties.index', ['slug' => $slug, 'kind' => 'company']) }}">@include('partials.nav-icon', ['name' => 'building'])Pravne</a>
-        </div>
-    </div>
+    <a class="app-sidebar-link @if(request()->routeIs('organization.parties.*')) active @endif" href="{{ route('organization.parties.index', $slug) }}">@include('partials.nav-icon', ['name' => 'people'])Stranke</a>
     @endperm
 
     @perm('calendar.view')
-    @php $calOpen = request()->routeIs('organization.calendar.*'); @endphp
-    <div class="app-sidebar-group @if($calOpen) is-open @endif">
-        <div class="app-sidebar-group-head">
-            <a class="app-sidebar-group-link @if($calOpen) active @endif" href="{{ route('organization.calendar.index', $slug) }}">@include('partials.nav-icon', ['name' => 'calendar'])Kalendar</a>
-            <button type="button" class="app-sidebar-group-toggle" aria-expanded="{{ $calOpen ? 'true' : 'false' }}"><span class="app-sidebar-chevron"></span></button>
-        </div>
-        <div class="app-sidebar-submenu">
-            <a class="app-sidebar-link @if($calOpen && request('filter') === 'hearings') active @endif" href="{{ route('organization.calendar.index', ['slug' => $slug, 'filter' => 'hearings']) }}">@include('partials.nav-icon', ['name' => 'calendar-range'])Ročišta</a>
-            <a class="app-sidebar-link @if($calOpen && request('filter') === 'deadlines') active @endif" href="{{ route('organization.calendar.index', ['slug' => $slug, 'filter' => 'deadlines']) }}">@include('partials.nav-icon', ['name' => 'alert'])Rokovi</a>
-        </div>
-    </div>
+    <a class="app-sidebar-link @if(request()->routeIs('organization.calendar.*')) active @endif" href="{{ route('organization.calendar.index', $slug) }}">@include('partials.nav-icon', ['name' => 'calendar'])Kalendar</a>
     @endperm
 
     @planFeature('email_intake')
@@ -109,5 +64,9 @@
             @endplanFeature
         </div>
     </div>
+    @endperm
+
+    @perm('settings.manage')
+    <a class="app-sidebar-link @if(request()->routeIs('organization.settings.appearance')) active @endif" href="{{ route('organization.settings.appearance', $slug) }}">@include('partials.nav-icon', ['name' => 'gear'])Postavke</a>
     @endperm
 </nav>

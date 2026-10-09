@@ -31,15 +31,16 @@ class BillingCalendarDocumentTest extends TestCase
         [$user, $org] = $this->office();
         $matter = $this->matter($org, $user);
 
-        CourtEvent::query()->create([
+        $event = CourtEvent::query()->create([
             'organization_id' => $org->id,
             'matter_id' => $matter->id,
             'type' => 'appeal_deadline',
             'title' => 'Rok za žalbu',
-            'starts_at' => now()->addDays(6),
+            'starts_at' => now()->addDays(2),
             'responsible_user_id' => $user->id,
             'is_preclusive' => true,
         ]);
+        $event->forceFill(['created_at' => now()->subDays(4)])->save();
 
         $this->artisan('legal:send-deadline-reminders')->assertSuccessful();
 
