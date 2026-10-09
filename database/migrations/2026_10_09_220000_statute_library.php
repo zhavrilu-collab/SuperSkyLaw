@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('statutes', function (Blueprint $table) {
             $table->id();
             $table->string('external_id')->unique();
-            $table->string('title');
+            $table->text('title');
             $table->string('citation', 40);
             $table->string('document_type', 40);
             $table->date('published_on')->nullable();
