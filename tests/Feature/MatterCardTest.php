@@ -175,7 +175,25 @@ class MatterCardTest extends TestCase
             ->assertSee('100,00 EUR')
             ->assertSee('1.750,00 EUR')
             ->assertSee('Nije na računu')
-            ->assertSee('Neplaćeno');
+            ->assertSee('Neplaćeno')
+            ->assertSee('Unesi sate');
+
+        $this->actingAs($user)
+            ->post(route('organization.expenses.store', $org->slug), [
+                'matter_id' => $matter->id,
+                'category' => 'travel',
+                'description' => 'Put na pregovore',
+                'amount' => 84,
+                'bill_to' => 'client',
+                'return_to' => 'matter',
+            ])
+            ->assertRedirect(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'obracun']));
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'obracun']))
+            ->assertOk()
+            ->assertSee('Put na pregovore')
+            ->assertSee('84,00 EUR');
 
         $lawyer = User::factory()->create();
         OrganizationUser::query()->create([
@@ -192,11 +210,25 @@ class MatterCardTest extends TestCase
             ->assertSee('Sastanak s klijentom')
             ->assertSee('R-1-2026')
             ->assertDontSee('1.750,00 EUR')
-            ->assertDontSee('Obračun');
+            ->assertSee('Obračun');
+
+        $this->actingAs($lawyer)
+            ->post(route('organization.time.store', $org->slug), [
+                'matter_id' => $matter->id,
+                'description' => 'Pregled spisa',
+                'minutes' => 30,
+                'return_to' => 'matter',
+            ])
+            ->assertRedirect(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'obracun']));
 
         $this->actingAs($lawyer)
             ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'obracun']))
-            ->assertForbidden();
+            ->assertOk()
+            ->assertSee('Pregled spisa')
+            ->assertSee('Unesi sate')
+            ->assertDontSee('1.750,00 EUR')
+            ->assertDontSee('84,00 EUR')
+            ->assertDontSee('Iznos EUR');
     }
 
     /**

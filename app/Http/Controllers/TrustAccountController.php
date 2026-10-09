@@ -52,6 +52,6 @@ class TrustAccountController extends Controller
             $data['counterparty'] ?? null,
         );
 
-        return back()->with('status', 'Promet depozitnog računa je upisan. Nije povezan s poslovnim računom ureda.');
+        return $this->redirectToMatterLedger($request, $matter->id, 'Promet depozitnog računa je upisan. Nije povezan s poslovnim računom ureda.');
     }
 }

@@ -27,6 +27,8 @@ use App\Models\MatterParty;
 use App\Models\MatterStage;
 use App\Models\OrganizationUser;
 use App\Models\Party;
+use App\Models\TariffAction;
+use App\Models\TimeEntry;
 use App\Models\TimelineEntry;
 use App\Rules\CourtCaseNumberRule;
 use App\Rules\ValidOib;
@@ -36,6 +38,7 @@ use App\Services\MatterLedger;
 use App\Services\MatterStagePlan;
 use App\Services\OrganizationRbacService;
 use App\Services\StatutoryDeadlineCatalog;
+use App\Services\TariffCatalog;
 use App\Support\CourtCaseNumber;
 use App\Services\PlanFeatureService;
 use Illuminate\Http\RedirectResponse;
@@ -205,14 +208,32 @@ class MatterController extends Controller
             $tab = 'podaci';
         }
 
-        $seesMoney = $this->access->can($this->office()->id, (int) auth()->id(), 'finance.view');
-        if ($tab === 'obracun' && ! $seesMoney) {
+        $userId = (int) auth()->id();
+        $officeId = $this->office()->id;
+        $seesMoney = $this->access->can($officeId, $userId, 'finance.view');
+        $showLedger = $seesMoney || $this->access->can($officeId, $userId, 'time.view');
+        if ($tab === 'obracun' && ! $showLedger) {
             abort(403, 'Nemate ovlasti za ovu radnju.');
+        }
+
+        $tariffActions = collect();
+        if ($tab === 'obracun' && $this->access->can($officeId, $userId, 'finance.manage') && $this->plans->allows($this->office(), 'tariff_hok')) {
+            $tariffActions = TariffAction::query()->where('tariff_version_id', app(TariffCatalog::class)->current()->id)->orderBy('id')->get();
         }
 
         return view('organization.matters.show', [
             'matter' => $model,
             'tab' => $tab,
+            'showLedger' => $showLedger,
+            'seesMoney' => $seesMoney,
+            'canManageFinance' => $this->access->can($officeId, $userId, 'finance.manage'),
+            'canManageTime' => $this->access->can($officeId, $userId, 'time.manage'),
+            'canApproveTime' => $this->access->can($officeId, $userId, 'time.approve'),
+            'requiresTimeApproval' => $this->plans->allows($this->office(), 'time_approval'),
+            'tariffActions' => $tariffActions,
+            'runningEntry' => $tab === 'obracun'
+                ? TimeEntry::query()->where('user_id', $userId)->whereNull('ended_at')->whereNotNull('started_at')->first()
+                : null,
             'activities' => $tab === 'aktivnosti' ? $this->activityFeed->for($model, $seesMoney) : collect(),
             'ledger' => $tab === 'obracun' ? $this->ledger->summarize($model) : null,
             'vrsta' => DocumentKind::tryFrom($request->string('vrsta')->toString())?->value ?? '',

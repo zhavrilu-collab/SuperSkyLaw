@@ -60,17 +60,17 @@ class InvoiceController extends Controller
             'bill_to' => ['required', Rule::enum(FeeAudience::class)],
         ]);
 
-        $this->findVisibleMatter((int) $data['matter_id']);
+        $matter = $this->findVisibleMatter((int) $data['matter_id']);
 
         Expense::query()->create([
-            'matter_id' => $data['matter_id'],
+            'matter_id' => $matter->id,
             'category' => $data['category'],
             'description' => $data['description'],
             'bill_to' => $data['bill_to'],
             'amount_cents' => (int) round(((float) $data['amount']) * 100),
         ]);
 
-        return back()->with('status', 'Trošak je unesen.');
+        return $this->redirectToMatterLedger($request, $matter->id, 'Trošak je unesen.');
     }
 
     public function store(Request $request, string $slug): RedirectResponse
@@ -99,9 +99,14 @@ class InvoiceController extends Controller
             $data['tariff_charge_ids'] ?? [],
         );
 
+        $message = 'Račun '.$invoice->number.' je izdan.';
+        if ($request->input('return_to') === 'matter') {
+            return $this->redirectToMatterLedger($request, $matter->id, $message);
+        }
+
         return redirect()
             ->route('organization.invoices.show', [$this->office()->slug, $invoice->id])
-            ->with('status', 'Račun '.$invoice->number.' je izdan.');
+            ->with('status', $message);
     }
 
     public function show(string $slug, int $invoice): View

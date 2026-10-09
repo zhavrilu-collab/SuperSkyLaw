@@ -7,6 +7,8 @@ use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Services\OrganizationRbacService;
 use App\Services\PlanFeatureService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 trait ResolvesOffice
 {
@@ -39,5 +41,16 @@ trait ResolvesOffice
     protected function findVisibleMatter(int $matterId): Matter
     {
         return Matter::query()->visibleTo($this->membership())->findOrFail($matterId);
+    }
+
+    protected function redirectToMatterLedger(Request $request, int $matterId, string $message): RedirectResponse
+    {
+        if ($request->input('return_to') === 'matter') {
+            return redirect()
+                ->route('organization.matters.show', [$this->office()->slug, $matterId, 'tab' => 'obracun'])
+                ->with('status', $message);
+        }
+
+        return back()->with('status', $message);
     }
 }

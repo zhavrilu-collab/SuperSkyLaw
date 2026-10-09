@@ -12,27 +12,9 @@
         <form class="d-inline" method="POST" action="{{ route('organization.time.stop', [$org->slug, $running->id]) }}">@csrf<button class="btn btn-sm btn-dark" type="submit">Zaustavi</button></form>
     </div>
 @endif
+<p class="text-muted">Sati se upisuju na predmetu, u Obračunu. Ovdje je pregled ureda.</p>
 <div class="row g-3">
-    <div class="col-lg-5">
-        @perm('time.manage')
-        <form method="POST" action="{{ route('organization.time.start', $org->slug) }}" class="kartica-kontejner mb-3">
-            @csrf
-            <h2 class="h6 text-tema">Štoperica</h2>
-            <select name="matter_id" class="form-select mb-2" required>@foreach($matters as $matter)<option value="{{ $matter->id }}">{{ $matter->internal_number }} — {{ $matter->title }}</option>@endforeach</select>
-            <input name="description" class="form-control mb-2" placeholder="Opis radnje" required>
-            <button class="btn btn-primary btn-sm" type="submit">Pokreni</button>
-        </form>
-        <form method="POST" action="{{ route('organization.time.store', $org->slug) }}" class="kartica-kontejner">
-            @csrf
-            <h2 class="h6 text-tema">Ručni unos</h2>
-            <select name="matter_id" class="form-select mb-2" required>@foreach($matters as $matter)<option value="{{ $matter->id }}">{{ $matter->internal_number }}</option>@endforeach</select>
-            <input name="description" class="form-control mb-2" placeholder="Npr. Izrada žalbe" required>
-            <input name="minutes" type="number" min="1" class="form-control mb-2" placeholder="Minute" required>
-            <button class="btn btn-primary btn-sm" type="submit">Unesi</button>
-        </form>
-        @endperm
-    </div>
-    <div class="col-lg-7">
+    <div class="col-12">
         <div class="kartica-kontejner">
             <div class="table-responsive">
                 <table class="table mb-0">

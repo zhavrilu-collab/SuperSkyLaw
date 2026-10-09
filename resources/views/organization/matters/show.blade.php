@@ -87,11 +87,11 @@
             <a class="nav-link {{ $tab === $key ? 'active' : '' }}" href="{{ route('organization.matters.show', [$org->slug, $matter->id, 'tab' => $key]) }}">{{ $label }}</a>
         </li>
     @endforeach
-    @perm('finance.view')
+    @if($showLedger)
         <li class="nav-item">
             <a class="nav-link {{ $tab === 'obracun' ? 'active' : '' }}" href="{{ route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'obracun']) }}">Obračun</a>
         </li>
-    @endperm
+    @endif
 </ul>
 @include('organization.matters.tabs.'.$tab)
 @endsection

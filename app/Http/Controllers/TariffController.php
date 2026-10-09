@@ -66,6 +66,6 @@ class TariffController extends Controller
             'created_by_user_id' => auth()->id(),
         ]);
 
-        return back()->with('status', 'Nagrada je obračunata: '.$quote['points'].' bodova.');
+        return $this->redirectToMatterLedger($request, $matter->id, 'Nagrada je obračunata: '.$quote['points'].' bodova.');
     }
 }

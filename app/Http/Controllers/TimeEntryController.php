@@ -67,7 +67,7 @@ class TimeEntryController extends Controller
             'status' => $this->initialStatus(),
         ]);
 
-        return back()->with('status', 'Radnja je unesena.');
+        return $this->redirectToMatterLedger($request, $matter->id, 'Radnja je unesena.');
     }
 
     public function start(Request $request, string $slug): RedirectResponse
@@ -100,10 +100,10 @@ class TimeEntryController extends Controller
             'status' => $this->initialStatus(),
         ]);
 
-        return back()->with('status', 'Štoperica je pokrenuta.');
+        return $this->redirectToMatterLedger($request, $matter->id, 'Štoperica je pokrenuta.');
     }
 
-    public function stop(string $slug, int $entry): RedirectResponse
+    public function stop(Request $request, string $slug, int $entry): RedirectResponse
     {
         $this->authorizePerm('time.manage');
         $model = TimeEntry::query()->where('user_id', auth()->id())->findOrFail($entry);
@@ -118,22 +118,22 @@ class TimeEntryController extends Controller
             'minutes' => $minutes,
         ])->save();
 
-        return back()->with('status', 'Štoperica je zaustavljena ('.$minutes.' min).');
+        return $this->redirectToMatterLedger($request, $model->matter_id, 'Štoperica je zaustavljena ('.$minutes.' min).');
     }
 
-    public function approve(string $slug, int $entry): RedirectResponse
+    public function approve(Request $request, string $slug, int $entry): RedirectResponse
     {
-        return $this->changeStatus($entry, TimeEntryStatus::Approved, 'Sati su odobreni za fakturiranje.');
+        return $this->changeStatus($request, $entry, TimeEntryStatus::Approved, 'Sati su odobreni za fakturiranje.');
     }
 
-    public function writeOff(string $slug, int $entry): RedirectResponse
+    public function writeOff(Request $request, string $slug, int $entry): RedirectResponse
     {
-        return $this->changeStatus($entry, TimeEntryStatus::WrittenOff, 'Sati su otpisani i ostaju vidljivi.');
+        return $this->changeStatus($request, $entry, TimeEntryStatus::WrittenOff, 'Sati su otpisani i ostaju vidljivi.');
     }
 
-    public function nonBillable(string $slug, int $entry): RedirectResponse
+    public function nonBillable(Request $request, string $slug, int $entry): RedirectResponse
     {
-        return $this->changeStatus($entry, TimeEntryStatus::NonBillable, 'Sati su označeni kao nenaplativi.');
+        return $this->changeStatus($request, $entry, TimeEntryStatus::NonBillable, 'Sati su označeni kao nenaplativi.');
     }
 
     private function initialStatus(): TimeEntryStatus
@@ -143,7 +143,7 @@ class TimeEntryController extends Controller
             : TimeEntryStatus::Approved;
     }
 
-    private function changeStatus(int $entry, TimeEntryStatus $status, string $message): RedirectResponse
+    private function changeStatus(Request $request, int $entry, TimeEntryStatus $status, string $message): RedirectResponse
     {
         $this->authorizePerm('time.approve');
         $this->authorizeFeature('time_approval');
@@ -155,6 +155,6 @@ class TimeEntryController extends Controller
 
         $model->forceFill(['status' => $status])->save();
 
-        return back()->with('status', $message);
+        return $this->redirectToMatterLedger($request, $model->matter_id, $message);
     }
 }

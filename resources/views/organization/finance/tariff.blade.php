@@ -27,18 +27,7 @@
         </table>
     </div>
 </div>
-@perm('finance.manage')
-<form method="POST" action="{{ route('organization.tariff.store', $org->slug) }}" class="kartica-kontejner mb-3">
-    @csrf
-    <h2 class="h6 text-tema">Obračunaj radnju</h2>
-    <div class="row g-2">
-        <div class="col-md-4"><select name="matter_id" class="form-select" required>@foreach($matters as $matter)<option value="{{ $matter->id }}">{{ $matter->internal_number }} — {{ $matter->title }}</option>@endforeach</select></div>
-        <div class="col-md-4"><select name="tariff_action_id" class="form-select" required>@foreach($actions as $action)<option value="{{ $action->id }}">{{ $action->label }}</option>@endforeach</select></div>
-        <div class="col-md-3"><select name="audience" class="form-select">@foreach(\App\Enums\FeeAudience::cases() as $audience)<option value="{{ $audience->value }}">{{ $audience->label() }}</option>@endforeach</select></div>
-        <div class="col-md-1"><button class="btn btn-primary" type="submit">Obračunaj</button></div>
-    </div>
-</form>
-@endperm
+<p class="text-muted">Radnja se obračunava na predmetu, u Obračunu.</p>
 <div class="kartica-kontejner">
     <div class="table-responsive">
         <table class="table mb-0">
