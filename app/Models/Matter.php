@@ -125,6 +125,11 @@ class Matter extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function statutes(): BelongsToMany
+    {
+        return $this->belongsToMany(Statute::class, 'matter_statute')->withTimestamps();
+    }
+
     public function ethicalWalls(): HasMany
     {
         return $this->hasMany(EthicalWall::class);

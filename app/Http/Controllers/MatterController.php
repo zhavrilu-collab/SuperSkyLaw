@@ -27,6 +27,7 @@ use App\Models\MatterParty;
 use App\Models\MatterStage;
 use App\Models\OrganizationUser;
 use App\Models\Party;
+use App\Models\Statute;
 use App\Models\TariffAction;
 use App\Models\TimeEntry;
 use App\Models\TimelineEntry;
@@ -196,6 +197,7 @@ class MatterController extends Controller
             'ethicalWalls.user',
             'spnftChecks',
             'limitationEstimate',
+            'statutes',
             'courtEvents.responsible',
             'disputeCategory',
             'court',
@@ -245,6 +247,7 @@ class MatterController extends Controller
             'lawyers' => $this->lawyers(),
             'parties' => Party::query()->orderBy('name')->get(),
             'members' => OrganizationUser::query()->with('user')->where('organization_id', $this->office()->id)->get(),
+            'statuteMatches' => $this->statuteMatches($request, $tab),
             'deadlineRules' => app(StatutoryDeadlineCatalog::class)->forMatter($model),
             'deadlinePreview' => session('deadline_preview'),
             ...$this->formCatalogs(),
@@ -708,6 +711,24 @@ class MatterController extends Controller
             ->with('user')
             ->where('organization_id', $this->office()->id)
             ->whereIn('role', [OrganizationRole::Owner, OrganizationRole::Lawyer, OrganizationRole::Trainee])
+            ->get();
+    }
+
+    private function statuteMatches(Request $request, string $tab)
+    {
+        $term = trim($request->string('zakon')->toString());
+        if ($tab !== 'podaci' || $term === '') {
+            return collect();
+        }
+
+        $like = '%'.$term.'%';
+
+        return Statute::query()
+            ->where(function ($query) use ($like) {
+                $query->where('title', 'like', $like)->orWhere('citation', 'like', $like);
+            })
+            ->orderBy('title')
+            ->limit(8)
             ->get();
     }
 }

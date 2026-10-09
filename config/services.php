@@ -59,4 +59,9 @@ return [
         'cost_cents' => (int) env('SMS_COST_CENTS', 8),
     ],
 
+    'nn' => [
+        'base_url' => env('NN_BASE_URL', 'https://narodne-novine.nn.hr'),
+        'ca_bundle' => env('NN_CA_BUNDLE'),
+    ],
+
 ];

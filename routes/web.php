@@ -20,11 +20,13 @@ use App\Http\Controllers\LimitationController;
 use App\Http\Controllers\MatterDeadlineController;
 use App\Http\Controllers\SmsNoticeController;
 use App\Http\Controllers\SpnftController;
+use App\Http\Controllers\StatuteController;
 use App\Http\Controllers\TrustAccountController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MailIntakeController;
 use App\Http\Controllers\MatterController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OfficeCatalogController;
 use App\Http\Controllers\OfficeSettingsController;
 use App\Http\Controllers\OrganizationDashboardController;
 use App\Http\Controllers\OrganizationPickerController;
@@ -94,6 +96,13 @@ Route::prefix('{slug}')
         Route::put('/ured', [OfficeSettingsController::class, 'update'])->name('organization.settings.update');
         Route::get('/postavke', [OfficeSettingsController::class, 'appearance'])->name('organization.settings.appearance');
         Route::put('/postavke/tema', [OfficeSettingsController::class, 'updateTheme'])->name('organization.settings.theme');
+        Route::get('/postavke/katalog', [OfficeCatalogController::class, 'index'])->name('organization.settings.catalog');
+        Route::post('/postavke/katalog/stadiji', [OfficeCatalogController::class, 'storeStage'])->name('organization.settings.catalog.stages.store');
+        Route::put('/postavke/katalog/stadiji/{template}', [OfficeCatalogController::class, 'updateStage'])->whereNumber('template')->name('organization.settings.catalog.stages.update');
+        Route::delete('/postavke/katalog/stadiji/{template}', [OfficeCatalogController::class, 'destroyStage'])->whereNumber('template')->name('organization.settings.catalog.stages.destroy');
+        Route::post('/postavke/katalog/sporovi', [OfficeCatalogController::class, 'storeCategory'])->name('organization.settings.catalog.categories.store');
+        Route::put('/postavke/katalog/sporovi/{category}', [OfficeCatalogController::class, 'updateCategory'])->whereNumber('category')->name('organization.settings.catalog.categories.update');
+        Route::delete('/postavke/katalog/sporovi/{category}', [OfficeCatalogController::class, 'destroyCategory'])->whereNumber('category')->name('organization.settings.catalog.categories.destroy');
         Route::get('/tim', [OrganizationTeamController::class, 'index'])->name('organization.team.index');
         Route::post('/tim/pozivnice', [OrganizationTeamController::class, 'storeInvite'])->name('organization.team.invite');
         Route::patch('/tim/{member}/uloga', [OrganizationTeamController::class, 'updateRole'])->name('organization.team.update-role');
@@ -111,13 +120,19 @@ Route::prefix('{slug}')
         Route::post('/predmeti/{matter}/kronologija', [MatterController::class, 'storeTimeline'])->whereNumber('matter')->name('organization.matters.timeline.store');
         Route::post('/predmeti/{matter}/stadij', [MatterController::class, 'storeStage'])->whereNumber('matter')->name('organization.matters.stages.store');
         Route::put('/predmeti/{matter}/stadij/{stage}', [MatterController::class, 'updateStage'])->whereNumber('matter')->whereNumber('stage')->name('organization.matters.stages.update');
+        Route::delete('/predmeti/{matter}/stadij/{stage}', [MatterController::class, 'destroyStage'])->whereNumber('matter')->whereNumber('stage')->name('organization.matters.stages.destroy');
         Route::post('/predmeti/{matter}/biljeske', [MatterController::class, 'storeNote'])->whereNumber('matter')->name('organization.matters.notes.store');
         Route::post('/predmeti/{matter}/zid', [EthicalWallController::class, 'store'])->whereNumber('matter')->name('organization.matters.walls.store');
         Route::delete('/predmeti/{matter}/zid/{wall}', [EthicalWallController::class, 'destroy'])->whereNumber('matter')->whereNumber('wall')->name('organization.matters.walls.destroy');
         Route::post('/predmeti/{matter}/spnft', [SpnftController::class, 'required'])->whereNumber('matter')->name('organization.matters.spnft.required');
         Route::post('/predmeti/{matter}/spnft/stavka', [SpnftController::class, 'toggle'])->whereNumber('matter')->name('organization.matters.spnft.toggle');
         Route::post('/predmeti/{matter}/zastara', [LimitationController::class, 'store'])->whereNumber('matter')->name('organization.matters.limitation.store');
+        Route::post('/predmeti/{matter}/zakoni', [StatuteController::class, 'attach'])->whereNumber('matter')->name('organization.matters.statutes.store');
+        Route::delete('/predmeti/{matter}/zakoni/{statute}', [StatuteController::class, 'detach'])->whereNumber('matter')->whereNumber('statute')->name('organization.matters.statutes.destroy');
         Route::post('/predmeti/{matter}/rok', [MatterDeadlineController::class, 'store'])->whereNumber('matter')->name('organization.matters.deadline.store');
+
+        Route::get('/biblioteka', [StatuteController::class, 'index'])->name('organization.statutes.index');
+        Route::get('/biblioteka/{statute}', [StatuteController::class, 'show'])->whereNumber('statute')->name('organization.statutes.show');
 
         Route::get('/stranke', [PartyController::class, 'index'])->name('organization.parties.index');
         Route::get('/stranke/nova', [PartyController::class, 'create'])->name('organization.parties.create');

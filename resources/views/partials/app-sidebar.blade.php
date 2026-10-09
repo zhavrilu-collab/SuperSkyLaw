@@ -11,6 +11,7 @@
 
     @perm('matters.view')
     <a class="app-sidebar-link @if(request()->routeIs('organization.matters.*')) active @endif" href="{{ route('organization.matters.index', $slug) }}">@include('partials.nav-icon', ['name' => 'briefcase'])Predmeti</a>
+    <a class="app-sidebar-link @if(request()->routeIs('organization.statutes.*')) active @endif" href="{{ route('organization.statutes.index', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Biblioteka</a>
     @endperm
 
     @perm('parties.view')
@@ -65,5 +66,6 @@
 
     @perm('settings.manage')
     <a class="app-sidebar-link @if(request()->routeIs('organization.settings.appearance')) active @endif" href="{{ route('organization.settings.appearance', $slug) }}">@include('partials.nav-icon', ['name' => 'gear'])Postavke</a>
+    <a class="app-sidebar-link @if(request()->routeIs('organization.settings.catalog')) active @endif" href="{{ route('organization.settings.catalog', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Katalog</a>
     @endperm
 </nav>

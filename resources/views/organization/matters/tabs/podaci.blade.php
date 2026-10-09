@@ -97,12 +97,16 @@
                 </details>
                 @endperm
             </div>
+            @if($errors->has('stage'))<p class="text-danger small mb-2">{{ $errors->first('stage') }}</p>@endif
             @if($matter->stages->isNotEmpty())
+                @php($stageCount = $matter->stages->count())
                 <div class="traka-stadija mb-3" aria-hidden="true">
                     @foreach($matter->stages as $index => $stage)
-                        <span class="stadij-{{ $stage->color }}" style="width: {{ $stageShares[$index] ?? 0 }}%" title="{{ $stage->name }}"></span>
+                        @php($shade = $stageCount === 1 ? 0 : (int) round($index / ($stageCount - 1) * 100))
+                        <span style="width: {{ $stageShares[$index] ?? 0 }}%; background: color-mix(in srgb, var(--primarna-tamna) {{ $shade }}%, var(--primarna-zelena))" title="{{ $stage->name }}"></span>
                     @endforeach
                 </div>
+                @php($lastStage = $matter->stages->last())
                 @foreach($matter->stages->reverse() as $stage)
                     <div class="border-top py-3">
                         <div class="d-flex justify-content-between gap-2">
@@ -119,14 +123,32 @@
                         @endforeach
                         @perm('matters.manage')
                         <details class="mt-2">
-                            <summary class="small">Uredi zapis</summary>
+                            <summary class="small">Uredi</summary>
                             <form method="POST" action="{{ route('organization.matters.stages.update', [$org->slug, $matter->id, $stage->id]) }}" class="mt-2">
                                 @csrf @method('PUT')
+                                <label class="form-label" for="nazivStadija{{ $stage->id }}">Naziv</label>
+                                <input name="name" id="nazivStadija{{ $stage->id }}" class="form-control mb-2" required value="{{ $stage->name }}">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label" for="pocetakStadija{{ $stage->id }}">Početak</label>
+                                        <input type="date" name="started_on" id="pocetakStadija{{ $stage->id }}" class="form-control mb-2" required value="{{ $stage->started_on->toDateString() }}">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label" for="krajStadija{{ $stage->id }}">Kraj</label>
+                                        <input type="date" name="ended_on" id="krajStadija{{ $stage->id }}" class="form-control mb-2" value="{{ $stage->ended_on?->toDateString() }}">
+                                    </div>
+                                </div>
                                 <label class="form-label" for="tijeloStadija{{ $stage->id }}">Zapis</label>
                                 <textarea name="body" id="tijeloStadija{{ $stage->id }}" class="form-control mb-2" rows="3">{{ $stage->body }}</textarea>
-                                <button class="btn btn-primary btn-sm" type="submit">Spremi zapis</button>
+                                <button class="btn btn-primary btn-sm" type="submit">Spremi</button>
                             </form>
                         </details>
+                        @if($stage->id === $lastStage->id && $stage->documents->isEmpty())
+                        <form method="POST" action="{{ route('organization.matters.stages.destroy', [$org->slug, $matter->id, $stage->id]) }}" class="mt-2" onsubmit="return confirm('Obrisati zadnji stadij?')">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-outline-danger btn-sm" type="submit">Obriši stadij</button>
+                        </form>
+                        @endif
                         @endperm
                     </div>
                 @endforeach
@@ -192,4 +214,33 @@
         </div>
         @endperm
     </div>
+</div>
+<div class="kartica-kontejner mt-3">
+    <h2 class="h6 text-tema">Zakoni</h2>
+    <p class="small text-muted">Službeni tekst objave u Narodnim novinama, ne redakcijski pročišćeni tekst.</p>
+    @forelse($matter->statutes as $statute)
+        <div class="d-flex justify-content-between py-1 gap-2">
+            <a href="{{ route('organization.statutes.show', [$org->slug, $statute->id]) }}">{{ $statute->citation }} · {{ $statute->title }}</a>
+            @perm('matters.manage')
+            <form method="POST" action="{{ route('organization.matters.statutes.destroy', [$org->slug, $matter->id, $statute->id]) }}">@csrf @method('DELETE')<button class="btn btn-link btn-sm" type="submit">Ukloni</button></form>
+            @endperm
+        </div>
+    @empty
+        <p class="text-muted">Nijedan zakon nije povezan.</p>
+    @endforelse
+    @perm('matters.manage')
+    <form method="GET" action="{{ route('organization.matters.show', [$org->slug, $matter->id]) }}" class="row g-2 mt-2">
+        <input type="hidden" name="tab" value="podaci">
+        <div class="col-md-8"><label class="form-label" for="traziZakon">Naziv ili NN broj</label><input id="traziZakon" name="zakon" value="{{ request('zakon') }}" class="form-control form-control-sm" placeholder="npr. obveznim ili NN 34/2023"></div>
+        <div class="col-md-4 d-flex align-items-end"><button class="btn btn-primary btn-sm" type="submit">Traži u biblioteci</button></div>
+    </form>
+    @foreach($statuteMatches as $statute)
+        <form method="POST" action="{{ route('organization.matters.statutes.store', [$org->slug, $matter->id]) }}" class="d-flex justify-content-between align-items-center py-1">
+            @csrf
+            <input type="hidden" name="statute_id" value="{{ $statute->id }}">
+            <span>{{ $statute->citation }} · {{ $statute->title }}</span>
+            <button class="btn btn-outline-success btn-sm" type="submit">Poveži</button>
+        </form>
+    @endforeach
+    @endperm
 </div>
