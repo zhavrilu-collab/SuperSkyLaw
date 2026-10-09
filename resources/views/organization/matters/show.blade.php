@@ -3,7 +3,7 @@
 @section('nav-suffix', 'Predmeti')
 @push('styles')
 <style>
-    .predmet-tabovi { border-bottom: 1px solid rgba(var(--tema-rgb), .22); gap: 4px; }
+    .predmet-tabovi { border-bottom: 1px solid rgba(var(--tema-rgb), .22); gap: 4px; flex-wrap: wrap; }
     .predmet-tabovi .nav-link { color: #5c6540; font-weight: 700; border: 0; border-bottom: 2px solid transparent; border-radius: 0; margin-bottom: -1px; }
     .predmet-tabovi .nav-link.active { color: var(--primarna-tamna); background: transparent; border-bottom-color: var(--primarna-zelena); }
     .predmet-cinjenice { display: grid; grid-template-columns: 148px 1fr; gap: 6px 12px; margin: 0; }
@@ -82,11 +82,16 @@
 </div>
 @endperm
 <ul class="nav predmet-tabovi mb-3">
-    @foreach(['podaci' => 'Podaci', 'rokovi' => 'Rokovi', 'dokumenti' => 'Dokumenti', 'biljeske' => 'Bilješke', 'kronologija' => 'Kronologija'] as $key => $label)
+    @foreach(['podaci' => 'Podaci', 'rokovi' => 'Rokovi', 'dokumenti' => 'Dokumenti', 'biljeske' => 'Bilješke', 'kronologija' => 'Kronologija', 'aktivnosti' => 'Aktivnosti'] as $key => $label)
         <li class="nav-item">
             <a class="nav-link {{ $tab === $key ? 'active' : '' }}" href="{{ route('organization.matters.show', [$org->slug, $matter->id, 'tab' => $key]) }}">{{ $label }}</a>
         </li>
     @endforeach
+    @perm('finance.view')
+        <li class="nav-item">
+            <a class="nav-link {{ $tab === 'obracun' ? 'active' : '' }}" href="{{ route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'obracun']) }}">Obračun</a>
+        </li>
+    @endperm
 </ul>
 @include('organization.matters.tabs.'.$tab)
 @endsection

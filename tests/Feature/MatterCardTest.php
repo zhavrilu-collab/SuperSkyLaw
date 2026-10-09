@@ -4,10 +4,13 @@ namespace Tests\Feature;
 
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
+use App\Models\Invoice;
 use App\Models\Matter;
 use App\Models\MatterDocument;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
+use App\Models\TimeEntry;
+use App\Models\TimelineEntry;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -109,6 +112,91 @@ class MatterCardTest extends TestCase
             ->assertOk()
             ->assertSee('Kronologija')
             ->assertSee('Dodaj zapis');
+    }
+
+    public function test_matter_lists_every_activity_and_its_own_ledger(): void
+    {
+        [$user, $org] = $this->office();
+
+        $this->actingAs($user)
+            ->post(route('organization.matters.store', $org->slug), $this->payload())
+            ->assertRedirect();
+
+        $matter = Matter::query()->first();
+
+        TimelineEntry::query()->create([
+            'organization_id' => $org->id,
+            'matter_id' => $matter->id,
+            'type' => 'action',
+            'body' => 'Poslana ponuda klijentu',
+            'occurred_at' => '2026-04-01 09:00:00',
+            'user_id' => $user->id,
+            'visible_to_client' => false,
+        ]);
+        TimeEntry::query()->create([
+            'organization_id' => $org->id,
+            'matter_id' => $matter->id,
+            'user_id' => $user->id,
+            'description' => 'Sastanak s klijentom',
+            'started_at' => '2026-04-02 10:00:00',
+            'ended_at' => '2026-04-02 11:00:00',
+            'minutes' => 60,
+            'hourly_rate_cents' => 10000,
+            'status' => 'approved',
+        ]);
+        Invoice::query()->create([
+            'organization_id' => $org->id,
+            'matter_id' => $matter->id,
+            'number' => 'R-1-2026',
+            'issue_date' => '2026-04-03',
+            'due_date' => '2026-05-03',
+            'status' => 'unpaid',
+            'subtotal_cents' => 140000,
+            'vat_cents' => 35000,
+            'total_cents' => 175000,
+            'paid_cents' => 0,
+            'vat_rate' => 25,
+            'buyer_name' => 'Klijent',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'aktivnosti']))
+            ->assertOk()
+            ->assertSee('Poslana ponuda klijentu')
+            ->assertSee('Sastanak s klijentom')
+            ->assertSee('R-1-2026')
+            ->assertSee('1.750,00 EUR')
+            ->assertSee('Priprema');
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'obracun']))
+            ->assertOk()
+            ->assertSee('Obračun predmeta')
+            ->assertSee('100,00 EUR')
+            ->assertSee('1.750,00 EUR')
+            ->assertSee('Nije na računu')
+            ->assertSee('Neplaćeno');
+
+        $lawyer = User::factory()->create();
+        OrganizationUser::query()->create([
+            'organization_id' => $org->id,
+            'user_id' => $lawyer->id,
+            'role' => OrganizationRole::Lawyer,
+        ]);
+        $matter->assignees()->attach($lawyer->id);
+
+        $this->actingAs($lawyer)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'aktivnosti']))
+            ->assertOk()
+            ->assertSee('Poslana ponuda klijentu')
+            ->assertSee('Sastanak s klijentom')
+            ->assertSee('R-1-2026')
+            ->assertDontSee('1.750,00 EUR')
+            ->assertDontSee('Obračun');
+
+        $this->actingAs($lawyer)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'obracun']))
+            ->assertForbidden();
     }
 
     /**

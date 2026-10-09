@@ -31,7 +31,10 @@ use App\Models\TimelineEntry;
 use App\Rules\CourtCaseNumberRule;
 use App\Rules\ValidOib;
 use App\Services\ConflictCheckService;
+use App\Services\MatterActivityFeed;
+use App\Services\MatterLedger;
 use App\Services\MatterStagePlan;
+use App\Services\OrganizationRbacService;
 use App\Services\StatutoryDeadlineCatalog;
 use App\Support\CourtCaseNumber;
 use App\Services\PlanFeatureService;
@@ -50,6 +53,9 @@ class MatterController extends Controller
         private readonly ConflictCheckService $conflicts,
         private readonly PlanFeatureService $plans,
         private readonly MatterStagePlan $stages,
+        private readonly MatterActivityFeed $activityFeed,
+        private readonly MatterLedger $ledger,
+        private readonly OrganizationRbacService $access,
     ) {}
 
     public function index(Request $request, string $slug): View
@@ -195,13 +201,20 @@ class MatterController extends Controller
         AuditLog::record(AuditAction::View, $model, 'Pregled predmeta '.$model->internal_number);
 
         $tab = $request->string('tab')->toString();
-        if (! in_array($tab, ['podaci', 'rokovi', 'dokumenti', 'biljeske', 'kronologija'], true)) {
+        if (! in_array($tab, ['podaci', 'rokovi', 'dokumenti', 'biljeske', 'kronologija', 'aktivnosti', 'obracun'], true)) {
             $tab = 'podaci';
+        }
+
+        $seesMoney = $this->access->can($this->office()->id, (int) auth()->id(), 'finance.view');
+        if ($tab === 'obracun' && ! $seesMoney) {
+            abort(403, 'Nemate ovlasti za ovu radnju.');
         }
 
         return view('organization.matters.show', [
             'matter' => $model,
             'tab' => $tab,
+            'activities' => $tab === 'aktivnosti' ? $this->activityFeed->for($model, $seesMoney) : collect(),
+            'ledger' => $tab === 'obracun' ? $this->ledger->summarize($model) : null,
             'vrsta' => DocumentKind::tryFrom($request->string('vrsta')->toString())?->value ?? '',
             'stageShares' => $this->stages->shares($model->stages),
             'nextStageName' => $this->stages->suggestion($model),
