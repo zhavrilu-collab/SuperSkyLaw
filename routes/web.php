@@ -122,6 +122,7 @@ Route::prefix('{slug}')
         Route::get('/stranke', [PartyController::class, 'index'])->name('organization.parties.index');
         Route::get('/stranke/nova', [PartyController::class, 'create'])->name('organization.parties.create');
         Route::post('/stranke', [PartyController::class, 'store'])->name('organization.parties.store');
+        Route::get('/stranke/{party}', [PartyController::class, 'show'])->whereNumber('party')->name('organization.parties.show');
         Route::get('/stranke/{party}/uredi', [PartyController::class, 'edit'])->whereNumber('party')->name('organization.parties.edit');
         Route::put('/stranke/{party}', [PartyController::class, 'update'])->whereNumber('party')->name('organization.parties.update');
         Route::post('/stranke/{party}/sudski-registar', [CourtRegisterController::class, 'lookup'])->whereNumber('party')->name('organization.parties.registry');
