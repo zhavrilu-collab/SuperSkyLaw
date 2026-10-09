@@ -82,7 +82,7 @@
 </div>
 @endperm
 <ul class="nav predmet-tabovi mb-3">
-    @foreach(['podaci' => 'Podaci', 'rokovi' => 'Rokovi', 'dokumenti' => 'Dokumenti', 'biljeske' => 'Bilješke', 'kronologija' => 'Kronologija', 'aktivnosti' => 'Aktivnosti'] as $key => $label)
+    @foreach(['podaci' => 'Podaci', 'rokovi' => 'Rokovi', 'dokumenti' => 'Dokumenti', 'aktivnosti' => 'Aktivnosti'] as $key => $label)
         <li class="nav-item">
             <a class="nav-link {{ $tab === $key ? 'active' : '' }}" href="{{ route('organization.matters.show', [$org->slug, $matter->id, 'tab' => $key]) }}">{{ $label }}</a>
         </li>

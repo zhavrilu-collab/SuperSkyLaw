@@ -26,7 +26,8 @@ class MatterActivityFeed
         $items = collect();
 
         TimelineEntry::query()->with('user')->where('matter_id', $matter->id)->get()->each(function (TimelineEntry $entry) use ($items): void {
-            $this->push($items, $entry->occurred_at, $entry->type->label(), $entry->body, $entry->user?->name);
+            $kind = $entry->type->label().($entry->visible_to_client ? ' · vidi klijent' : '');
+            $this->push($items, $entry->occurred_at, $kind, $entry->body, $entry->user?->name);
         });
 
         CourtEvent::query()->with('responsible')->where('matter_id', $matter->id)->get()->each(function (CourtEvent $event) use ($items): void {

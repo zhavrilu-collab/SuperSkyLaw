@@ -204,7 +204,10 @@ class MatterController extends Controller
         AuditLog::record(AuditAction::View, $model, 'Pregled predmeta '.$model->internal_number);
 
         $tab = $request->string('tab')->toString();
-        if (! in_array($tab, ['podaci', 'rokovi', 'dokumenti', 'biljeske', 'kronologija', 'aktivnosti', 'obracun'], true)) {
+        if (in_array($tab, ['biljeske', 'kronologija'], true)) {
+            $tab = 'aktivnosti';
+        }
+        if (! in_array($tab, ['podaci', 'rokovi', 'dokumenti', 'aktivnosti', 'obracun'], true)) {
             $tab = 'podaci';
         }
 
@@ -310,7 +313,7 @@ class MatterController extends Controller
         ]);
 
         return redirect()
-            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'biljeske'])
+            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'aktivnosti'])
             ->with('status', 'Bilješka je spremljena.');
     }
 
@@ -444,7 +447,9 @@ class MatterController extends Controller
             'visible_to_client' => $request->boolean('visible_to_client'),
         ]);
 
-        return back()->with('status', 'Zapis je dodan u kronologiju.');
+        return redirect()
+            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'aktivnosti'])
+            ->with('status', 'Zapis je dodan u kronologiju.');
     }
 
     /**

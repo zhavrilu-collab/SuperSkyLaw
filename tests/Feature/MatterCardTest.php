@@ -66,10 +66,10 @@ class MatterCardTest extends TestCase
             ->post(route('organization.matters.notes.store', [$org->slug, $matter->id]), [
                 'body' => 'Interna bilješka za ured.',
             ])
-            ->assertRedirect(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'biljeske']));
+            ->assertRedirect(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'aktivnosti']));
 
         $this->actingAs($user)
-            ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'biljeske']))
+            ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'aktivnosti']))
             ->assertOk()
             ->assertSee('Interna bilješka za ured.')
             ->assertSee('Vide ih samo ljudi u uredu');
@@ -110,8 +110,9 @@ class MatterCardTest extends TestCase
         $this->actingAs($user)
             ->get(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'kronologija']))
             ->assertOk()
-            ->assertSee('Kronologija')
-            ->assertSee('Dodaj zapis');
+            ->assertSee('Aktivnosti')
+            ->assertSee('Dodaj zapis')
+            ->assertDontSee('>Kronologija<');
     }
 
     public function test_matter_lists_every_activity_and_its_own_ledger(): void
