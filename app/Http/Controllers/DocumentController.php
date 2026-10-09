@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuditAction;
+use App\Enums\DocumentKind;
 use App\Http\Controllers\Concerns\ResolvesOffice;
 use App\Models\AuditLog;
 use App\Models\DocumentVersion;
@@ -12,6 +13,7 @@ use App\Services\PlanFeatureService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -40,10 +42,21 @@ class DocumentController extends Controller
         $data = $request->validate([
             'matter_id' => ['required', 'integer'],
             'folder' => ['nullable', 'string', 'max:80'],
+            'kind' => ['nullable', Rule::enum(DocumentKind::class)],
+            'stage_id' => ['nullable', 'integer'],
             'file' => ['required', 'file', 'max:20480'],
+            'return_to' => ['nullable', 'string'],
         ]);
 
         $matter = $this->findVisibleMatter((int) $data['matter_id']);
+        $kind = DocumentKind::tryFrom((string) ($data['kind'] ?? '')) ?? DocumentKind::fromFolder($data['folder'] ?? null);
+        $stageId = null;
+        if (! empty($data['stage_id'])) {
+            $stageId = $matter->stages()->whereKey($data['stage_id'])->value('id');
+            if ($stageId === null) {
+                throw ValidationException::withMessages(['stage_id' => 'Stadij ne pripada ovom predmetu.']);
+            }
+        }
         $file = $request->file('file');
         $limitMb = $this->plans->limit($this->office(), 'storage_mb') ?? 1024;
         $used = (int) MatterDocument::query()->sum('size_bytes');
@@ -52,12 +65,14 @@ class DocumentController extends Controller
             return back()->withErrors(['file' => 'Dosegnut je limit pohrane za trenutni plan.']);
         }
 
-        $folder = $data['folder'] ?: 'Podnesci';
+        $folder = $data['folder'] ?: $kind->folder();
         $path = $file->store('predmeti/'.$matter->internal_number.'/'.$folder, 'local');
 
         $document = MatterDocument::query()->create([
             'matter_id' => $matter->id,
             'folder' => $folder,
+            'kind' => $kind,
+            'stage_id' => $stageId,
             'original_name' => $file->getClientOriginalName(),
             'path' => $path,
             'size_bytes' => $file->getSize(),
@@ -66,6 +81,12 @@ class DocumentController extends Controller
         ]);
 
         AuditLog::record(AuditAction::Create, $document, 'Upload '.$document->original_name);
+
+        if ($request->input('return_to') === 'matter') {
+            return redirect()
+                ->route('organization.matters.show', [$this->office()->slug, $matter->id, 'tab' => 'dokumenti'])
+                ->with('status', 'Dokument je spremljen u mapu predmeta.');
+        }
 
         return back()->with('status', 'Dokument je spremljen u mapu predmeta.');
     }

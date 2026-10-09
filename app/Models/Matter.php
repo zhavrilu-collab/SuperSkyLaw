@@ -39,6 +39,7 @@ class Matter extends Model
         'case_mark',
         'case_number',
         'case_year',
+        'filed_on',
         'dispute_value_cents',
         'billing_method',
         'hourly_rate_cents',
@@ -56,6 +57,7 @@ class Matter extends Model
             'outcome' => MatterOutcome::class,
             'billing_method' => BillingMethod::class,
             'spnft_required' => 'boolean',
+            'filed_on' => 'date',
         ];
     }
 
@@ -106,6 +108,16 @@ class Matter extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(MatterDocument::class);
+    }
+
+    public function stages(): HasMany
+    {
+        return $this->hasMany(MatterStage::class)->orderBy('position');
+    }
+
+    public function notes(): HasMany
+    {
+        return $this->hasMany(MatterNote::class)->latest();
     }
 
     public function invoices(): HasMany

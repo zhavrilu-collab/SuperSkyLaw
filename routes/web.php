@@ -109,6 +109,9 @@ Route::prefix('{slug}')
         Route::post('/predmeti/{matter}/vrati', [MatterController::class, 'reopen'])->whereNumber('matter')->name('organization.matters.reopen');
         Route::post('/predmeti/{matter}/stranke', [MatterController::class, 'attachParty'])->whereNumber('matter')->name('organization.matters.parties.store');
         Route::post('/predmeti/{matter}/kronologija', [MatterController::class, 'storeTimeline'])->whereNumber('matter')->name('organization.matters.timeline.store');
+        Route::post('/predmeti/{matter}/stadij', [MatterController::class, 'storeStage'])->whereNumber('matter')->name('organization.matters.stages.store');
+        Route::put('/predmeti/{matter}/stadij/{stage}', [MatterController::class, 'updateStage'])->whereNumber('matter')->whereNumber('stage')->name('organization.matters.stages.update');
+        Route::post('/predmeti/{matter}/biljeske', [MatterController::class, 'storeNote'])->whereNumber('matter')->name('organization.matters.notes.store');
         Route::post('/predmeti/{matter}/zid', [EthicalWallController::class, 'store'])->whereNumber('matter')->name('organization.matters.walls.store');
         Route::delete('/predmeti/{matter}/zid/{wall}', [EthicalWallController::class, 'destroy'])->whereNumber('matter')->whereNumber('wall')->name('organization.matters.walls.destroy');
         Route::post('/predmeti/{matter}/spnft', [SpnftController::class, 'required'])->whereNumber('matter')->name('organization.matters.spnft.required');

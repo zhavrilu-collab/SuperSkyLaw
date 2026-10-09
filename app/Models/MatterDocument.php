@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DocumentKind;
 use App\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,8 @@ class MatterDocument extends Model
         'organization_id',
         'matter_id',
         'folder',
+        'kind',
+        'stage_id',
         'original_name',
         'path',
         'size_bytes',
@@ -28,12 +31,18 @@ class MatterDocument extends Model
     {
         return [
             'shared_with_client' => 'boolean',
+            'kind' => DocumentKind::class,
         ];
     }
 
     public function matter(): BelongsTo
     {
         return $this->belongsTo(Matter::class);
+    }
+
+    public function stage(): BelongsTo
+    {
+        return $this->belongsTo(MatterStage::class, 'stage_id');
     }
 
     public function uploader(): BelongsTo

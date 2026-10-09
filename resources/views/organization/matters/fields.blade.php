@@ -53,6 +53,12 @@
         <div class="form-text">Sudski broj za e-Spis, npr. P-123/2026 ili K-45/2026.</div>
     </div>
 </div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="podnesenoPredmeta">Podneseno</label>
+        <input type="date" name="filed_on" id="podnesenoPredmeta" class="form-control" value="{{ old('filed_on', $matter->filed_on?->format('Y-m-d')) }}">
+    </div>
+</div>
 <div class="mb-3" id="drugiSud" @if($selectedCourt !== 'other') hidden @endif>
     <label class="form-label">Naziv suda</label>
     <input name="court_name" class="form-control" value="{{ old('court_name', $matter->court_id ? '' : $matter->court_name) }}">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuditAction;
+use App\Enums\DocumentKind;
 use App\Enums\BillingMethod;
 use App\Enums\ConflictResult;
 use App\Enums\MatterKind;
@@ -21,13 +22,16 @@ use App\Models\ConflictCheck;
 use App\Models\Court;
 use App\Models\DisputeCategory;
 use App\Models\Matter;
+use App\Models\MatterNote;
 use App\Models\MatterParty;
+use App\Models\MatterStage;
 use App\Models\OrganizationUser;
 use App\Models\Party;
 use App\Models\TimelineEntry;
 use App\Rules\CourtCaseNumberRule;
 use App\Rules\ValidOib;
 use App\Services\ConflictCheckService;
+use App\Services\MatterStagePlan;
 use App\Services\StatutoryDeadlineCatalog;
 use App\Support\CourtCaseNumber;
 use App\Services\PlanFeatureService;
@@ -45,6 +49,7 @@ class MatterController extends Controller
     public function __construct(
         private readonly ConflictCheckService $conflicts,
         private readonly PlanFeatureService $plans,
+        private readonly MatterStagePlan $stages,
     ) {}
 
     public function index(Request $request, string $slug): View
@@ -156,6 +161,7 @@ class MatterController extends Controller
             ]);
 
             AuditLog::record(AuditAction::Create, $matter, 'Otvoren predmet '.$matter->internal_number);
+            $this->stages->open($matter);
 
             return $matter;
         });
@@ -165,15 +171,40 @@ class MatterController extends Controller
             ->with('status', 'Predmet '.$matter->internal_number.' je otvoren.');
     }
 
-    public function show(string $slug, int $matter): View
+    public function show(Request $request, string $slug, int $matter): View
     {
         $this->authorizePerm('matters.view');
         $model = $this->findVisibleMatter($matter);
-        $model->load(['assignees', 'parties.party', 'conflictChecks.checker', 'timelineEntries.user', 'documents', 'ethicalWalls.user', 'spnftChecks', 'limitationEstimate', 'courtEvents', 'disputeCategory', 'court']);
+        $model->load([
+            'assignees',
+            'parties.party',
+            'conflictChecks.checker',
+            'timelineEntries.user',
+            'documents.uploader',
+            'documents.stage',
+            'stages.documents',
+            'notes.user',
+            'ethicalWalls.user',
+            'spnftChecks',
+            'limitationEstimate',
+            'courtEvents.responsible',
+            'disputeCategory',
+            'court',
+            'creator',
+        ]);
         AuditLog::record(AuditAction::View, $model, 'Pregled predmeta '.$model->internal_number);
+
+        $tab = $request->string('tab')->toString();
+        if (! in_array($tab, ['podaci', 'rokovi', 'dokumenti', 'biljeske', 'kronologija'], true)) {
+            $tab = 'podaci';
+        }
 
         return view('organization.matters.show', [
             'matter' => $model,
+            'tab' => $tab,
+            'vrsta' => DocumentKind::tryFrom($request->string('vrsta')->toString())?->value ?? '',
+            'stageShares' => $this->stages->shares($model->stages),
+            'nextStageName' => $this->stages->suggestion($model),
             'lawyers' => $this->lawyers(),
             'parties' => Party::query()->orderBy('name')->get(),
             'members' => OrganizationUser::query()->with('user')->where('organization_id', $this->office()->id)->get(),
@@ -181,6 +212,72 @@ class MatterController extends Controller
             'deadlinePreview' => session('deadline_preview'),
             ...$this->formCatalogs(),
         ]);
+    }
+
+    public function storeStage(Request $request, string $slug, int $matter): RedirectResponse
+    {
+        $this->authorizePerm('matters.manage');
+        $model = $this->findVisibleMatter($matter);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:80'],
+            'body' => ['nullable', 'string', 'max:5000'],
+        ]);
+
+        DB::transaction(function () use ($model, $data): void {
+            $open = $model->stages()->whereNull('ended_on')->orderByDesc('position')->first();
+            if ($open) {
+                $open->update(['ended_on' => now()->toDateString()]);
+            }
+
+            $position = ((int) $model->stages()->max('position')) + 1;
+            $model->stages()->create([
+                'name' => $data['name'],
+                'body' => $data['body'] ?? null,
+                'color' => $this->stages->colorFor($position),
+                'started_on' => now()->toDateString(),
+                'position' => $position,
+            ]);
+        });
+
+        AuditLog::record(AuditAction::Update, $model, 'Novi stadij predmeta '.$model->internal_number);
+
+        return redirect()
+            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'podaci'])
+            ->with('status', 'Stadij je otvoren.');
+    }
+
+    public function updateStage(Request $request, string $slug, int $matter, int $stage): RedirectResponse
+    {
+        $this->authorizePerm('matters.manage');
+        $model = $this->findVisibleMatter($matter);
+        $record = MatterStage::query()->where('matter_id', $model->id)->findOrFail($stage);
+        $data = $request->validate([
+            'body' => ['nullable', 'string', 'max:5000'],
+        ]);
+        $record->update(['body' => $data['body'] ?? null]);
+
+        return redirect()
+            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'podaci'])
+            ->with('status', 'Zapis stadija je spremljen.');
+    }
+
+    public function storeNote(Request $request, string $slug, int $matter): RedirectResponse
+    {
+        $this->authorizePerm('matters.manage');
+        $model = $this->findVisibleMatter($matter);
+        $data = $request->validate([
+            'body' => ['required', 'string', 'max:5000'],
+        ]);
+
+        MatterNote::query()->create([
+            'matter_id' => $model->id,
+            'user_id' => auth()->id(),
+            'body' => $data['body'],
+        ]);
+
+        return redirect()
+            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'biljeske'])
+            ->with('status', 'Bilješka je spremljena.');
     }
 
     public function update(Request $request, string $slug, int $matter): RedirectResponse
@@ -334,6 +431,7 @@ class MatterController extends Controller
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
             'flat_fee' => ['nullable', 'numeric', 'min:0'],
             'success_fee_note' => ['nullable', 'string', 'max:2000'],
+            'filed_on' => ['nullable', 'date'],
             'assignee_ids' => ['nullable', 'array'],
             'assignee_ids.*' => ['integer'],
         ];
@@ -388,6 +486,7 @@ class MatterController extends Controller
             'hourly_rate_cents' => $this->eurosToCents($data['hourly_rate'] ?? null),
             'flat_fee_cents' => $this->eurosToCents($data['flat_fee'] ?? null),
             'success_fee_note' => $data['success_fee_note'] ?? null,
+            'filed_on' => $data['filed_on'] ?? null,
             ...$case,
         ];
     }

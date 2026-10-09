@@ -158,7 +158,7 @@ class PhaseFourComplianceTest extends TestCase
             'type' => 'limitation',
         ]);
         $this->actingAs($owner)
-            ->get(route('organization.matters.show', [$organization->slug, $matter->id]))
+            ->get(route('organization.matters.show', [$organization->slug, $matter->id, 'tab' => 'rokovi']))
             ->assertOk()
             ->assertSee('nije pravni savjet');
     }
