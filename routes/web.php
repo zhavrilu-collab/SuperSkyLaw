@@ -105,6 +105,8 @@ Route::prefix('{slug}')
         Route::get('/predmeti/{matter}', [MatterController::class, 'show'])->whereNumber('matter')->name('organization.matters.show');
         Route::put('/predmeti/{matter}', [MatterController::class, 'update'])->whereNumber('matter')->name('organization.matters.update');
         Route::delete('/predmeti/{matter}', [MatterController::class, 'destroy'])->whereNumber('matter')->name('organization.matters.destroy');
+        Route::post('/predmeti/{matter}/pauza', [MatterController::class, 'pause'])->whereNumber('matter')->name('organization.matters.pause');
+        Route::post('/predmeti/{matter}/vrati', [MatterController::class, 'reopen'])->whereNumber('matter')->name('organization.matters.reopen');
         Route::post('/predmeti/{matter}/stranke', [MatterController::class, 'attachParty'])->whereNumber('matter')->name('organization.matters.parties.store');
         Route::post('/predmeti/{matter}/kronologija', [MatterController::class, 'storeTimeline'])->whereNumber('matter')->name('organization.matters.timeline.store');
         Route::post('/predmeti/{matter}/zid', [EthicalWallController::class, 'store'])->whereNumber('matter')->name('organization.matters.walls.store');

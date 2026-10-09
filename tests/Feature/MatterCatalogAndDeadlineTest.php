@@ -211,6 +211,68 @@ class MatterCatalogAndDeadlineTest extends TestCase
         $this->assertSame('archived', $fresh->phase()->value);
     }
 
+    public function test_pause_overrides_the_calculated_phase_and_saving_keeps_the_outcome(): void
+    {
+        [$user, $org] = $this->office();
+        $matter = Matter::query()->create([
+            'organization_id' => $org->id,
+            'title' => 'Parnica',
+            'internal_number' => '2026/004',
+            'kind' => 'civil',
+            'status' => 'archived',
+            'outcome' => 'granted',
+            'office_position' => 'plaintiff',
+            'billing_method' => 'hourly',
+        ]);
+
+        $this->actingAs($user)
+            ->put(route('organization.matters.update', [$org->slug, $matter->id]), [
+                'title' => 'Parnica',
+                'kind' => 'civil',
+                'office_position' => 'plaintiff',
+                'billing_method' => 'hourly',
+            ])
+            ->assertRedirect();
+
+        $matter->refresh();
+        $this->assertSame('archived', $matter->status->value);
+        $this->assertSame('granted', $matter->outcome->value);
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id]))
+            ->assertOk()
+            ->assertSee('Vrati u rad')
+            ->assertDontSee('name="status"', false);
+
+        $this->actingAs($user)
+            ->post(route('organization.matters.reopen', [$org->slug, $matter->id]))
+            ->assertRedirect();
+
+        $matter->refresh();
+        $this->assertSame('active', $matter->status->value);
+        $this->assertNull($matter->outcome);
+        $this->assertSame('new', $matter->phase()->value);
+
+        $this->actingAs($user)
+            ->post(route('organization.matters.pause', [$org->slug, $matter->id]))
+            ->assertRedirect();
+
+        $matter->refresh();
+        $this->assertSame('paused', $matter->phase()->value);
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id]))
+            ->assertOk()
+            ->assertSee('Nastavi')
+            ->assertSee('Pauziran')
+            ->assertDontSee('Pauziraj');
+
+        $this->actingAs($user)
+            ->post(route('organization.matters.pause', [$org->slug, $matter->id]))
+            ->assertRedirect();
+
+        $this->assertSame('new', $matter->fresh()->phase()->value);
+    }
+
     /**
      * @return array{0: User, 1: Organization}
      */

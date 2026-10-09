@@ -6,20 +6,13 @@
 @endphp
 <div class="row">
     <div class="col-md-6 mb-3"><label class="form-label">Naziv</label><input name="title" class="form-control" value="{{ old('title', $matter->title) }}" required></div>
-    <div class="col-md-3 mb-3"><label class="form-label">Vrsta</label>
+    <div class="col-md-6 mb-3"><label class="form-label">Vrsta</label>
         <select name="kind" id="vrstaPredmeta" class="form-select">
             @foreach(\App\Enums\MatterKind::cases() as $kind)
                 <option value="{{ $kind->value }}" data-description="{{ $kind->description() }}" @selected($selectedKind === $kind->value)>{{ $kind->label() }}</option>
             @endforeach
         </select>
         <div class="form-text" id="vrstaOpis"></div>
-    </div>
-    <div class="col-md-3 mb-3"><label class="form-label">Status</label>
-        <select name="status" id="statusPredmeta" class="form-select">
-            @foreach(\App\Enums\MatterStatus::cases() as $status)
-                <option value="{{ $status->value }}" @selected(old('status', $matter->status?->value ?? 'active') === $status->value)>{{ $status->label() }}</option>
-            @endforeach
-        </select>
     </div>
 </div>
 <div class="row">
@@ -64,15 +57,6 @@
     <label class="form-label">Naziv suda</label>
     <input name="court_name" class="form-control" value="{{ old('court_name', $matter->court_id ? '' : $matter->court_name) }}">
 </div>
-<div class="mb-3" id="ishodPredmeta" @if(old('status', $matter->status?->value) !== 'archived') hidden @endif>
-    <label class="form-label">Ishod</label>
-    <select name="outcome" class="form-select">
-        <option value="">Odaberite ishod</option>
-        @foreach(\App\Enums\MatterOutcome::cases() as $outcome)
-            <option value="{{ $outcome->value }}" @selected(old('outcome', $matter->outcome?->value) === $outcome->value)>{{ $outcome->label() }}</option>
-        @endforeach
-    </select>
-</div>
 <div class="row">
     <div class="col-md-3 mb-3"><label class="form-label">Vrijednost spora (EUR)</label><input name="dispute_value" class="form-control" value="{{ old('dispute_value', $matter->dispute_value_cents ? number_format($matter->dispute_value_cents/100, 2, '.', '') : '') }}"></div>
     <div class="col-md-3 mb-3"><label class="form-label">Naplata</label>
@@ -102,8 +86,6 @@
         const description = document.getElementById('vrstaOpis');
         const court = document.getElementById('sudPredmeta');
         const other = document.getElementById('drugiSud');
-        const status = document.getElementById('statusPredmeta');
-        const outcome = document.getElementById('ishodPredmeta');
 
         function syncKind() {
             const value = kind.value;
@@ -128,16 +110,10 @@
             other.hidden = court.value !== 'other';
         }
 
-        function syncStatus() {
-            outcome.hidden = status.value !== 'archived';
-        }
-
         kind.addEventListener('change', syncKind);
         category.addEventListener('change', syncHint);
         court.addEventListener('change', syncCourt);
-        status.addEventListener('change', syncStatus);
         syncKind();
         syncCourt();
-        syncStatus();
     })();
 </script>

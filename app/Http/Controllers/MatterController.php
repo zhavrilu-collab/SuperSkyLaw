@@ -131,6 +131,7 @@ class MatterController extends Controller
             $matter = Matter::query()->create([
                 'title' => $data['title'],
                 'internal_number' => $this->nextInternalNumber(),
+                'status' => MatterStatus::Active,
                 'spnft_required' => in_array($data['kind'], config('spnft.kinds'), true),
                 'created_by_user_id' => auth()->id(),
                 ...$this->matterAttributes($data),
@@ -220,6 +221,34 @@ class MatterController extends Controller
             ->with('status', 'Predmet je arhiviran. Spis ostaje u evidenciji.');
     }
 
+    public function pause(string $slug, int $matter): RedirectResponse
+    {
+        $this->authorizePerm('matters.manage');
+        $model = $this->findVisibleMatter($matter);
+        if ($model->status === MatterStatus::Archived) {
+            return back();
+        }
+
+        $paused = $model->status !== MatterStatus::Paused;
+        $model->update(['status' => $paused ? MatterStatus::Paused : MatterStatus::Active]);
+        AuditLog::record(AuditAction::Update, $model, $paused ? 'Pauziranje predmeta '.$model->internal_number : 'Nastavak predmeta '.$model->internal_number);
+
+        return back()->with('status', $paused ? 'Predmet je pauziran.' : 'Predmet je nastavljen.');
+    }
+
+    public function reopen(string $slug, int $matter): RedirectResponse
+    {
+        $this->authorizePerm('matters.delete');
+        $model = $this->findVisibleMatter($matter);
+        $model->update([
+            'status' => MatterStatus::Active,
+            'outcome' => null,
+        ]);
+        AuditLog::record(AuditAction::Update, $model, 'Povratak predmeta '.$model->internal_number.' u rad');
+
+        return back()->with('status', 'Predmet je vraćen u rad.');
+    }
+
     public function attachParty(Request $request, string $slug, int $matter): RedirectResponse
     {
         $this->authorizePerm('matters.manage');
@@ -295,9 +324,7 @@ class MatterController extends Controller
         $rules = [
             'title' => ['required', 'string', 'max:255'],
             'kind' => ['required', Rule::enum(MatterKind::class)],
-            'status' => ['required', Rule::enum(MatterStatus::class)],
             'office_position' => ['required', Rule::enum(OfficePosition::class)],
-            'outcome' => [$request->input('status') === MatterStatus::Archived->value ? 'required' : 'nullable', Rule::enum(MatterOutcome::class)],
             'court_id' => ['nullable'],
             'court_name' => ['nullable', 'string', 'max:255'],
             'court_case_number' => ['nullable', 'string', 'max:40', new CourtCaseNumberRule],
@@ -352,9 +379,7 @@ class MatterController extends Controller
 
         return [
             'kind' => $data['kind'],
-            'status' => $data['status'],
             'office_position' => $data['office_position'],
-            'outcome' => ($data['status'] ?? null) === MatterStatus::Archived->value ? ($data['outcome'] ?? null) : null,
             'court_id' => $courtId,
             'court_name' => $courtName,
             'dispute_category_id' => $data['dispute_category_id'] ?? null,

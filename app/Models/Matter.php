@@ -189,6 +189,10 @@ class Matter extends Model
             return MatterPhase::Archived;
         }
 
+        if ($this->status === MatterStatus::Paused) {
+            return MatterPhase::Paused;
+        }
+
         $events = $this->relationLoaded('courtEvents')
             ? $this->courtEvents
             : $this->courtEvents()->get();

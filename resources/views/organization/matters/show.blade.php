@@ -14,11 +14,26 @@
             @if($matter->outcome)<span>· {{ $matter->outcome->label() }}</span>@endif
         </div>
     </div>
-    @perm('matters.delete')
-    @if($matter->status->value !== 'archived')
-    <button class="btn btn-outline-danger btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#arhivaPredmeta">Arhiviraj</button>
-    @endif
-    @endperm
+    <div class="d-flex gap-2">
+        @perm('matters.manage')
+        @if($matter->status->value !== 'archived')
+        <form method="POST" action="{{ route('organization.matters.pause', [$org->slug, $matter->id]) }}">
+            @csrf
+            <button class="btn btn-outline-secondary btn-sm" type="submit">{{ $matter->status->value === 'paused' ? 'Nastavi' : 'Pauziraj' }}</button>
+        </form>
+        @endif
+        @endperm
+        @perm('matters.delete')
+        @if($matter->status->value !== 'archived')
+        <button class="btn btn-outline-danger btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#arhivaPredmeta">Arhiviraj</button>
+        @else
+        <form method="POST" action="{{ route('organization.matters.reopen', [$org->slug, $matter->id]) }}">
+            @csrf
+            <button class="btn btn-outline-secondary btn-sm" type="submit">Vrati u rad</button>
+        </form>
+        @endif
+        @endperm
+    </div>
 </div>
 @perm('matters.delete')
 <div class="modal fade" id="arhivaPredmeta" tabindex="-1" aria-labelledby="arhivaPredmetaNaslov" aria-hidden="true">

@@ -1201,6 +1201,7 @@
     .faza-danas { color: #b91c1c; animation: faza-blink 1s step-start infinite; }
     .faza-ceka { color: #6b7280; }
     .faza-rociste { color: #7e22ce; }
+    .faza-pauza { color: #475569; }
     .faza-arhiv { color: #111827; }
     @keyframes faza-blink { 50% { opacity: .25; } }
 </style>

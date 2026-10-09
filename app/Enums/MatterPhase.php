@@ -10,6 +10,7 @@ enum MatterPhase: string
     case DueToday = 'due_today';
     case Waiting = 'waiting';
     case HearingSet = 'hearing';
+    case Paused = 'paused';
     case Archived = 'archived';
 
     public function label(): string
@@ -21,6 +22,7 @@ enum MatterPhase: string
             self::DueToday => 'Danas istječe',
             self::Waiting => 'Čeka se sud',
             self::HearingSet => 'Ročište zakazano',
+            self::Paused => 'Pauziran',
             self::Archived => 'Arhiviran',
         };
     }
@@ -34,6 +36,7 @@ enum MatterPhase: string
             self::DueToday => 'faza-danas',
             self::Waiting => 'faza-ceka',
             self::HearingSet => 'faza-rociste',
+            self::Paused => 'faza-pauza',
             self::Archived => 'faza-arhiv',
         };
     }
