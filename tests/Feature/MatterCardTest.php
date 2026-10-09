@@ -230,6 +230,10 @@ class MatterCardTest extends TestCase
             ->assertDontSee('1.750,00 EUR')
             ->assertDontSee('84,00 EUR')
             ->assertDontSee('Iznos EUR');
+
+        $this->actingAs($lawyer)
+            ->get(route('organization.time.index', $org->slug))
+            ->assertForbidden();
     }
 
     /**

@@ -27,12 +27,8 @@
     @endperm
     @endplanFeature
 
-    @perm('time.view')
-    <a class="app-sidebar-link @if(request()->routeIs('organization.time.*')) active @endif" href="{{ route('organization.time.index', $slug) }}">@include('partials.nav-icon', ['name' => 'clock'])Vrijeme</a>
-    @endperm
-
     @perm('finance.view')
-    @php $financeOpen = request()->routeIs('organization.invoices.*', 'organization.expenses.*', 'organization.tariff.*', 'organization.cost-bills.*', 'organization.reports.*', 'organization.trust.*'); @endphp
+    @php $financeOpen = request()->routeIs('organization.invoices.*', 'organization.expenses.*', 'organization.time.index', 'organization.tariff.*', 'organization.cost-bills.*', 'organization.reports.*', 'organization.trust.*'); @endphp
     <div class="app-sidebar-group @if($financeOpen) is-open @endif">
         <div class="app-sidebar-group-head">
             <a class="app-sidebar-group-link @if($financeOpen) active @endif" href="{{ route('organization.invoices.index', $slug) }}">@include('partials.nav-icon', ['name' => 'coins'])Financije</a>
@@ -40,6 +36,7 @@
         </div>
         <div class="app-sidebar-submenu">
             <a class="app-sidebar-link @if(request()->routeIs('organization.invoices.*', 'organization.expenses.*')) active @endif" href="{{ route('organization.invoices.index', $slug) }}">@include('partials.nav-icon', ['name' => 'banknote'])Računi</a>
+            <a class="app-sidebar-link @if(request()->routeIs('organization.time.index')) active @endif" href="{{ route('organization.time.index', $slug) }}">@include('partials.nav-icon', ['name' => 'clock'])Sati</a>
             @planFeature('tariff_hok')
             <a class="app-sidebar-link @if(request()->routeIs('organization.tariff.*')) active @endif" href="{{ route('organization.tariff.index', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Tarifa HOK</a>
             <a class="app-sidebar-link @if(request()->routeIs('organization.cost-bills.*')) active @endif" href="{{ route('organization.cost-bills.index', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Troškovnik</a>

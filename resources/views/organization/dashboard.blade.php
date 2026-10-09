@@ -19,9 +19,6 @@
     @perm('calendar.view')
     <a class="kartica-modula" href="{{ route('organization.calendar.index', $organization->slug) }}"><h3>Kalendar</h3><p>Ročišta i prekluzivni rokovi</p></a>
     @endperm
-    @perm('time.view')
-    <a class="kartica-modula" href="{{ route('organization.time.index', $organization->slug) }}"><h3>Vrijeme</h3><p>Štoperica i ručni unos</p></a>
-    @endperm
     @if($canFinance)
     <a class="kartica-modula" href="{{ route('organization.invoices.index', $organization->slug) }}"><h3>Financije</h3><p>Računi i troškovi</p></a>
     <a class="kartica-modula" href="{{ route('organization.reports.index', $organization->slug) }}"><h3>Izvještaj</h3><p>Utilizacija, realizacija i naplata</p></a>

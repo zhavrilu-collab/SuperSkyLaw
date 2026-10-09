@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'Vrijeme')
-@section('nav-suffix', 'Vrijeme')
+@section('title', 'Sati')
+@section('nav-suffix', 'Financije')
 @section('content')
-<h1 class="h5 text-tema mb-3">Vrijeme</h1>
+<h1 class="h5 text-tema mb-3">Sati</h1>
 <div class="row g-3 mb-3">
     <div class="col-md-6"><div class="kartica-kontejner"><div class="text-muted">WIP, odobreno a nefakturirano</div><strong>{{ number_format($wipCents / 100, 2, ',', '.') }} EUR</strong></div></div>
     <div class="col-md-6"><div class="kartica-kontejner"><div class="text-muted">Čeka odobrenje</div><strong>{{ number_format($draftCents / 100, 2, ',', '.') }} EUR</strong></div></div>

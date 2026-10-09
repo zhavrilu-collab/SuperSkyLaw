@@ -5,6 +5,7 @@
 <h1 class="h5 text-tema mb-3">Financije</h1>
 <p class="mb-3">
     <a href="{{ route('organization.invoices.index', $org->slug) }}">Računi</a>
+    · <a href="{{ route('organization.time.index', $org->slug) }}">Sati</a>
     @planFeature('tariff_hok')
     · <a href="{{ route('organization.tariff.index', $org->slug) }}">Tarifa HOK</a>
     · <a href="{{ route('organization.cost-bills.index', $org->slug) }}">Troškovnik</a>

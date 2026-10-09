@@ -136,7 +136,7 @@ Route::prefix('{slug}')
         Route::get('/kalendar/izvoz.ics', [CalendarFeedController::class, 'export'])->name('organization.calendar.export');
         Route::post('/kalendar/uvoz', [CalendarFeedController::class, 'import'])->name('organization.calendar.import');
 
-        Route::get('/vrijeme', [TimeEntryController::class, 'index'])->name('organization.time.index');
+        Route::get('/vrijeme', fn (string $slug) => redirect()->route('organization.time.index', $slug));
         Route::post('/vrijeme', [TimeEntryController::class, 'store'])->name('organization.time.store');
         Route::post('/vrijeme/start', [TimeEntryController::class, 'start'])->name('organization.time.start');
         Route::post('/vrijeme/{entry}/stop', [TimeEntryController::class, 'stop'])->whereNumber('entry')->name('organization.time.stop');
@@ -145,6 +145,7 @@ Route::prefix('{slug}')
         Route::post('/vrijeme/{entry}/nenaplativo', [TimeEntryController::class, 'nonBillable'])->whereNumber('entry')->name('organization.time.non-billable');
 
         Route::get('/financije', [InvoiceController::class, 'index'])->name('organization.invoices.index');
+        Route::get('/financije/sati', [TimeEntryController::class, 'index'])->name('organization.time.index');
         Route::post('/financije/troskovi', [InvoiceController::class, 'storeExpense'])->name('organization.expenses.store');
         Route::post('/financije/racuni', [InvoiceController::class, 'store'])->name('organization.invoices.store');
         Route::get('/financije/racuni/{invoice}', [InvoiceController::class, 'show'])->whereNumber('invoice')->name('organization.invoices.show');

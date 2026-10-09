@@ -19,7 +19,7 @@ class TimeEntryController extends Controller
 
     public function index(string $slug): View
     {
-        $this->authorizePerm('time.view');
+        $this->authorizePerm('finance.view');
 
         $entries = TimeEntry::query()
             ->with(['matter', 'user'])
