@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'Biblioteka')
-@section('nav-suffix', 'Biblioteka')
+@section('title', 'Zakoni')
+@section('nav-suffix', 'Zakoni')
 @section('content')
-<h1 class="h5 text-tema mb-3">Biblioteka zakona</h1>
+<h1 class="h5 text-tema mb-3">Zakoni</h1>
 <p class="text-muted">Službeni tekstovi objava u Narodnim novinama. Ovo nisu redakcijski pročišćeni tekstovi.</p>
 <form method="GET" class="kartica-kontejner mb-3">
     <label class="form-label" for="q">Naziv, broj ili tekst</label>
@@ -23,7 +23,7 @@
                     <td>{{ $statute->published_on?->format('d.m.Y.') ?: '—' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="3" class="text-muted">{{ $term === '' ? 'Biblioteka se puni iz Narodnih novina.' : 'Nema zakona za taj upit.' }}</td></tr>
+                <tr><td colspan="3" class="text-muted">{{ $term === '' ? 'Zakoni se pune iz Narodnih novina.' : 'Nema zakona za taj upit.' }}</td></tr>
             @endforelse
             </tbody>
         </table>

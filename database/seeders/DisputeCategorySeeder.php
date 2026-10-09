@@ -57,7 +57,7 @@ class DisputeCategorySeeder extends Seeder
         foreach ($groups as $kind => $items) {
             foreach ($items as [$name, $hint]) {
                 DisputeCategory::query()->updateOrCreate(
-                    ['kind' => $kind, 'name' => $name],
+                    ['organization_id' => null, 'kind' => $kind, 'name' => $name],
                     ['hint' => $hint, 'sort' => $sort, 'active' => true],
                 );
                 $sort++;

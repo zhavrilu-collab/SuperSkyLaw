@@ -3,6 +3,7 @@
 @section('nav-suffix', 'Postavke')
 @section('content')
 <h1 class="h5 text-tema mb-3">Postavke</h1>
+<p class="mb-3"><a href="{{ route('organization.settings.catalog', $organization->slug) }}">Katalog stadija i predmeta spora</a></p>
 @php($activeTheme = \App\Support\OfficeThemes::resolve(old('theme_color', $organization->theme_color)))
 @php($activeStyle = \App\Support\ThemeRecipes::effectiveStyle(old('theme_style', $organization->theme_style)))
 @php($catalog = \App\Support\OfficeThemes::all())

@@ -292,13 +292,58 @@ class MatterController extends Controller
         $model = $this->findVisibleMatter($matter);
         $record = MatterStage::query()->where('matter_id', $model->id)->findOrFail($stage);
         $data = $request->validate([
+            'name' => ['required', 'string', 'max:80'],
+            'started_on' => ['required', 'date'],
+            'ended_on' => ['nullable', 'date', 'after_or_equal:started_on'],
             'body' => ['nullable', 'string', 'max:5000'],
         ]);
-        $record->update(['body' => $data['body'] ?? null]);
+
+        if (blank($data['ended_on'] ?? null)) {
+            $model->stages()->where('id', '!=', $record->id)->whereNull('ended_on')->get()->each(function (MatterStage $other) use ($data): void {
+                $end = $data['started_on'];
+                if ($other->started_on->toDateString() > $end) {
+                    $end = $other->started_on->toDateString();
+                }
+                $other->update(['ended_on' => $end]);
+            });
+        }
+
+        $record->update([
+            'name' => $data['name'],
+            'started_on' => $data['started_on'],
+            'ended_on' => $data['ended_on'] ?: null,
+            'body' => $data['body'] ?? null,
+        ]);
 
         return redirect()
             ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'podaci'])
-            ->with('status', 'Zapis stadija je spremljen.');
+            ->with('status', 'Stadij je spremljen.');
+    }
+
+    public function destroyStage(string $slug, int $matter, int $stage): RedirectResponse
+    {
+        $this->authorizePerm('matters.manage');
+        $model = $this->findVisibleMatter($matter);
+        $record = MatterStage::query()->where('matter_id', $model->id)->findOrFail($stage);
+        $last = $model->stages()->reorder()->orderByDesc('position')->first();
+
+        if ($last === null || $last->id !== $record->id) {
+            return back()->withErrors(['stage' => 'Brisati se može samo zadnji stadij.']);
+        }
+
+        if ($record->documents()->exists()) {
+            return back()->withErrors(['stage' => 'Stadij ima dokumente i ne može se obrisati.']);
+        }
+
+        $record->delete();
+        $previous = $model->stages()->reorder()->orderByDesc('position')->first();
+        if ($previous !== null) {
+            $previous->update(['ended_on' => null]);
+        }
+
+        return redirect()
+            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'podaci'])
+            ->with('status', 'Stadij je obrisan.');
     }
 
     public function storeNote(Request $request, string $slug, int $matter): RedirectResponse
@@ -467,7 +512,7 @@ class MatterController extends Controller
             'court_id' => ['nullable'],
             'court_name' => ['nullable', 'string', 'max:255'],
             'court_case_number' => ['nullable', 'string', 'max:40', new CourtCaseNumberRule],
-            'dispute_category_id' => ['nullable', 'integer', Rule::exists('dispute_categories', 'id')->where('kind', (string) $request->input('kind'))],
+            'dispute_category_id' => ['nullable', 'integer', Rule::exists('dispute_categories', 'id')->where(fn ($query) => $query->where('kind', (string) $request->input('kind'))->where('organization_id', $this->office()->id))],
             'dispute_value' => ['nullable', 'numeric', 'min:0'],
             'billing_method' => ['required', Rule::enum(BillingMethod::class)],
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
@@ -540,7 +585,7 @@ class MatterController extends Controller
     {
         return [
             'courts' => Court::query()->where('active', true)->orderBy('sort')->get(),
-            'categories' => DisputeCategory::query()->where('active', true)->orderBy('sort')->get(),
+            'categories' => DisputeCategory::query()->where('organization_id', $this->office()->id)->where('active', true)->orderBy('sort')->get(),
         ];
     }
 

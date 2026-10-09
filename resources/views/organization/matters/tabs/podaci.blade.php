@@ -99,14 +99,18 @@
             </div>
             @if($errors->has('stage'))<p class="text-danger small mb-2">{{ $errors->first('stage') }}</p>@endif
             @if($matter->stages->isNotEmpty())
-                @php($stageCount = $matter->stages->count())
+                @php
+                    $stageCount = $matter->stages->count();
+                    $lastStage = $matter->stages->last();
+                @endphp
                 <div class="traka-stadija mb-3" aria-hidden="true">
-                    @foreach($matter->stages as $index => $stage)
-                        @php($shade = $stageCount === 1 ? 0 : (int) round($index / ($stageCount - 1) * 100))
-                        <span style="width: {{ $stageShares[$index] ?? 0 }}%; background: color-mix(in srgb, var(--primarna-tamna) {{ $shade }}%, var(--primarna-zelena))" title="{{ $stage->name }}"></span>
+                    @foreach($matter->stages as $stage)
+                        @php
+                            $shade = $stageCount === 1 ? 0 : (int) round($loop->index / ($stageCount - 1) * 100);
+                        @endphp
+                        <span style="width: {{ $stageShares[$loop->index] ?? 0 }}%; background: color-mix(in srgb, var(--primarna-tamna) {{ $shade }}%, var(--primarna-zelena))" title="{{ $stage->name }}"></span>
                     @endforeach
                 </div>
-                @php($lastStage = $matter->stages->last())
                 @foreach($matter->stages->reverse() as $stage)
                     <div class="border-top py-3">
                         <div class="d-flex justify-content-between gap-2">
@@ -232,7 +236,7 @@
     <form method="GET" action="{{ route('organization.matters.show', [$org->slug, $matter->id]) }}" class="row g-2 mt-2">
         <input type="hidden" name="tab" value="podaci">
         <div class="col-md-8"><label class="form-label" for="traziZakon">Naziv ili NN broj</label><input id="traziZakon" name="zakon" value="{{ request('zakon') }}" class="form-control form-control-sm" placeholder="npr. obveznim ili NN 34/2023"></div>
-        <div class="col-md-4 d-flex align-items-end"><button class="btn btn-primary btn-sm" type="submit">Traži u biblioteci</button></div>
+        <div class="col-md-4 d-flex align-items-end"><button class="btn btn-primary btn-sm" type="submit">Traži zakon</button></div>
     </form>
     @foreach($statuteMatches as $statute)
         <form method="POST" action="{{ route('organization.matters.statutes.store', [$org->slug, $matter->id]) }}" class="d-flex justify-content-between align-items-center py-1">

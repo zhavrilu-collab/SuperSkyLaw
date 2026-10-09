@@ -98,7 +98,7 @@ class DemoOfficeSeeder extends Seeder
 
     private function organization(): Organization
     {
-        return Organization::query()->updateOrCreate(
+        $organization = Organization::query()->updateOrCreate(
             ['slug' => self::SLUG],
             [
                 'name' => 'Odvjetnički ured Kovač i partneri (demo)',
@@ -117,6 +117,9 @@ class DemoOfficeSeeder extends Seeder
                 'theme_style' => 'kreda',
             ],
         );
+        app(\App\Services\OfficeCatalog::class)->provision($organization);
+
+        return $organization;
     }
 
     /**
@@ -291,7 +294,7 @@ class DemoOfficeSeeder extends Seeder
             'DU-2026-010' => 'Sporovi u vezi s gradnjom i prostornim uređenjem',
         ];
         foreach ($categoryNames as $number => $name) {
-            $category = DisputeCategory::query()->where('kind', $created[$number]->kind)->where('name', $name)->first();
+            $category = DisputeCategory::query()->where('organization_id', $created[$number]->organization_id)->where('kind', $created[$number]->kind)->where('name', $name)->first();
             if ($category !== null) {
                 $created[$number]->update(['dispute_category_id' => $category->id]);
             }

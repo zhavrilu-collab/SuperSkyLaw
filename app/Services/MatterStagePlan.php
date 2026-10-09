@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Matter;
 use App\Models\MatterStage;
+use App\Models\OfficeStageTemplate;
 use Illuminate\Support\Collection;
 
 class MatterStagePlan
@@ -65,6 +66,19 @@ class MatterStagePlan
      */
     private function templates(Matter $matter): array
     {
+        $rows = OfficeStageTemplate::query()
+            ->where('organization_id', $matter->organization_id)
+            ->where('kind', $matter->kind->value)
+            ->orderBy('position')
+            ->get();
+
+        if ($rows->isNotEmpty()) {
+            return $rows->map(fn (OfficeStageTemplate $row): array => [
+                'name' => $row->name,
+                'color' => $this->colorFor($row->position),
+            ])->all();
+        }
+
         return config('matter_stages.templates.'.$matter->kind->value)
             ?? config('matter_stages.templates.default');
     }

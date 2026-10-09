@@ -10,10 +10,6 @@
     .predmet-cinjenice dt { font-size: 12px; font-weight: 700; color: #5c6540; margin: 0; }
     .predmet-cinjenice dd { margin: 0; }
     .traka-stadija { display: flex; height: 14px; border-radius: 4px; overflow: hidden; }
-    .stadij-lime { background: #c5d48a; }
-    .stadij-olive { background: #7d8f2e; }
-    .stadij-ink { background: #434d0c; }
-    .stadij-gold { background: #d4af37; }
     .stadij-naslov { font-size: 13px; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
     .krug-osobe { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 10px; font-weight: 700; background: var(--svijetlo-zelena); border: 1px solid rgba(var(--tema-rgb), .35); color: var(--primarna-tamna); }
     @media (max-width: 576px) {

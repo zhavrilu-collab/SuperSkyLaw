@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('title', $statute->citation)
-@section('nav-suffix', 'Biblioteka')
+@section('nav-suffix', 'Zakoni')
 @section('content')
-<p class="mb-2"><a href="{{ route('organization.statutes.index', $org->slug) }}">Biblioteka</a></p>
+<p class="mb-2"><a href="{{ route('organization.statutes.index', $org->slug) }}">Zakoni</a></p>
 <h1 class="h5 text-tema mb-1">{{ $statute->title }}</h1>
 <p class="text-muted">{{ $statute->citation }}@if($statute->published_on) · {{ $statute->published_on->format('d.m.Y.') }}@endif</p>
 <p class="small text-muted">Službeni tekst objave u Narodnim novinama, ne redakcijski pročišćeni tekst. <a href="{{ $statute->source_url }}" target="_blank" rel="noopener">Izvornik</a></p>

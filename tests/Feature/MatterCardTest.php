@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
+use App\Models\DisputeCategory;
 use App\Models\Invoice;
 use App\Models\Matter;
 use App\Models\MatterDocument;
@@ -234,6 +235,103 @@ class MatterCardTest extends TestCase
         $this->actingAs($lawyer)
             ->get(route('organization.time.index', $org->slug))
             ->assertForbidden();
+    }
+
+    public function test_stage_dates_can_change_and_only_the_last_stage_without_documents_can_be_deleted(): void
+    {
+        [$user, $org] = $this->office();
+        $this->actingAs($user)
+            ->post(route('organization.matters.store', $org->slug), $this->payload())
+            ->assertRedirect();
+        $matter = Matter::query()->first();
+        $first = $matter->stages()->first();
+
+        $this->actingAs($user)
+            ->put(route('organization.matters.stages.update', [$org->slug, $matter->id, $first->id]), [
+                'name' => 'EFED',
+                'started_on' => '2026-10-01',
+                'ended_on' => '2026-10-08',
+                'body' => 'Ispravljen datum.',
+            ])
+            ->assertRedirect();
+
+        $first->refresh();
+        $this->assertSame('EFED', $first->name);
+        $this->assertSame('2026-10-01', $first->started_on->toDateString());
+        $this->assertSame('2026-10-08', $first->ended_on->toDateString());
+        $this->assertSame('Ispravljen datum.', $first->body);
+
+        $this->actingAs($user)
+            ->post(route('organization.matters.stages.store', [$org->slug, $matter->id]), [
+                'name' => 'Postupak',
+            ])
+            ->assertRedirect();
+
+        $last = $matter->stages()->reorder()->orderByDesc('position')->first();
+        $this->actingAs($user)
+            ->delete(route('organization.matters.stages.destroy', [$org->slug, $matter->id, $first->id]))
+            ->assertSessionHasErrors('stage');
+        $this->assertNotNull($first->fresh());
+
+        MatterDocument::query()->create([
+            'organization_id' => $org->id,
+            'matter_id' => $matter->id,
+            'stage_id' => $last->id,
+            'folder' => 'Podnesci',
+            'kind' => 'brief',
+            'original_name' => 'tuzba.pdf',
+            'path' => 'predmeti/tuzba.pdf',
+            'size_bytes' => 12,
+            'uploaded_by_user_id' => $user->id,
+        ]);
+        $this->actingAs($user)
+            ->delete(route('organization.matters.stages.destroy', [$org->slug, $matter->id, $last->id]))
+            ->assertSessionHasErrors('stage');
+        $this->assertNotNull($last->fresh());
+
+        $last->documents()->delete();
+        $this->actingAs($user)
+            ->delete(route('organization.matters.stages.destroy', [$org->slug, $matter->id, $last->id]))
+            ->assertRedirect();
+        $this->assertNull($last->fresh());
+        $this->assertNull($first->fresh()->ended_on);
+    }
+
+    public function test_stage_bar_uses_the_office_theme_instead_of_fixed_green_and_gold(): void
+    {
+        [$user, $org] = $this->office();
+        $org->update(['theme_color' => 'plava']);
+        $this->actingAs($user)
+            ->post(route('organization.matters.store', $org->slug), $this->payload())
+            ->assertRedirect();
+        $matter = Matter::query()->first();
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id]))
+            ->assertOk()
+            ->assertSee('color-mix(in srgb, var(--primarna-tamna)', false)
+            ->assertDontSee('stadij-lime', false)
+            ->assertDontSee('#c5d48a', false)
+            ->assertDontSee('#d4af37', false);
+    }
+
+    public function test_office_can_add_a_dispute_category_and_see_it_on_the_matter_form(): void
+    {
+        [$user, $org] = $this->office();
+
+        $this->actingAs($user)
+            ->post(route('organization.settings.catalog.categories.store', $org->slug), [
+                'kind' => 'civil',
+                'name' => 'Poseban spor o zemlji',
+            ])
+            ->assertRedirect();
+
+        $this->assertNotNull(DisputeCategory::query()->where('organization_id', $org->id)->where('name', 'Poseban spor o zemlji')->first());
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.create', $org->slug))
+            ->assertOk()
+            ->assertSee('Poseban spor o zemlji');
     }
 
     /**

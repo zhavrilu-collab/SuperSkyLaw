@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Organization;
+use App\Services\OfficeCatalog;
 use App\Services\OrganizationRbacService;
 use App\Services\PlanFeatureService;
 use App\Support\OfficeThemes;
@@ -23,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Organization::created(function (Organization $organization): void {
+            app(OfficeCatalog::class)->provision($organization);
+        });
+
         RateLimiter::for('admin-sync', function (Request $request) {
             return Limit::perMinute(30)->by($request->ip());
         });

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
 use App\Models\Organization;
+use App\Services\OfficeCatalog;
 use App\Models\OrganizationUser;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -46,6 +47,7 @@ class DatabaseSeeder extends Seeder
                 ['slug' => $organizationData['slug']],
                 $organizationData,
             );
+            app(OfficeCatalog::class)->provision($organization);
 
             OrganizationUser::query()->updateOrCreate(
                 [
