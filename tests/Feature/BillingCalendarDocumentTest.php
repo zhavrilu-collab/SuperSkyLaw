@@ -127,6 +127,24 @@ class BillingCalendarDocumentTest extends TestCase
         ]);
     }
 
+    public function test_matter_document_upload_without_a_folder_uses_the_kind(): void
+    {
+        Storage::fake('local');
+        [$user, $org] = $this->office();
+        $matter = $this->matter($org, $user);
+
+        $this->actingAs($user)->post(route('organization.documents.store', $org->slug), [
+            'matter_id' => $matter->id,
+            'kind' => 'brief',
+            'return_to' => 'matter',
+            'file' => UploadedFile::fake()->create('tuzba.pdf', 20, 'application/pdf'),
+        ])->assertRedirect(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'dokumenti']));
+
+        $document = \App\Models\MatterDocument::query()->first();
+        $this->assertSame('Podnesci', $document->folder);
+        $this->assertSame('brief', $document->kind->value);
+    }
+
     /**
      * @return array{0: User, 1: Organization}
      */

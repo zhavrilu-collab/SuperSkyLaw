@@ -65,7 +65,7 @@ class DocumentController extends Controller
             return back()->withErrors(['file' => 'Dosegnut je limit pohrane za trenutni plan.']);
         }
 
-        $folder = $data['folder'] ?: $kind->folder();
+        $folder = ($data['folder'] ?? null) ?: $kind->folder();
         $path = $file->store('predmeti/'.$matter->internal_number.'/'.$folder, 'local');
 
         $document = MatterDocument::query()->create([
