@@ -100,8 +100,9 @@ class LawyerDirectoryRegistrationTest extends TestCase
 
         $this->get(route('register.organization'))
             ->assertOk()
-            ->assertSee('Pronađi ured')
+            ->assertSee('Počnite pisati naziv ili grad')
             ->assertSee('Upiši ručno')
+            ->assertDontSee('Pronađi ured')
             ->assertSee('Poslovni IBAN');
 
         $response = $this->getJson(route('register.organization.directory', ['q' => 'Anić']));

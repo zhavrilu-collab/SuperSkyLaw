@@ -17,23 +17,26 @@
 <form method="POST" action="{{ route('register.organization') }}" id="officeRegistration">
     @csrf
 
-    <h2 class="h6">Pronađi ured</h2>
-    <label class="form-label" for="registryLookupQ">Naziv ili grad</label>
-    <input type="search" id="registryLookupQ" class="form-control" placeholder="npr. Anić ili Split" autocomplete="off">
-    <div class="form-text" id="registryLookupStatus">
-        @if(($directoryCount ?? 0) > 0)
-            U imeniku je {{ number_format($directoryCount, 0, ',', '.') }} ureda.
-        @else
-            Imenik još nije učitan. Ured možete upisati ručno.
-        @endif
+    <h2 class="h6">Podaci ureda</h2>
+    <div class="mb-3" id="nameLookup">
+        <label class="form-label" for="name">Naziv</label>
+        <div class="position-relative">
+            <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="Počnite pisati naziv ili grad" autocomplete="off" required>
+            <div id="registryLookupResults" class="dropdown-menu w-100 shadow-sm" style="top: 100%; max-height: 16rem; overflow-y: auto;"></div>
+        </div>
+        <div class="form-text" id="registryLookupStatus">
+            @if(($directoryCount ?? 0) > 0)
+                U imeniku je {{ number_format($directoryCount, 0, ',', '.') }} ureda. Odaberite ured iz izbornika.
+            @else
+                Imenik još nije učitan. Ured možete upisati ručno.
+            @endif
+        </div>
+        @error('name')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
     </div>
-    <div id="registryLookupResults" class="list-group my-2"></div>
     <div class="d-flex flex-wrap gap-2 mb-3">
         <button type="button" class="btn btn-outline-secondary btn-sm" id="registryManual">Upiši ručno</button>
         <button type="button" class="btn btn-outline-secondary btn-sm d-none" id="registryUnlock">Ispravi podatke iz registra</button>
     </div>
-
-    <h2 class="h6">Podaci ureda</h2>
     <div class="mb-3">
         <label class="form-label" for="office_kind">Oblik</label>
         <select name="office_kind" id="office_kind" class="form-select @error('office_kind') is-invalid @enderror" required>
@@ -43,11 +46,6 @@
             @endforeach
         </select>
         @error('office_kind')<div class="invalid-feedback">{{ $message }}</div>@enderror
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="name">Naziv</label>
-        <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
-        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
     <div class="row">
         <div class="col-md-6 mb-3">
@@ -127,6 +125,12 @@
 </form>
 @endsection
 
+@push('styles')
+<style>
+    #registryLookupResults .dropdown-item { white-space: normal; }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 (function () {
@@ -134,9 +138,9 @@
     const courtUrl = @json($courtLookupUrl);
     const courtKinds = @json($courtKinds);
     const soleKind = @json($soleKind);
-    const qInput = document.getElementById('registryLookupQ');
     const resultsEl = document.getElementById('registryLookupResults');
     const statusEl = document.getElementById('registryLookupStatus');
+    const nameLookup = document.getElementById('nameLookup');
     const kindInput = document.getElementById('office_kind');
     const nameInput = document.getElementById('name');
     const oibInput = document.getElementById('oib');
@@ -221,6 +225,7 @@
         setLocked('city', match.city, true);
         mbsInput.value = match.mbs || '';
         courtMatches.innerHTML = '';
+        hideMenu();
         statusEl.textContent = 'Podaci društva su iz sudskog registra.';
         unlockBtn.classList.remove('d-none');
     }
@@ -260,7 +265,7 @@
         oibInput.value = '';
         oibInput.readOnly = false;
         mbsInput.value = '';
-        resultsEl.innerHTML = '';
+        hideMenu();
         unlockBtn.classList.remove('d-none');
         if (adminName && !adminTouched && entry.office_kind === soleKind) {
             adminName.value = entry.name;
@@ -270,12 +275,25 @@
         else statusEl.textContent = 'Podaci su iz imenika. OIB upišite sami.';
     }
 
+    function hideMenu() {
+        resultsEl.classList.remove('show');
+        resultsEl.innerHTML = '';
+    }
+
     function renderResults(results) {
         resultsEl.innerHTML = '';
+        if (!results.length) {
+            const empty = document.createElement('div');
+            empty.className = 'dropdown-item-text small text-muted';
+            empty.textContent = 'Nema pogotka. Ured možete upisati ručno.';
+            resultsEl.appendChild(empty);
+            resultsEl.classList.add('show');
+            return;
+        }
         results.forEach(function (entry) {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'list-group-item list-group-item-action';
+            button.className = 'dropdown-item py-2';
             const title = document.createElement('div');
             title.textContent = entry.name;
             const meta = document.createElement('div');
@@ -283,31 +301,44 @@
             meta.textContent = entry.office_kind_label + (entry.city ? ' · ' + entry.city : '');
             button.appendChild(title);
             button.appendChild(meta);
+            button.addEventListener('mousedown', function (event) { event.preventDefault(); });
             button.addEventListener('click', function () { applyDirectory(entry); });
             resultsEl.appendChild(button);
         });
+        resultsEl.classList.add('show');
     }
 
     let timer = null;
-    qInput.addEventListener('input', function () {
+    nameInput.addEventListener('input', function () {
         clearTimeout(timer);
-        const q = qInput.value.trim();
+        clearTimeout(courtTimer);
+        if (nameInput.readOnly) return;
+        const q = nameInput.value.trim();
         if (q.length < 2) {
-            resultsEl.innerHTML = '';
-            return;
+            hideMenu();
+        } else {
+            timer = setTimeout(function () {
+                fetch(lookupUrl + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } })
+                    .then(function (response) { return response.json(); })
+                    .then(function (body) {
+                        if (nameInput.readOnly) return;
+                        renderResults(body.results || []);
+                    })
+                    .catch(function () {
+                        hideMenu();
+                        statusEl.textContent = 'Pretraga imenika trenutno nije dostupna.';
+                    });
+            }, 250);
         }
-        timer = setTimeout(function () {
-            fetch(lookupUrl + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } })
-                .then(function (response) { return response.json(); })
-                .then(function (body) {
-                    const results = body.results || [];
-                    renderResults(results);
-                    statusEl.textContent = results.length ? 'Odaberite ured.' : 'Nema pogotka. Ured možete upisati ručno.';
-                })
-                .catch(function () {
-                    statusEl.textContent = 'Pretraga imenika trenutno nije dostupna.';
-                });
-        }, 300);
+        if (usesCourt()) courtTimer = setTimeout(lookupCourt, 400);
+    });
+
+    nameInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') hideMenu();
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!nameLookup.contains(event.target)) hideMenu();
     });
 
     document.getElementById('registryManual').addEventListener('click', function () {
@@ -318,7 +349,7 @@
         mbsInput.value = '';
         kindInput.value = '';
         showMbs(false);
-        resultsEl.innerHTML = '';
+        hideMenu();
         courtMatches.innerHTML = '';
         statusEl.textContent = 'Upišite podatke ureda. Za podružnicu stranog društva odaberite oblik i naziv.';
         kindInput.focus();
@@ -329,12 +360,6 @@
     kindInput.addEventListener('change', function () {
         showMbs(usesCourt());
         if (usesCourt()) lookupCourt();
-    });
-
-    nameInput.addEventListener('input', function () {
-        if (nameInput.readOnly || !usesCourt()) return;
-        clearTimeout(courtTimer);
-        courtTimer = setTimeout(lookupCourt, 400);
     });
 
     showMbs(usesCourt());
