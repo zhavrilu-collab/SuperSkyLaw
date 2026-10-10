@@ -43,15 +43,13 @@
         <div class="kartica-kontejner">
             <div class="zakoni-popis">
                 @forelse($works as $work)
-                    <a href="{{ route('organization.statutes.index', array_filter([$org->slug, 'q' => $term, 'zakon' => $work->id, 'page' => $works->currentPage() > 1 ? $works->currentPage() : null])) }}"
+                    <a href="{{ route('organization.statutes.index', array_filter([$org->slug, 'q' => $term, 'zakon' => $work->id, 'page' => $works->currentPage() > 1 ? $works->currentPage() : null, 'per_page' => request()->has('per_page') ? $works->perPage() : null])) }}"
                        class="zakoni-naziv {{ $selected && $selected->id === $work->id ? 'is-active' : '' }}">{{ $work->title }}</a>
                 @empty
                     <p class="text-muted mb-0">{{ $term === '' ? 'Zakoni se pune iz Narodnih novina.' : 'Nema zakona za taj upit.' }}</p>
                 @endforelse
             </div>
-            @if($works->hasPages())
-                <div class="mt-3">{{ $works->links() }}</div>
-            @endif
+            <x-pagination-bar :paginator="$works" />
         </div>
     </div>
     <div class="col-lg-7">

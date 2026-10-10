@@ -1,0 +1,18 @@
+---
+description: Paginacija lista — Bootstrap traka kao kod članova u udruzi
+alwaysApply: true
+---
+
+# Paginacija
+
+Uzor je popis članova u udruzi. Ne zovi `$paginator->links()` bez viewa. Laravel tada crta Tailwind: engleski „Showing … results”, ključeve `pagination.previous` / `pagination.next` i SVG strelice koje bez Tailwind CSS-a postanu goleme.
+
+## Kako
+
+- Kontroler: `paginate(PerPage::resolve($request))`. Dozvoljeno je 10, 25, 50, 100. Zadano je 25.
+- Blade: `<x-pagination-bar :paginator="$stavke" />`
+- Brojevi stranica idu kroz `vendor.pagination.bootstrap-5`: `pagination pagination-sm`, strelice `‹` i `›`, bez SVG-a.
+- Tekst raspona je hrvatski: `81–120 od 673`. Odabir „Prikaz” šalje `per_page` i čuva ostale parametre upita.
+- `Paginator::useBootstrapFive()` ostaje u `AppServiceProvider`.
+
+Novi popis ne smije imati Tailwind klase paginacije (`w-5`, `sm:hidden`) niti engleski „Showing”.

@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\ResolvesOffice;
 use App\Models\MatterStatute;
 use App\Models\Statute;
 use App\Models\StatuteWork;
+use App\Support\PerPage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -31,10 +32,7 @@ class StatuteController extends Controller
                 });
             })
             ->orderBy('title')
-            ->paginate(40);
-        if ($term !== '') {
-            $works->appends(['q' => $term]);
-        }
+            ->paginate(PerPage::resolve($request));
 
         $selected = $works->getCollection()->firstWhere('id', $request->integer('zakon'))
             ?? $works->getCollection()->first();

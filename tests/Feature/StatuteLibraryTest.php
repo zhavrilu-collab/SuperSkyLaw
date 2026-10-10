@@ -86,7 +86,12 @@ class StatuteLibraryTest extends TestCase
             ->assertOk()
             ->assertSee('Zakon o obveznim odnosima')
             ->assertSee('NN 34/2024')
-            ->assertSee('nisu redakcijski pročišćeni');
+            ->assertSee('nisu redakcijski pročišćeni')
+            ->assertSee('Prikaz')
+            ->assertSee('od 1')
+            ->assertDontSee('pagination.previous', false)
+            ->assertDontSee('Showing', false)
+            ->assertDontSee('w-5 h-5', false);
 
         $this->actingAs($user)
             ->get(route('organization.statutes.show', [$organization->slug, $statute->id]))

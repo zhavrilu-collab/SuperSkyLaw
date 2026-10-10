@@ -1220,5 +1220,12 @@
     .faza-rociste { color: #7e22ce; }
     .faza-pauza { color: #475569; }
     .faza-arhiv { color: #111827; }
+    .page-link { color: var(--tekst-tamni); }
+    .page-item.active .page-link {
+        background-color: var(--gumb-pozadina, var(--primarna-zelena));
+        border-color: var(--gumb-rub, var(--primarna-zelena));
+        color: var(--gumb-tekst, var(--tekst-na-primarnoj));
+    }
+    .page-link:hover { color: var(--tekst-tamni); }
     @keyframes faza-blink { 50% { opacity: .25; } }
 </style>
