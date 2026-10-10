@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Enums\OrganizationRole;
+use App\Enums\StatuteArea;
+use App\Services\StatuteAreaClassifier;
 use App\Enums\OrganizationStatus;
 use App\Models\Matter;
 use App\Models\Organization;
@@ -32,7 +34,7 @@ class StatuteLibraryTest extends TestCase
                 return Http::response($this->indexCsv());
             }
 
-            return Http::response('<html><body><p>Tekst zakona o obveznim odnosima (27.3.2024.)</p><script>alert(1)</script></body></html>');
+            return Http::response("<html><body><span class='key'>Datum tiskanog izdanja:</span> 27.3.2024.<p>Tekst zakona o obveznim odnosima (1.1.2020.)</p><script>alert(1)</script></body></html>");
         });
 
         app(StatuteImporter::class)->pull(10);
@@ -111,6 +113,38 @@ class StatuteLibraryTest extends TestCase
         $this->assertNotNull($graves);
         $this->assertSame(2, $family->statutes()->count());
         $this->assertSame(2, $graves->statutes()->count());
+        $this->assertSame(StatuteArea::Civil, $family->area);
+        $this->assertSame(StatuteArea::Other, $graves->area);
+    }
+
+    public function test_areas_follow_the_law_title_and_dates_come_from_the_printed_edition(): void
+    {
+        $areas = app(StatuteAreaClassifier::class);
+        $this->assertSame(StatuteArea::Criminal, $areas->classify('Kazneni zakon'));
+        $this->assertSame(StatuteArea::Labor, $areas->classify('Zakon o radu'));
+        $this->assertSame(StatuteArea::Enforcement, $areas->classify('Ovršni zakon'));
+        $this->assertSame(StatuteArea::Tax, $areas->classify('Zakon o porezu na dodanu vrijednost'));
+        $this->assertSame(StatuteArea::Other, $areas->classify('Zakon o provedbi Uredbe (EU) 2024/1781 o uspostavi okvira'));
+        $this->assertSame(StatuteArea::Other, $areas->classify('Zakon o hrvatskim braniteljima iz Domovinskog rata i članovima njihovih obitelji'));
+        $this->assertSame(StatuteArea::Other, $areas->classify('Zakon o obiteljskom poljoprivrednom gospodarstvu'));
+        $this->assertSame(StatuteArea::Civil, $areas->classify('Zakon o zaštiti od nasilja u obitelji'));
+        $this->assertSame(StatuteArea::Civil, $areas->classify('Zakon o vlasništvu i drugim stvarnim pravima'));
+
+        $html = "<td><span class='key'>Datum tiskanog izdanja:</span> 3.6.2015.</td><p>22. svibnja 2015.</p>";
+        $this->assertSame('2015-06-03', app(StatuteImporter::class)->publicationDate($html));
+
+        $statute = Statute::query()->create([
+            'external_id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2015/61/1188',
+            'title' => 'Kazneni zakon',
+            'citation' => 'NN 61/2015',
+            'document_type' => 'ZAKON',
+            'source_url' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2015/61/1188/hrv/html',
+            'text_html' => $html,
+            'fetched_at' => now(),
+        ]);
+
+        $this->assertSame(1, app(StatuteImporter::class)->fillPublicationDates());
+        $this->assertSame('2015-06-03', $statute->fresh()->published_on->toDateString());
     }
 
     public function test_library_search_and_matter_link(): void
@@ -154,6 +188,10 @@ class StatuteLibraryTest extends TestCase
             ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'obveznim']))
             ->assertOk()
             ->assertSee('Zakon o obveznim odnosima')
+            ->assertSee('Građansko')
+            ->assertSee('Sva područja')
+            ->assertSee('Porezno')
+            ->assertSee('Ostalo')
             ->assertSee('NN 34/2024')
             ->assertSee('Datum')
             ->assertSee('27.03.2024.')
@@ -174,6 +212,11 @@ class StatuteLibraryTest extends TestCase
             ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'obveznim', 'sort' => 'objava', 'dir' => 'asc']))
             ->assertOk()
             ->assertSeeInOrder(['NN 1/2020', 'NN 34/2024']);
+
+        $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'podrucje' => 'tax']))
+            ->assertOk()
+            ->assertDontSee('Zakon o obveznim odnosima');
 
         $this->actingAs($user)
             ->get(route('organization.statutes.show', [$organization->slug, $statute->id]))

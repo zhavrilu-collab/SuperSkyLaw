@@ -213,7 +213,7 @@ class StatuteImporter
         $clean = $response->successful() ? $this->clean($body) : null;
         $published = $statute->published_on;
         if ($published === null && $response->successful()) {
-            $published = $this->publishedOn(substr($body, 0, 2500));
+            $published = $this->publicationDate($body);
         }
         $statute->forceFill([
             'text_html' => $clean,
@@ -223,9 +223,32 @@ class StatuteImporter
         ])->save();
     }
 
-    private function publishedOn(string $head): ?string
+    public function fillPublicationDates(): int
     {
-        if (! preg_match('/\((\d{1,2})\.(\d{1,2})\.(\d{4})\.?\)/u', $head, $match)) {
+        $filled = 0;
+        Statute::query()
+            ->whereNull('published_on')
+            ->whereNotNull('text_html')
+            ->select('id', 'text_html')
+            ->orderBy('id')
+            ->chunkById(40, function ($statutes) use (&$filled): void {
+                foreach ($statutes as $statute) {
+                    $date = $this->publicationDate((string) $statute->text_html);
+                    if ($date === null) {
+                        continue;
+                    }
+                    $statute->forceFill(['published_on' => $date])->save();
+                    $filled++;
+                }
+            });
+
+        return $filled;
+    }
+
+    public function publicationDate(string $html): ?string
+    {
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if (! preg_match('/Datum tiskanog izdanja:\s*(\d{1,2})\.(\d{1,2})\.(\d{4})\./u', $text, $match)) {
             return null;
         }
         $day = (int) $match[1];

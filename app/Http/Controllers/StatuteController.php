@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatuteArea;
 use App\Http\Controllers\Concerns\ResolvesOffice;
 use App\Models\MatterStatute;
 use App\Models\Statute;
@@ -20,7 +21,9 @@ class StatuteController extends Controller
         $this->authorizePerm('matters.view');
         $term = trim($request->string('q')->toString());
         $like = '%'.$term.'%';
+        $area = StatuteArea::tryFrom($request->string('podrucje')->toString());
         $works = StatuteWork::query()
+            ->when($area !== null, fn ($query) => $query->where('area', $area->value))
             ->when($term !== '', function ($query) use ($like) {
                 $query->where(function ($outer) use ($like) {
                     $outer->where('title', 'like', $like)
@@ -64,6 +67,7 @@ class StatuteController extends Controller
             'term' => $term,
             'sort' => $sort,
             'dir' => $dir,
+            'area' => $area,
         ]);
     }
 

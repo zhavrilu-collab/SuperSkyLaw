@@ -9,6 +9,8 @@ class StatuteWorkGrouper
 {
     private const AMENDMENT = '/^Zakon o (izmjenama i dopunama|izmjenama i dopuni|izmjeni i dopunama|izmjeni i dopuni|izmjenama|dopunama|izmjeni|dopuni)\s+/iu';
 
+    public function __construct(private StatuteAreaClassifier $areas) {}
+
     public function attachMissing(): void
     {
         Statute::query()->whereNull('work_id')->orderBy('id')->each(function (Statute $statute): void {
@@ -35,16 +37,29 @@ class StatuteWorkGrouper
         StatuteWork::query()->whereDoesntHave('statutes')->delete();
     }
 
+    public function assignAreas(): void
+    {
+        StatuteWork::query()->orderBy('id')->each(function (StatuteWork $work): void {
+            $area = $this->areas->classify($work->title);
+            if ($work->area !== $area) {
+                $work->area = $area;
+                $work->save();
+            }
+        });
+    }
+
     public function workFor(string $publicationTitle, ?string $externalId, bool $baseAct): StatuteWork
     {
         $title = $this->workTitle($publicationTitle);
+        $area = $this->areas->classify($title);
         $work = StatuteWork::query()->firstOrCreate(
             ['title_key' => $this->key($title)],
-            ['title' => $title],
+            ['title' => $title, 'area' => $area],
         );
 
-        if ($work->title !== $title) {
+        if ($work->title !== $title || $work->area !== $area) {
             $work->title = $title;
+            $work->area = $area;
             $work->save();
         }
 
