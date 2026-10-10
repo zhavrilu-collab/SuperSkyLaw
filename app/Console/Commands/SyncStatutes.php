@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class SyncStatutes extends Command
 {
-    protected $signature = 'legal:sync-statutes {--limit=15 : Broj zahtjeva prema Narodnim novinama}';
+    protected $signature = 'legal:sync-statutes {--limit=60 : Broj zahtjeva prema Narodnim novinama}';
 
     protected $description = 'Uvozi paket hrvatskih zakona iz Narodnih novina';
 

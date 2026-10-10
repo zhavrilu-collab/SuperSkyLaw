@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\ResolvesOffice;
 use App\Models\MatterStatute;
 use App\Models\Statute;
+use App\Models\StatuteWork;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -17,22 +18,36 @@ class StatuteController extends Controller
     {
         $this->authorizePerm('matters.view');
         $term = trim($request->string('q')->toString());
-        $statutes = Statute::query()
-            ->when($term !== '', function ($query) use ($term) {
-                $like = '%'.$term.'%';
-                $query->where(function ($inner) use ($like) {
-                    $inner->where('title', 'like', $like)
-                        ->orWhere('citation', 'like', $like)
-                        ->orWhere('text_plain', 'like', $like);
+        $like = '%'.$term.'%';
+        $works = StatuteWork::query()
+            ->when($term !== '', function ($query) use ($like) {
+                $query->where(function ($outer) use ($like) {
+                    $outer->where('title', 'like', $like)
+                        ->orWhereHas('statutes', function ($statutes) use ($like) {
+                            $statutes->where('title', 'like', $like)
+                                ->orWhere('citation', 'like', $like)
+                                ->orWhere('text_plain', 'like', $like);
+                        });
                 });
             })
-            ->orderByDesc('published_on')
+            ->with(['statutes' => function ($statutes) use ($term, $like) {
+                $statutes->orderByDesc('published_on')->orderBy('title');
+                if ($term === '') {
+                    return;
+                }
+                $statutes->where(function ($inner) use ($like) {
+                    $inner->where('title', 'like', $like)
+                        ->orWhere('citation', 'like', $like)
+                        ->orWhere('text_plain', 'like', $like)
+                        ->orWhereHas('work', fn ($work) => $work->where('title', 'like', $like));
+                });
+            }])
             ->orderBy('title')
             ->paginate(30)
             ->withQueryString();
 
         return view('organization.statutes.index', [
-            'statutes' => $statutes,
+            'works' => $works,
             'term' => $term,
         ]);
     }

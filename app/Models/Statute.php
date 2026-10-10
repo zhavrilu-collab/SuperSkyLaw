@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Statute extends Model
 {
     protected $fillable = [
         'external_id',
+        'work_id',
+        'amends_external_id',
         'title',
         'citation',
         'document_type',
@@ -25,6 +28,11 @@ class Statute extends Model
             'published_on' => 'date',
             'fetched_at' => 'datetime',
         ];
+    }
+
+    public function work(): BelongsTo
+    {
+        return $this->belongsTo(StatuteWork::class, 'work_id');
     }
 
     public function matters(): BelongsToMany

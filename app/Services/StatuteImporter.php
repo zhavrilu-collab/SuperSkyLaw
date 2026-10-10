@@ -13,14 +13,21 @@ class StatuteImporter
 {
     private int $budget = 0;
 
+    public function __construct(private StatuteWorkGrouper $grouper) {}
+
     public function pull(int $limit): int
     {
         $this->budget = max(1, $limit);
+        $this->grouper->attachMissing();
         $state = StatuteSyncState::query()->firstOrCreate(
             ['source' => 'hr'],
             ['cursor' => $this->freshCursor()],
         );
         $cursor = $state->cursor ?: $this->freshCursor();
+        if (($cursor['v'] ?? 0) !== 2) {
+            $cursor = $this->freshCursor();
+        }
+
         if (($cursor['done'] ?? false) === true) {
             $handled = $this->fillMissingTexts();
             $state->forceFill(['cursor' => $cursor, 'finished_at' => $state->finished_at ?? now()])->save();
@@ -29,8 +36,6 @@ class StatuteImporter
         }
 
         $handled = 0;
-        $handled += $this->fillMissingTexts();
-
         while ($this->budget > 0 && ($cursor['done'] ?? false) !== true) {
             $before = $this->budget;
             $previous = json_encode($cursor);
@@ -75,69 +80,26 @@ class StatuteImporter
         }
 
         $year = (int) $years[$cursor['year_index']];
-        if ($cursor['editions'] === null) {
-            $editions = $this->editions($year);
-            if ($editions === null) {
+        $loaded = $cursor['loaded_years'] ?? [];
+        if (! in_array($year, $loaded, true)) {
+            $rows = $this->indexRows($year);
+            if ($rows === null) {
                 return $cursor;
             }
-            $cursor['editions'] = $editions;
-            $cursor['edition_index'] = 0;
-            $cursor['acts'] = null;
-            $cursor['act_index'] = 0;
+            $this->storeRows($rows);
+            $cursor['loaded_years'][] = $year;
 
             return $cursor;
         }
 
-        $editions = $cursor['editions'];
-        if ($cursor['edition_index'] >= count($editions)) {
-            $cursor['year_index']++;
-            $cursor['editions'] = null;
+        $pending = Statute::query()->whereNull('fetched_at')->orderByDesc('published_on')->orderByDesc('id')->first();
+        if ($pending !== null) {
+            $this->storeText($pending);
 
             return $cursor;
         }
 
-        $edition = (int) $editions[$cursor['edition_index']];
-        if ($cursor['acts'] === null) {
-            $acts = $this->acts($year, $edition);
-            if ($acts === null) {
-                return $cursor;
-            }
-            $cursor['acts'] = $acts;
-            $cursor['act_index'] = 0;
-
-            return $cursor;
-        }
-
-        $acts = $cursor['acts'];
-        if ($cursor['act_index'] >= count($acts)) {
-            $cursor['edition_index']++;
-            $cursor['acts'] = null;
-
-            return $cursor;
-        }
-
-        $act = (string) $acts[$cursor['act_index']];
-        $result = $this->act($year, $edition, $act);
-        if ($result === null) {
-            return $cursor;
-        }
-        if (! isset($result['skip'])) {
-            $statute = Statute::query()->updateOrCreate(
-                ['external_id' => $result['external_id']],
-                [
-                    'title' => $result['title'],
-                    'citation' => $result['citation'],
-                    'document_type' => 'ZAKON',
-                    'published_on' => $result['published_on'],
-                    'source_url' => $result['source_url'],
-                ],
-            );
-            if ($statute->fetched_at === null && $this->budget > 0) {
-                $this->storeText($statute);
-            }
-        }
-
-        $cursor['act_index']++;
+        $cursor['year_index']++;
 
         return $cursor;
     }
@@ -145,16 +107,100 @@ class StatuteImporter
     private function fillMissingTexts(): int
     {
         $filled = 0;
-        $pending = Statute::query()->whereNull('fetched_at')->orderBy('id')->limit($this->budget)->get();
-        foreach ($pending as $statute) {
-            if ($this->budget < 1) {
+        while ($this->budget > 0) {
+            $pending = Statute::query()->whereNull('fetched_at')->orderByDesc('published_on')->orderByDesc('id')->first();
+            if ($pending === null) {
                 break;
             }
-            $this->storeText($statute);
+            $this->storeText($pending);
             $filled++;
         }
 
         return $filled;
+    }
+
+    /**
+     * @param  list<array{eli: string, title: string, citation: string, base: bool}>  $rows
+     */
+    private function storeRows(array $rows): void
+    {
+        foreach ($rows as $row) {
+            $work = $this->grouper->workFor($row['title'], $row['eli'], $row['base']);
+            $statute = Statute::query()->firstOrNew(['external_id' => $row['eli']]);
+            $statute->fill([
+                'work_id' => $work->id,
+                'title' => $row['title'],
+                'citation' => $row['citation'],
+                'document_type' => 'ZAKON',
+                'source_url' => rtrim($row['eli'], '/').'/hrv/html',
+            ]);
+            $statute->save();
+        }
+    }
+
+    /**
+     * @return list<array{eli: string, title: string, citation: string, base: bool}>|null
+     */
+    private function indexRows(int $year): ?array
+    {
+        $response = $this->send(fn (PendingRequest $http) => $http->get($this->url('/get_index_file.aspx?year='.$year.'&type=csv')));
+        if ($response === null || ! $response->successful()) {
+            return null;
+        }
+
+        $body = (string) $response->body();
+        if (! str_contains(ltrim($body, "\xEF\xBB\xBF"), 'Izdanje')) {
+            return null;
+        }
+
+        $lines = preg_split('/\r\n|\n|\r/', $body) ?: [];
+        $header = null;
+        $delimiter = "\t";
+        $rows = [];
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+            if ($header === null) {
+                $line = ltrim($line, "\xEF\xBB\xBF");
+                $delimiter = str_contains($line, "\t") ? "\t" : (str_contains($line, ';') ? ';' : ',');
+                $header = array_map(fn ($column) => mb_strtolower(trim($column)), str_getcsv($line, $delimiter));
+
+                continue;
+            }
+            $cells = str_getcsv($line, $delimiter);
+            $record = [];
+            foreach ($header as $index => $name) {
+                $record[$name] = trim((string) ($cells[$index] ?? ''));
+            }
+            $kind = mb_strtolower($record['vrsta dokumenta'] ?? '');
+            $eli = $this->normalizeEli($record['poveznica'] ?? '');
+            $title = trim(preg_replace('/\s+/u', ' ', $record['naziv dokumenta'] ?? '') ?? '');
+            if ($kind !== 'zakon' || $title === '' || ! str_contains($eli, '/eli/sluzbeni/')) {
+                continue;
+            }
+            $citation = trim($record['izdanje'] ?? '');
+            if ($citation === '') {
+                $citation = 'NN /'.$year;
+            }
+            $role = mb_strtolower($record['cjeloviti dokument/izmjene/dopune/ukinut'] ?? '');
+            $rows[] = [
+                'eli' => $eli,
+                'title' => $title,
+                'citation' => $citation,
+                'base' => str_contains($role, 'cjeloviti'),
+            ];
+        }
+
+        return $rows;
+    }
+
+    private function normalizeEli(string $url): string
+    {
+        $url = trim($url);
+        $url = preg_replace('#^https:/(?!/)#', 'https://', $url) ?? $url;
+
+        return rtrim($url, '/');
     }
 
     private function storeText(Statute $statute): void
@@ -163,12 +209,33 @@ class StatuteImporter
         if ($response === null) {
             return;
         }
-        $clean = $response->successful() ? $this->clean((string) $response->body()) : null;
+        $body = (string) $response->body();
+        $clean = $response->successful() ? $this->clean($body) : null;
+        $published = $statute->published_on;
+        if ($published === null && $response->successful()) {
+            $published = $this->publishedOn(substr($body, 0, 2500));
+        }
         $statute->forceFill([
             'text_html' => $clean,
             'text_plain' => $clean === null ? null : $this->plain($clean),
+            'published_on' => $published,
             'fetched_at' => now(),
         ])->save();
+    }
+
+    private function publishedOn(string $head): ?string
+    {
+        if (! preg_match('/\((\d{1,2})\.(\d{1,2})\.(\d{4})\.?\)/u', $head, $match)) {
+            return null;
+        }
+        $day = (int) $match[1];
+        $month = (int) $match[2];
+        $year = (int) $match[3];
+        if (! checkdate($month, $day, $year)) {
+            return null;
+        }
+
+        return sprintf('%04d-%02d-%02d', $year, $month, $day);
     }
 
     /**
@@ -182,112 +249,10 @@ class StatuteImporter
             return null;
         }
 
-        return array_reverse(array_values(array_map('intval', $years)));
-    }
+        $years = array_values(array_filter(array_map('intval', $years), fn (int $year) => $year >= 2015));
+        rsort($years);
 
-    /**
-     * @return list<int>|null
-     */
-    private function editions(int $year): ?array
-    {
-        $response = $this->send(fn (PendingRequest $http) => $http->acceptJson()->post($this->url('/api/editions'), [
-            'part' => 'SL',
-            'year' => $year,
-        ]));
-        $editions = $response?->json();
-        if ($response === null || ! $response->successful() || ! is_array($editions)) {
-            return null;
-        }
-
-        return array_reverse(array_values(array_map('intval', $editions)));
-    }
-
-    /**
-     * @return list<string>|null
-     */
-    private function acts(int $year, int $number): ?array
-    {
-        $response = $this->send(fn (PendingRequest $http) => $http->acceptJson()->post($this->url('/api/acts'), [
-            'part' => 'SL',
-            'year' => $year,
-            'number' => $number,
-        ]));
-        $acts = $response?->json();
-        if ($response === null || ! $response->successful() || ! is_array($acts)) {
-            return null;
-        }
-
-        return array_values(array_map('strval', $acts));
-    }
-
-    /**
-     * @return array<string, mixed>|null
-     */
-    private function act(int $year, int $number, string $act): ?array
-    {
-        $response = $this->send(fn (PendingRequest $http) => $http->acceptJson()->post($this->url('/api/act'), [
-            'part' => 'SL',
-            'year' => $year,
-            'number' => $number,
-            'act_num' => $act,
-            'format' => 'JSON-LD',
-        ]));
-        if ($response === null || $response->serverError() || $response->status() === 429) {
-            return null;
-        }
-        if (! $response->successful()) {
-            return ['skip' => true];
-        }
-
-        return $this->interpret($response, $year, $number, $act) ?? ['skip' => true];
-    }
-
-    /**
-     * @return array{external_id: string, title: string, citation: string, published_on: ?string, source_url: string}|null
-     */
-    private function interpret(Response $response, int $year, int $number, string $act): ?array
-    {
-        $graph = $response->json();
-        if (! is_array($graph)) {
-            return null;
-        }
-
-        $type = null;
-        $eli = null;
-        $title = null;
-        $published = null;
-        foreach ($graph as $node) {
-            if (! is_array($node)) {
-                continue;
-            }
-            $typeUrl = $node['http://data.europa.eu/eli/ontology#type_document'][0]['@id'] ?? null;
-            if (is_string($typeUrl) && $typeUrl !== '') {
-                $type = strtoupper(basename($typeUrl));
-                $eli = is_string($node['@id'] ?? null) ? $node['@id'] : $eli;
-            }
-            $nodeTitle = $node['http://data.europa.eu/eli/ontology#title'][0]['@value'] ?? null;
-            if (is_string($nodeTitle) && $nodeTitle !== '' && $title === null) {
-                $title = $nodeTitle;
-            }
-            $nodeDate = $node['http://data.europa.eu/eli/ontology#date_publication'][0]['@value'] ?? null;
-            if (is_string($nodeDate) && $published === null) {
-                $published = $nodeDate;
-            }
-        }
-
-        if ($type !== 'ZAKON' || $title === null) {
-            return null;
-        }
-
-        $eli = $eli ?: $this->url('/eli/sluzbeni/'.$year.'/'.$number.'/'.$act);
-
-        return [
-            'external_id' => $eli,
-            'title' => $title,
-            'citation' => 'NN '.$number.'/'.$year,
-            'published_on' => $published,
-            'source_url' => rtrim($eli, '/').'/hrv/html',
-        ];
+        return $years;
     }
 
     private function clean(string $html): string
@@ -323,7 +288,7 @@ class StatuteImporter
             usleep(350000);
         }
 
-        $client = Http::timeout(20);
+        $client = Http::timeout(30);
         $ca = config('services.nn.ca_bundle');
         if (! is_string($ca) || $ca === '') {
             $ca = storage_path('app/cacert.pem');
@@ -346,12 +311,10 @@ class StatuteImporter
     private function freshCursor(): array
     {
         return [
+            'v' => 2,
             'years' => null,
             'year_index' => 0,
-            'editions' => null,
-            'edition_index' => 0,
-            'acts' => null,
-            'act_index' => 0,
+            'loaded_years' => [],
             'done' => false,
         ];
     }

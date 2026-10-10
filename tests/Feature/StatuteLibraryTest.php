@@ -8,8 +8,10 @@ use App\Models\Matter;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\Statute;
+use App\Models\StatuteWork;
 use App\Models\User;
 use App\Services\StatuteImporter;
+use App\Services\StatuteWorkGrouper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -26,30 +28,27 @@ class StatuteLibraryTest extends TestCase
             if (str_ends_with($url, '/api/index')) {
                 return Http::response([2024]);
             }
-            if (str_contains($url, '/api/editions')) {
-                return Http::response([34]);
-            }
-            if (str_contains($url, '/api/acts')) {
-                return Http::response(['10', '11']);
-            }
-            if (str_contains($url, '/api/act')) {
-                $act = $request->data()['act_num'] ?? '';
-
-                return Http::response($act === '10' ? $this->lawGraph() : $this->regulationGraph());
+            if (str_contains($url, 'get_index_file.aspx')) {
+                return Http::response($this->indexCsv());
             }
 
-            return Http::response('<html><body><p>Tekst zakona o obveznim odnosima</p><script>alert(1)</script></body></html>');
+            return Http::response('<html><body><p>Tekst zakona o obveznim odnosima (27.3.2024.)</p><script>alert(1)</script></body></html>');
         });
 
         app(StatuteImporter::class)->pull(10);
 
-        $statute = Statute::query()->first();
-        $this->assertNotNull($statute);
-        $this->assertSame(1, Statute::query()->count());
-        $this->assertSame('Zakon o obveznim odnosima', $statute->title);
-        $this->assertSame('NN 34/2024', $statute->citation);
-        $this->assertStringContainsString('Tekst zakona o obveznim odnosima', (string) $statute->text_plain);
-        $this->assertStringNotContainsString('script', (string) $statute->text_html);
+        $this->assertSame(2, Statute::query()->count());
+        $this->assertSame(1, StatuteWork::query()->count());
+        $base = Statute::query()->where('citation', 'NN 34/2024')->first();
+        $amendment = Statute::query()->where('citation', 'NN 40/2024')->first();
+        $this->assertNotNull($base);
+        $this->assertNotNull($amendment);
+        $this->assertSame($base->work_id, $amendment->work_id);
+        $this->assertSame('Zakon o obveznim odnosima', $base->work->title);
+        $this->assertSame('2024-03-27', $base->published_on?->toDateString());
+        $this->assertStringContainsString('Tekst zakona o obveznim odnosima', (string) $base->text_plain);
+        $this->assertStringNotContainsString('script', (string) $base->text_html);
+        $this->assertDatabaseMissing('statutes', ['title' => 'Uredba o cijenama']);
 
         Http::fake();
         app(StatuteImporter::class)->pull(5);
@@ -80,6 +79,7 @@ class StatuteLibraryTest extends TestCase
             'text_plain' => 'Tekst zakona o obveznim odnosima',
             'fetched_at' => now(),
         ]);
+        app(StatuteWorkGrouper::class)->attachMissing();
 
         $this->actingAs($user)
             ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'obveznim']))
@@ -112,49 +112,14 @@ class StatuteLibraryTest extends TestCase
         ]);
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function lawGraph(): array
+    private function indexCsv(): string
     {
-        return [
-            [
-                '@id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2024/34/10',
-                'http://data.europa.eu/eli/ontology#type_document' => [
-                    ['@id' => 'https://narodne-novine.nn.hr/resource/authority/document-type/ZAKON'],
-                ],
-                'http://data.europa.eu/eli/ontology#date_publication' => [
-                    ['@value' => '2024-03-27'],
-                ],
-            ],
-            [
-                '@id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2024/34/10/hrv',
-                'http://data.europa.eu/eli/ontology#title' => [
-                    ['@value' => 'Zakon o obveznim odnosima'],
-                ],
-            ],
-        ];
-    }
+        $header = "Izdanje\tBroj dokumenta\tNaziv dokumenta\tVrsta dokumenta\tCjeloviti dokument/izmjene/dopune/ukinut\tPoveznica";
+        $base = "NN 34/2024\t10\tZakon o obveznim odnosima\tzakon\tcjeloviti akt\thttps://narodne-novine.nn.hr/eli/sluzbeni/2024/34/10";
+        $regulation = "NN 34/2024\t11\tUredba o cijenama\turedba\tcjeloviti akt\thttps://narodne-novine.nn.hr/eli/sluzbeni/2024/34/11";
+        $amendment = "NN 40/2024\t12\tZakon o izmjenama i dopunama Zakona o obveznim odnosima\tzakon\tizmjene i dopune\thttps://narodne-novine.nn.hr/eli/sluzbeni/2024/40/12";
 
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function regulationGraph(): array
-    {
-        return [
-            [
-                '@id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2024/34/11',
-                'http://data.europa.eu/eli/ontology#type_document' => [
-                    ['@id' => 'https://narodne-novine.nn.hr/resource/authority/document-type/UREDBA'],
-                ],
-            ],
-            [
-                '@id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2024/34/11/hrv',
-                'http://data.europa.eu/eli/ontology#title' => [
-                    ['@value' => 'Uredba o cijenama'],
-                ],
-            ],
-        ];
+        return $header."\n".$base."\n".$regulation."\n".$amendment."\n";
     }
 
     /**

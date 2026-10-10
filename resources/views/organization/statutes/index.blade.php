@@ -16,18 +16,23 @@
         <table class="table mb-0">
             <thead><tr><th>Objava</th><th>Naziv</th><th>Datum</th></tr></thead>
             <tbody>
-            @forelse($statutes as $statute)
+            @forelse($works as $work)
                 <tr>
-                    <td><a href="{{ route('organization.statutes.show', [$org->slug, $statute->id]) }}">{{ $statute->citation }}</a></td>
-                    <td>{{ $statute->title }}</td>
-                    <td>{{ $statute->published_on?->format('d.m.Y.') ?: '—' }}</td>
+                    <td colspan="3"><strong>{{ $work->title }}</strong></td>
                 </tr>
+                @foreach($work->statutes as $statute)
+                    <tr>
+                        <td><a href="{{ route('organization.statutes.show', [$org->slug, $statute->id]) }}">{{ $statute->citation }}</a></td>
+                        <td>{{ $statute->title }}</td>
+                        <td>{{ $statute->published_on?->format('d.m.Y.') ?: '—' }}</td>
+                    </tr>
+                @endforeach
             @empty
                 <tr><td colspan="3" class="text-muted">{{ $term === '' ? 'Zakoni se pune iz Narodnih novina.' : 'Nema zakona za taj upit.' }}</td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
-    <div class="mt-3">{{ $statutes->links() }}</div>
+    <div class="mt-3">{{ $works->links() }}</div>
 </div>
 @endsection
