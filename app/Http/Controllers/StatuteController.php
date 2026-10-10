@@ -7,6 +7,7 @@ use App\Http\Controllers\Concerns\ResolvesOffice;
 use App\Models\MatterStatute;
 use App\Models\Statute;
 use App\Models\StatuteWork;
+use App\Services\StatuteWorkGrouper;
 use App\Support\PerPage;
 use App\Support\TextFold;
 use Illuminate\Http\RedirectResponse;
@@ -65,10 +66,13 @@ class StatuteController extends Controller
             }]);
             $selected->setRelation('statutes', $this->sortPublications($selected->statutes, $sort, $dir));
         }
+        $reading = $selected === null ? null : $this->readingPublication($selected);
 
         return view('organization.statutes.index', [
             'works' => $works,
             'selected' => $selected,
+            'reading' => $reading,
+            'readingConsolidated' => $reading !== null && $this->isConsolidated($reading->title),
             'term' => $term,
             'sort' => $sort,
             'dir' => $dir,
@@ -136,6 +140,35 @@ class StatuteController extends Controller
 
             return $dir === 'desc' ? -$cmp : $cmp;
         })->values();
+    }
+
+    private function readingPublication(StatuteWork $work): ?Statute
+    {
+        $rows = Statute::query()
+            ->where('work_id', $work->id)
+            ->get(['id', 'title', 'published_on']);
+        $grouper = app(StatuteWorkGrouper::class);
+        $latest = fn (Statute $statute): string => sprintf('%010d-%010d', $statute->published_on?->timestamp ?? 0, $statute->id);
+        $chosen = $rows
+            ->filter(fn (Statute $statute) => $this->isConsolidated($statute->title))
+            ->sortByDesc($latest)
+            ->first();
+        if ($chosen === null) {
+            $chosen = $rows
+                ->filter(fn (Statute $statute) => ! $grouper->isAmendment($statute->title))
+                ->sortByDesc($latest)
+                ->first();
+        }
+        if ($chosen === null) {
+            return null;
+        }
+
+        return Statute::query()->find($chosen->id);
+    }
+
+    private function isConsolidated(string $title): bool
+    {
+        return preg_match('/\((?:pro|pre)čišćeni tekst\)/iu', $title) === 1;
     }
 
     private function areaOrderSql(): string

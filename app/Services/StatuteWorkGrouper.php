@@ -86,7 +86,7 @@ class StatuteWorkGrouper
             $next = preg_replace('/^Odluk[ae]\s+o\s+proglašenju\s+/iu', '', $next) ?? $next;
             $next = preg_replace(self::AMENDMENT, '', $next) ?? $next;
             $next = preg_replace('/^zakona\b/iu', 'Zakon', $next) ?? $next;
-            $next = preg_replace('/\s*\(pročišćeni tekst\)\s*/iu', ' ', $next) ?? $next;
+            $next = preg_replace('/\s*\((?:pro|pre)čišćeni tekst\)\s*/iu', ' ', $next) ?? $next;
             $next = $this->nominative(trim(preg_replace('/\s+/u', ' ', $next) ?? $next));
             if ($next === '' || $next === $title) {
                 break;

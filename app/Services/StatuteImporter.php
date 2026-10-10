@@ -122,6 +122,17 @@ class StatuteImporter
     /**
      * @param  list<array{eli: string, title: string, citation: string, base: bool}>  $rows
      */
+    public function importPublications(array $rows, int $limit): int
+    {
+        $this->budget = max(1, $limit);
+        $this->storeRows($rows);
+
+        return $this->fillMissingTexts();
+    }
+
+    /**
+     * @param  list<array{eli: string, title: string, citation: string, base: bool}>  $rows
+     */
     private function storeRows(array $rows): void
     {
         foreach ($rows as $row) {
@@ -311,7 +322,7 @@ class StatuteImporter
             usleep(350000);
         }
 
-        $client = Http::timeout(30);
+        $client = Http::timeout(90);
         $ca = config('services.nn.ca_bundle');
         if (! is_string($ca) || $ca === '') {
             $ca = storage_path('app/cacert.pem');

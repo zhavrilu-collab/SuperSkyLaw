@@ -15,6 +15,7 @@
     .predmeti-arrows { display: inline-flex; flex-direction: column; font-size: 8px; line-height: .9; color: rgba(0, 0, 0, .28); }
     .predmeti-arrows .on { color: var(--primarna-zelena); }
     .zakoni-naziv-celija { overflow-wrap: anywhere; }
+    .zakoni-tekst { overflow-x: auto; }
 </style>
 @endpush
 @section('content')
@@ -152,6 +153,22 @@
                         </tbody>
                     </table>
                 </div>
+                @if($reading)
+                    <h3 class="h6 text-tema mt-4 mb-1">{{ $readingConsolidated ? 'Pročišćeni tekst' : 'Osnovni tekst' }}</h3>
+                    <p class="small text-muted mb-2">
+                        <a href="{{ route('organization.statutes.show', [$org->slug, $reading->id]) }}">{{ $reading->citation }}</a>@if($reading->published_on) · {{ $reading->published_on->format('d.m.Y.') }}@endif.
+                        @if($readingConsolidated)
+                            Službeni pročišćeni tekst objavljen u Narodnim novinama. Izmjene objavljene poslije tog broja nisu unesene u ovaj tekst.
+                        @else
+                            Službeni tekst osnovne objave. Narodne novine nisu objavile kasniji pročišćeni tekst ovog zakona.
+                        @endif
+                    </p>
+                    @if($reading->text_html)
+                        <div class="zakoni-tekst">{!! $reading->text_html !!}</div>
+                    @else
+                        <p class="text-muted mb-0">Tekst još nije preuzet. Ostaje poveznica na objavu.</p>
+                    @endif
+                @endif
             @else
                 <p class="text-muted mb-0">{{ $term === '' && $area === null ? 'Zakoni se pune iz Narodnih novina.' : 'Nema zakona za taj upit.' }}</p>
             @endif

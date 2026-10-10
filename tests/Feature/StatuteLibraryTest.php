@@ -72,6 +72,7 @@ class StatuteLibraryTest extends TestCase
             'Zakon o izmjenama i dopunama Pomorskog zakonika' => 'Pomorski zakonik',
             'Zakon o izmjenama i dopunama Stečajnog zakona' => 'Stečajni zakon',
             'Zakon o izborima zastupnika u Hrvatski sabor (pročišćeni tekst)' => 'Zakon o izborima zastupnika u Hrvatski sabor',
+            'Zakon o parničnom postupku (prečišćeni tekst)' => 'Zakon o parničnom postupku',
             "Zakon o izmjenama i dopunama Zakona o sudo\u{00AD}vima" => 'Zakon o sudovima',
             'Zaklon o izmjenama Zakona o zaštiti topografija poluvodičkih proizvoda' => 'Zakon o zaštiti topografija poluvodičkih proizvoda',
             'zakona o socijalnopedagoškoj djelatnosti' => 'Zakon o socijalnopedagoškoj djelatnosti',
@@ -239,6 +240,9 @@ class StatuteLibraryTest extends TestCase
             ->assertSee('Porezno')
             ->assertSee('Ostalo')
             ->assertSee('NN 34/2024')
+            ->assertSee('Osnovni tekst')
+            ->assertSee('Tekst zakona', false)
+            ->assertSee('nisu objavile kasniji pročišćeni tekst')
             ->assertSee('Datum')
             ->assertSee('27.03.2024.')
             ->assertSeeInOrder(['27.03.2024.', '15.01.2020.'])
@@ -297,6 +301,60 @@ class StatuteLibraryTest extends TestCase
         $amendment = "NN 40/2024\t12\tZakon o izmjenama i dopunama Zakona o obveznim odnosima\tzakon\tizmjene i dopune\thttps://narodne-novine.nn.hr/eli/sluzbeni/2024/40/12";
 
         return $header."\n".$base."\n".$regulation."\n".$amendment."\n";
+    }
+
+    public function test_old_base_joins_the_law_and_consolidated_text_is_shown_last(): void
+    {
+        config(['services.nn.base_url' => 'https://narodne-novine.nn.hr']);
+        [$user, $organization] = $this->office();
+        Statute::query()->create([
+            'external_id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2023/155/1',
+            'title' => 'Zakon o izmjenama i dopunama Zakona o parničnom postupku',
+            'citation' => 'NN 155/2023',
+            'document_type' => 'ZAKON',
+            'published_on' => '2023-12-20',
+            'source_url' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2023/155/1/hrv/html',
+            'text_html' => '<p>Izmjena postupka</p>',
+            'fetched_at' => now(),
+        ]);
+        app(StatuteWorkGrouper::class)->attachMissing();
+
+        Http::fake(fn () => Http::response("<html><body><span class='key'>Datum tiskanog izdanja:</span> 22.12.2011.<p>Složeni članak</p></body></html>"));
+        $fetched = app(StatuteImporter::class)->importPublications([
+            [
+                'eli' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2011/148/2993',
+                'title' => 'Zakon o parničnom postupku (pročišćeni tekst)',
+                'citation' => 'NN 148/2011',
+                'base' => true,
+            ],
+            [
+                'eli' => 'https://narodne-novine.nn.hr/eli/sluzbeni/1991/53/1297',
+                'title' => 'Zakon o preuzimanju Zakona o parničnom postupku',
+                'citation' => 'NN 53/1991',
+                'base' => false,
+            ],
+        ], 5);
+
+        $this->assertSame(2, $fetched);
+        $work = StatuteWork::query()->where('title', 'Zakon o parničnom postupku')->first();
+        $this->assertNotNull($work);
+        $consolidated = Statute::query()->where('citation', 'NN 148/2011')->first();
+        $this->assertSame($work->id, $consolidated?->work_id);
+        $this->assertSame('2011-12-22', $consolidated?->published_on?->toDateString());
+        $this->assertSame(2, StatuteWork::query()->count());
+
+        $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'zakon' => $work->id]))
+            ->assertOk()
+            ->assertSee('Pročišćeni tekst')
+            ->assertSee('Složeni članak', false)
+            ->assertSee('nisu unesene u ovaj tekst')
+            ->assertSeeInOrder(['NN 155/2023', 'Složeni članak']);
+
+        $this->artisan('legal:import-base-texts', ['--limit' => 1])->assertSuccessful();
+        $takeover = Statute::query()->where('citation', 'NN 53/1991')->first();
+        $this->assertSame($work->id, $takeover?->fresh()->work_id);
+        $this->assertDatabaseMissing('statute_works', ['title' => 'Zakon o preuzimanju Zakona o parničnom postupku']);
     }
 
     /**
