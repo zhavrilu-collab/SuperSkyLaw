@@ -8,6 +8,7 @@ use App\Models\MatterStatute;
 use App\Models\Statute;
 use App\Models\StatuteWork;
 use App\Support\PerPage;
+use App\Support\TextFold;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,22 +21,27 @@ class StatuteController extends Controller
     {
         $this->authorizePerm('matters.view');
         $term = trim($request->string('q')->toString());
-        $like = '%'.$term.'%';
+        $like = TextFold::like($term);
         $area = StatuteArea::tryFrom($request->string('podrucje')->toString());
+        $listSort = $request->string('lsort')->toString() === 'podrucje' ? 'podrucje' : 'naziv';
+        $listDir = $request->string('ldir')->toString() === 'desc' ? 'desc' : 'asc';
         $works = StatuteWork::query()
             ->when($area !== null, fn ($query) => $query->where('area', $area->value))
             ->when($term !== '', function ($query) use ($like) {
                 $query->where(function ($outer) use ($like) {
-                    $outer->where('title', 'like', $like)
+                    $outer->whereRaw(TextFold::expression('statute_works.title').' like ? escape ?', [$like, '\\'])
                         ->orWhereHas('statutes', function ($statutes) use ($like) {
-                            $statutes->where('title', 'like', $like)
-                                ->orWhere('citation', 'like', $like)
-                                ->orWhere('text_plain', 'like', $like);
+                            $statutes->whereRaw(TextFold::expression('statutes.title').' like ? escape ?', [$like, '\\'])
+                                ->orWhereRaw(TextFold::expression('statutes.citation').' like ? escape ?', [$like, '\\']);
                         });
                 });
-            })
-            ->orderBy('title')
-            ->paginate(PerPage::resolve($request));
+            });
+        if ($listSort === 'podrucje') {
+            $works->orderByRaw($this->areaOrderSql().' '.$listDir)->orderBy('title');
+        } else {
+            $works->orderBy('title', $listDir);
+        }
+        $works = $works->paginate(PerPage::resolve($request));
 
         $sort = $request->string('sort')->toString();
         if (! in_array($sort, ['objava', 'datum', 'naziv'], true)) {
@@ -52,10 +58,9 @@ class StatuteController extends Controller
                     return;
                 }
                 $statutes->where(function ($inner) use ($like) {
-                    $inner->where('title', 'like', $like)
-                        ->orWhere('citation', 'like', $like)
-                        ->orWhere('text_plain', 'like', $like)
-                        ->orWhereHas('work', fn ($work) => $work->where('title', 'like', $like));
+                    $inner->whereRaw(TextFold::expression('statutes.title').' like ? escape ?', [$like, '\\'])
+                        ->orWhereRaw(TextFold::expression('statutes.citation').' like ? escape ?', [$like, '\\'])
+                        ->orWhereHas('work', fn ($work) => $work->whereRaw(TextFold::expression('statute_works.title').' like ? escape ?', [$like, '\\']));
                 });
             }]);
             $selected->setRelation('statutes', $this->sortPublications($selected->statutes, $sort, $dir));
@@ -67,6 +72,8 @@ class StatuteController extends Controller
             'term' => $term,
             'sort' => $sort,
             'dir' => $dir,
+            'listSort' => $listSort,
+            'listDir' => $listDir,
             'area' => $area,
         ]);
     }
@@ -129,6 +136,16 @@ class StatuteController extends Controller
 
             return $dir === 'desc' ? -$cmp : $cmp;
         })->values();
+    }
+
+    private function areaOrderSql(): string
+    {
+        $cases = [];
+        foreach (StatuteArea::cases() as $index => $area) {
+            $cases[] = "when '{$area->value}' then ".($index + 1);
+        }
+
+        return 'case statute_works.area '.implode(' ', $cases).' else 99 end';
     }
 
     private function compareText(string $left, string $right, ?\Collator $collator): int

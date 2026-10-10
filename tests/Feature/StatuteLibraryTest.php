@@ -147,6 +147,52 @@ class StatuteLibraryTest extends TestCase
         $this->assertSame('2015-06-03', $statute->fresh()->published_on->toDateString());
     }
 
+    public function test_name_search_matches_any_part_and_ignores_croatian_diacritics(): void
+    {
+        [$user, $organization] = $this->office();
+        foreach ([
+            'Zakon o mehanizmima rješavanja poreznih sporova u Europskoj uniji',
+            'Zakon o minimalnom globalnom porezu na dobit',
+            'Zakon o Poreznoj upravi',
+            'Zakon o poreznom savjetništvu',
+        ] as $title) {
+            StatuteWork::query()->create([
+                'title' => $title,
+                'title_key' => sha1(mb_strtolower($title)),
+                'area' => StatuteArea::Tax,
+            ]);
+        }
+        StatuteWork::query()->create([
+            'title' => 'Obiteljski zakon',
+            'title_key' => sha1('obiteljski zakon'),
+            'area' => StatuteArea::Civil,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'sav']))
+            ->assertOk()
+            ->assertSee('Zakon o mehanizmima rješavanja poreznih sporova u Europskoj uniji', false)
+            ->assertSee('zakoni-pogodak">sav<', false)
+            ->assertSee('zakoni-pogodak">šav<', false)
+            ->assertSee('jetništvu', false)
+            ->assertDontSee('Zakon o minimalnom globalnom porezu na dobit')
+            ->assertDontSee('Zakon o Poreznoj upravi')
+            ->assertDontSee('Obiteljski zakon')
+            ->assertSee('Sva područja')
+            ->assertSee('aria-sort="ascending"', false)
+            ->assertDontSee('name="podrucje"', false);
+
+        $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'lsort' => 'podrucje', 'ldir' => 'asc']))
+            ->assertOk()
+            ->assertSeeInOrder(['Obiteljski zakon', 'Zakon o Poreznoj upravi']);
+
+        $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'lsort' => 'podrucje', 'ldir' => 'desc']))
+            ->assertOk()
+            ->assertSeeInOrder(['Zakon o Poreznoj upravi', 'Obiteljski zakon']);
+    }
+
     public function test_library_search_and_matter_link(): void
     {
         [$user, $organization] = $this->office();
