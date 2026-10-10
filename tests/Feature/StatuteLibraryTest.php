@@ -55,6 +55,64 @@ class StatuteLibraryTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_corrections_and_inflected_titles_share_the_law(): void
+    {
+        $grouper = app(StatuteWorkGrouper::class);
+        $cases = [
+            'Ispravak Zakona o grobljima' => 'Zakon o grobljima',
+            'Ispravak Odluke o proglašenju Zakona o gnojidbenim proizvodima' => 'Zakon o gnojidbenim proizvodima',
+            'Ispravak Zakona o izmjenama i dopunama Zakona o trošarinama' => 'Zakon o trošarinama',
+            'Ispravak Zakona o izmjeni i dopunama Zakona o računovodstvu' => 'Zakon o računovodstvu',
+            'Zakon o izmjenama i dopunama Kaznenog zakona' => 'Kazneni zakon',
+            'Zakon o izmjenama i dopunama Obiteljskog zakona' => 'Obiteljski zakon',
+            'Obiteljski zakon' => 'Obiteljski zakon',
+            'Zakon o izmjenama i dopunama Općeg poreznog zakona' => 'Opći porezni zakon',
+            'Zakon o izmjenama i dopunama Pomorskog zakonika' => 'Pomorski zakonik',
+            'Zakon o izmjenama i dopunama Stečajnog zakona' => 'Stečajni zakon',
+            'Zakon o izborima zastupnika u Hrvatski sabor (pročišćeni tekst)' => 'Zakon o izborima zastupnika u Hrvatski sabor',
+            "Zakon o izmjenama i dopunama Zakona o sudo\u{00AD}vima" => 'Zakon o sudovima',
+            'Zaklon o izmjenama Zakona o zaštiti topografija poluvodičkih proizvoda' => 'Zakon o zaštiti topografija poluvodičkih proizvoda',
+            'zakona o socijalnopedagoškoj djelatnosti' => 'Zakon o socijalnopedagoškoj djelatnosti',
+            'Zakon o Zakladi "Hrvatska za djecu"' => 'Zakon o zakladi »Hrvatska za djecu«',
+            'Zakon o zakladi »Hrvatska za djecu«' => 'Zakon o zakladi »Hrvatska za djecu«',
+            'Zakon o prestanku važenja Zakona o elektroničkoj ispravi' => 'Zakon o prestanku važenja Zakona o elektroničkoj ispravi',
+            'Zakon o provedbi Uredbe (EU) br. 648/2012 Europskog parlamenta i Vijeća od 4. srpnja 2012. godine o OTC izvedenicama' => 'Zakon o provedbi Uredbe (EU) br. 648/2012 o OTC izvedenicama',
+            'Zakon o provedbi Uredbe (EU) br. 648/2012 o OTC izvedenicama' => 'Zakon o provedbi Uredbe (EU) br. 648/2012 o OTC izvedenicama',
+            'Zakon o provedbi Uredbe (EU) br. 909/2014 o oboljšanju namire' => 'Zakon o provedbi Uredbe (EU) br. 909/2014 o poboljšanju namire',
+            'Zakon o provedbi Uredbe (EU) 2019/1148 o stavljanju na tržište i uporabi prekursora eksploziva te izmjeni Uredbe ( EZ) br. 1907/2006' => 'Zakon o provedbi Uredbe (EU) 2019/1148 o stavljanju na tržište i uporabi prekursora eksploziva te izmjeni Uredbe (EZ) br. 1907/2006',
+        ];
+
+        foreach ($cases as $publication => $law) {
+            $this->assertSame($law, $grouper->workTitle($publication), $publication);
+        }
+
+        foreach ([
+            'Obiteljski zakon',
+            'Zakon o izmjenama i dopunama Obiteljskog zakona',
+            'Ispravak Zakona o grobljima',
+            'Zakon o grobljima',
+        ] as $index => $title) {
+            Statute::query()->create([
+                'external_id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2024/1/'.$index,
+                'title' => $title,
+                'citation' => 'NN 1/2024',
+                'document_type' => 'ZAKON',
+                'source_url' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2024/1/'.$index.'/hrv/html',
+                'fetched_at' => now(),
+            ]);
+        }
+
+        $grouper->regroup();
+
+        $this->assertSame(2, StatuteWork::query()->count());
+        $family = StatuteWork::query()->where('title', 'Obiteljski zakon')->first();
+        $graves = StatuteWork::query()->where('title', 'Zakon o grobljima')->first();
+        $this->assertNotNull($family);
+        $this->assertNotNull($graves);
+        $this->assertSame(2, $family->statutes()->count());
+        $this->assertSame(2, $graves->statutes()->count());
+    }
+
     public function test_library_search_and_matter_link(): void
     {
         [$user, $organization] = $this->office();
