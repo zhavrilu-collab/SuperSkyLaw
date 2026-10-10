@@ -264,7 +264,7 @@ class MatterController extends Controller
         ]);
 
         DB::transaction(function () use ($model, $data): void {
-            $open = $model->stages()->whereNull('ended_on')->orderByDesc('position')->first();
+            $open = $model->stages()->reorder()->whereNull('ended_on')->orderByDesc('position')->first();
             if ($open) {
                 $open->update(['ended_on' => now()->toDateString()]);
             }

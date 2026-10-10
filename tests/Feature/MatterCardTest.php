@@ -300,16 +300,27 @@ class MatterCardTest extends TestCase
     public function test_stage_bar_uses_the_office_theme_instead_of_fixed_green_and_gold(): void
     {
         [$user, $org] = $this->office();
-        $org->update(['theme_color' => 'plava']);
+        $org->update(['theme_color' => 'plava', 'theme_style' => 'obrub']);
         $this->actingAs($user)
             ->post(route('organization.matters.store', $org->slug), $this->payload())
             ->assertRedirect();
         $matter = Matter::query()->first();
+        $this->actingAs($user)
+            ->post(route('organization.matters.stages.store', [$org->slug, $matter->id]), [
+                'name' => 'EFED',
+            ])
+            ->assertRedirect();
+
+        $shades = \App\Support\OfficeThemes::stageShades(2, \App\Support\OfficeThemes::palette('plava', 'obrub'));
+        $this->assertNotSame($shades[0], $shades[1]);
+        $this->assertGreaterThan(hexdec(substr($shades[1], 1)), hexdec(substr($shades[0], 1)));
 
         $this->actingAs($user)
             ->get(route('organization.matters.show', [$org->slug, $matter->id]))
             ->assertOk()
-            ->assertSee('color-mix(in srgb, var(--primarna-tamna)', false)
+            ->assertSee('Novi stadij', false)
+            ->assertSee('background: '.$shades[0], false)
+            ->assertSee('background: '.$shades[1], false)
             ->assertDontSee('stadij-lime', false)
             ->assertDontSee('#c5d48a', false)
             ->assertDontSee('#d4af37', false);

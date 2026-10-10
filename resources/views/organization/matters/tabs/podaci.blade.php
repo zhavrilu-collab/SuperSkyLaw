@@ -84,31 +84,30 @@
                     <p class="mb-0">Aktivni stadij: <strong>{{ $aktivni ? mb_strtoupper($aktivni->name) : '—' }}</strong></p>
                 </div>
                 @perm('matters.manage')
-                <details @if($errors->has('name')) open @endif>
-                    <summary class="btn btn-outline-secondary btn-sm">Dodaj stadij</summary>
-                    <form method="POST" action="{{ route('organization.matters.stages.store', [$org->slug, $matter->id]) }}" class="mt-2" style="min-width:240px">
-                        @csrf
-                        <label class="form-label" for="nazivStadija">Naziv</label>
-                        <input name="name" id="nazivStadija" class="form-control mb-2" required value="{{ old('name', $nextStageName) }}">
-                        <label class="form-label" for="zapisStadija">Zapis</label>
-                        <textarea name="body" id="zapisStadija" class="form-control mb-2" rows="3">{{ old('body') }}</textarea>
-                        <button class="btn btn-primary btn-sm" type="submit">Otvori stadij</button>
-                    </form>
-                </details>
+                <form method="POST" action="{{ route('organization.matters.stages.store', [$org->slug, $matter->id]) }}" class="mt-2" style="min-width:240px">
+                    @csrf
+                    <label class="form-label" for="nazivStadija">Novi stadij</label>
+                    <input name="name" id="nazivStadija" class="form-control mb-2" required value="{{ old('name', $nextStageName) }}" placeholder="Naziv stadija">
+                    @if($nextStageName === null)
+                        <p class="form-text">Predložak je iskorišten. Upišite svoj naziv.</p>
+                    @endif
+                    @error('name')<p class="text-danger small">{{ $message }}</p>@enderror
+                    <label class="form-label" for="zapisStadija">Zapis</label>
+                    <textarea name="body" id="zapisStadija" class="form-control mb-2" rows="2">{{ old('body') }}</textarea>
+                    <button class="btn btn-primary btn-sm" type="submit">Otvori stadij</button>
+                </form>
                 @endperm
             </div>
             @if($errors->has('stage'))<p class="text-danger small mb-2">{{ $errors->first('stage') }}</p>@endif
             @if($matter->stages->isNotEmpty())
                 @php
-                    $stageCount = $matter->stages->count();
-                    $lastStage = $matter->stages->last();
+                    $stageRows = $matter->stages->values();
+                    $lastStage = $stageRows->last();
+                    $stageShades = \App\Support\OfficeThemes::stageShades($stageRows->count(), \App\Support\OfficeThemes::palette($org->theme_color, $org->theme_style));
                 @endphp
                 <div class="traka-stadija mb-3" aria-hidden="true">
-                    @foreach($matter->stages as $stage)
-                        @php
-                            $shade = $stageCount === 1 ? 0 : (int) round($loop->index / ($stageCount - 1) * 100);
-                        @endphp
-                        <span style="width: {{ $stageShares[$loop->index] ?? 0 }}%; background: color-mix(in srgb, var(--primarna-tamna) {{ $shade }}%, var(--primarna-zelena))" title="{{ $stage->name }}"></span>
+                    @foreach($stageRows as $index => $stage)
+                        <span style="flex: {{ max(1, (int) round($stageShares[$index] ?? 1)) }} 1 0; background: {{ $stageShades[$index] }}" title="{{ $stage->name }}"></span>
                     @endforeach
                 </div>
                 @foreach($matter->stages->reverse() as $stage)

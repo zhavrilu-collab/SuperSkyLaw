@@ -190,4 +190,58 @@ class OfficeThemes
     {
         return 'brand/product/'.self::resolve($key).'-horizontal.png';
     }
+
+    /**
+     * Pale brand tint through to a dark brand ink, so a styled theme
+     * whose primary is already dark still shows separate stages.
+     *
+     * @param  array<string, mixed>  $palette
+     * @return list<string>
+     */
+    public static function stageShades(int $count, array $palette): array
+    {
+        $count = max(1, $count);
+        $brand = $palette['logoMark'] ?? $palette['primary'];
+        $light = self::mixHex('#ffffff', $brand, 0.48);
+        $deep = self::mixHex($brand, '#12161a', 0.58);
+
+        $shades = [];
+        for ($index = 0; $index < $count; $index++) {
+            $step = $count === 1 ? 0.15 : $index / ($count - 1);
+            $shades[] = self::mixHex($light, $deep, $step);
+        }
+
+        return $shades;
+    }
+
+    private static function mixHex(string $from, string $to, float $amount): string
+    {
+        $amount = max(0, min(1, $amount));
+        $start = self::hexChannels($from);
+        $end = self::hexChannels($to);
+        $channels = [];
+
+        foreach ($start as $index => $channel) {
+            $channels[] = (int) round($channel + ($end[$index] - $channel) * $amount);
+        }
+
+        return sprintf('#%02x%02x%02x', $channels[0], $channels[1], $channels[2]);
+    }
+
+    /**
+     * @return array{0: int, 1: int, 2: int}
+     */
+    private static function hexChannels(string $hex): array
+    {
+        $hex = ltrim($hex, '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+
+        return [
+            hexdec(substr($hex, 0, 2)),
+            hexdec(substr($hex, 2, 2)),
+            hexdec(substr($hex, 4, 2)),
+        ];
+    }
 }
