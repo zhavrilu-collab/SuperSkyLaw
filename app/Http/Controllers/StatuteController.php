@@ -30,8 +30,19 @@ class StatuteController extends Controller
                         });
                 });
             })
-            ->with(['statutes' => function ($statutes) use ($term, $like) {
-                $statutes->orderByDesc('published_on')->orderBy('title');
+            ->orderBy('title')
+            ->paginate(40);
+        if ($term !== '') {
+            $works->appends(['q' => $term]);
+        }
+
+        $selected = $works->getCollection()->firstWhere('id', $request->integer('zakon'))
+            ?? $works->getCollection()->first();
+        if ($selected !== null) {
+            $selected->load(['statutes' => function ($statutes) use ($term, $like) {
+                $statutes->select('id', 'work_id', 'citation', 'published_on')
+                    ->orderByDesc('published_on')
+                    ->orderByDesc('id');
                 if ($term === '') {
                     return;
                 }
@@ -41,13 +52,12 @@ class StatuteController extends Controller
                         ->orWhere('text_plain', 'like', $like)
                         ->orWhereHas('work', fn ($work) => $work->where('title', 'like', $like));
                 });
-            }])
-            ->orderBy('title')
-            ->paginate(30)
-            ->withQueryString();
+            }]);
+        }
 
         return view('organization.statutes.index', [
             'works' => $works,
+            'selected' => $selected,
             'term' => $term,
         ]);
     }

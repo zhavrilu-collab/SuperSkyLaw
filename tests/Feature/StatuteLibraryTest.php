@@ -85,6 +85,7 @@ class StatuteLibraryTest extends TestCase
             ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'obveznim']))
             ->assertOk()
             ->assertSee('Zakon o obveznim odnosima')
+            ->assertSee('NN 34/2024')
             ->assertSee('nisu redakcijski pročišćeni');
 
         $this->actingAs($user)
