@@ -155,7 +155,7 @@ class StatuteController extends Controller
             ->first();
         if ($chosen === null) {
             $chosen = $rows
-                ->filter(fn (Statute $statute) => ! $grouper->isAmendment($statute->title))
+                ->filter(fn (Statute $statute) => ! $grouper->isAmendment($statute->title) || $this->isPrincipalPromulgation($statute->title))
                 ->sortByDesc($latest)
                 ->first();
         }
@@ -169,6 +169,11 @@ class StatuteController extends Controller
     private function isConsolidated(string $title): bool
     {
         return preg_match('/\((?:pro|pre)čišćeni tekst\)/iu', $title) === 1;
+    }
+
+    private function isPrincipalPromulgation(string $title): bool
+    {
+        return preg_match('/^Odluk[ae]\s+o\s+proglašenju\s+(?!Zakona\s+o\s+izmjen)/iu', $title) === 1;
     }
 
     private function areaOrderSql(): string

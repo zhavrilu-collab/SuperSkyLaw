@@ -82,6 +82,8 @@ class StatuteLibraryTest extends TestCase
             'Zakon o provedbi Uredbe (EU) br. 648/2012 Europskog parlamenta i Vijeća od 4. srpnja 2012. godine o OTC izvedenicama' => 'Zakon o provedbi Uredbe (EU) br. 648/2012 o OTC izvedenicama',
             'Zakon o provedbi Uredbe (EU) br. 648/2012 o OTC izvedenicama' => 'Zakon o provedbi Uredbe (EU) br. 648/2012 o OTC izvedenicama',
             'Zakon o provedbi Uredbe (EU) br. 909/2014 o oboljšanju namire' => 'Zakon o provedbi Uredbe (EU) br. 909/2014 o poboljšanju namire',
+            'Zakon o provedbi Uredbe (EU) br. 909/2014 o poboljšanju namire' => 'Zakon o provedbi Uredbe (EU) br. 909/2014 o poboljšanju namire',
+            'Zakon o provedbi Uredbe (EU) br. 909/2014 o ppoboljšanju namire' => 'Zakon o provedbi Uredbe (EU) br. 909/2014 o poboljšanju namire',
             'Zakon o provedbi Uredbe (EU) 2019/1148 o stavljanju na tržište i uporabi prekursora eksploziva te izmjeni Uredbe ( EZ) br. 1907/2006' => 'Zakon o provedbi Uredbe (EU) 2019/1148 o stavljanju na tržište i uporabi prekursora eksploziva te izmjeni Uredbe (EZ) br. 1907/2006',
         ];
 
@@ -363,6 +365,51 @@ class StatuteLibraryTest extends TestCase
         $takeover = Statute::query()->where('citation', 'NN 53/1991')->first();
         $this->assertSame($work->id, $takeover?->fresh()->work_id);
         $this->assertDatabaseMissing('statute_works', ['title' => 'Zakon o preuzimanju Zakona o parničnom postupku']);
+    }
+
+    public function test_promulgation_of_the_whole_law_is_shown_as_the_base_text(): void
+    {
+        [$user, $organization] = $this->office();
+        Statute::query()->create([
+            'external_id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2015/78/1',
+            'title' => 'Zakon o izmjenama Zakona o zračnim lukama',
+            'citation' => 'NN 78/2015',
+            'document_type' => 'ZAKON',
+            'published_on' => '2015-07-16',
+            'source_url' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2015/78/1/hrv/html',
+            'text_html' => '<p>Izmjena luka</p>',
+            'fetched_at' => now(),
+        ]);
+        Statute::query()->create([
+            'external_id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/1998/19/2280',
+            'title' => 'Odluka o proglašenju Zakona o zračnim lukama',
+            'citation' => 'NN 19/1998',
+            'document_type' => 'ZAKON',
+            'published_on' => '1998-02-13',
+            'source_url' => 'https://narodne-novine.nn.hr/eli/sluzbeni/1998/19/2280/hrv/html',
+            'text_html' => '<p>Tekst luka</p>',
+            'fetched_at' => now(),
+        ]);
+        Statute::query()->create([
+            'external_id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2016/1/9',
+            'title' => 'Odluka o proglašenju Zakona o izmjenama Zakona o zračnim lukama',
+            'citation' => 'NN 1/2016',
+            'document_type' => 'ZAKON',
+            'published_on' => '2016-01-05',
+            'source_url' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2016/1/9/hrv/html',
+            'text_html' => '<p>Odluka izmjene</p>',
+            'fetched_at' => now(),
+        ]);
+        app(StatuteWorkGrouper::class)->attachMissing();
+        $work = StatuteWork::query()->where('title', 'Zakon o zračnim lukama')->first();
+        $this->assertNotNull($work);
+
+        $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'zakon' => $work->id]))
+            ->assertOk()
+            ->assertSee('Osnovni tekst')
+            ->assertSee('Tekst luka', false)
+            ->assertDontSee('Odluka izmjene', false);
     }
 
     /**

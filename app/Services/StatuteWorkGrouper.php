@@ -117,7 +117,8 @@ class StatuteWorkGrouper
     {
         $title = str_replace(["\u{00AD}", "\u{200B}", "\u{FEFF}", "\u{00A0}"], ['', '', '', ' '], $title);
         $title = preg_replace('/\(\s+/u', '(', $title) ?? $title;
-        $title = str_replace('oboljšanju', 'poboljšanju', $title);
+        $title = str_replace('ppoboljšanju', 'poboljšanju', $title);
+        $title = preg_replace('/(?<!p)oboljšanju/u', 'poboljšanju', $title) ?? $title;
         $title = preg_replace('/^Zaklon\b/u', 'Zakon', $title) ?? $title;
 
         return trim(preg_replace('/\s+/u', ' ', $title) ?? $title);
