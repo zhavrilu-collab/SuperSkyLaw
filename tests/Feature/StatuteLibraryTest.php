@@ -137,6 +137,17 @@ class StatuteLibraryTest extends TestCase
             'text_plain' => 'Tekst zakona o obveznim odnosima',
             'fetched_at' => now(),
         ]);
+        Statute::query()->create([
+            'external_id' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2020/1/2',
+            'title' => 'Zakon o izmjenama Zakona o obveznim odnosima',
+            'citation' => 'NN 1/2020',
+            'document_type' => 'ZAKON',
+            'published_on' => '2020-01-15',
+            'source_url' => 'https://narodne-novine.nn.hr/eli/sluzbeni/2020/1/2/hrv/html',
+            'text_html' => '<p>Izmjena</p>',
+            'text_plain' => 'Izmjena zakona o obveznim odnosima',
+            'fetched_at' => now(),
+        ]);
         app(StatuteWorkGrouper::class)->attachMissing();
 
         $this->actingAs($user)
@@ -144,12 +155,25 @@ class StatuteLibraryTest extends TestCase
             ->assertOk()
             ->assertSee('Zakon o obveznim odnosima')
             ->assertSee('NN 34/2024')
+            ->assertSee('Datum')
+            ->assertSee('27.03.2024.')
+            ->assertSeeInOrder(['27.03.2024.', '15.01.2020.'])
             ->assertSee('nisu redakcijski pročišćeni')
             ->assertSee('Prikaz')
             ->assertSee('od 1')
             ->assertDontSee('pagination.previous', false)
             ->assertDontSee('Showing', false)
             ->assertDontSee('w-5 h-5', false);
+
+        $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'obveznim', 'sort' => 'datum', 'dir' => 'asc']))
+            ->assertOk()
+            ->assertSeeInOrder(['15.01.2020.', '27.03.2024.']);
+
+        $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'obveznim', 'sort' => 'objava', 'dir' => 'asc']))
+            ->assertOk()
+            ->assertSeeInOrder(['NN 1/2020', 'NN 34/2024']);
 
         $this->actingAs($user)
             ->get(route('organization.statutes.show', [$organization->slug, $statute->id]))

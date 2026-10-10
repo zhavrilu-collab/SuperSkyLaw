@@ -26,6 +26,11 @@
         color: var(--primarna-zelena);
         font-weight: 700;
     }
+    .predmeti-sort { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none; white-space: nowrap; }
+    .predmeti-sort:hover { color: inherit; }
+    .predmeti-arrows { display: inline-flex; flex-direction: column; font-size: 8px; line-height: .9; color: rgba(0, 0, 0, .28); }
+    .predmeti-arrows .on { color: var(--primarna-zelena); }
+    .zakoni-naziv-celija { overflow-wrap: anywhere; }
 </style>
 @endpush
 @section('content')
@@ -43,7 +48,7 @@
         <div class="kartica-kontejner">
             <div class="zakoni-popis">
                 @forelse($works as $work)
-                    <a href="{{ route('organization.statutes.index', array_filter([$org->slug, 'q' => $term, 'zakon' => $work->id, 'page' => $works->currentPage() > 1 ? $works->currentPage() : null, 'per_page' => request()->has('per_page') ? $works->perPage() : null])) }}"
+                    <a href="{{ route('organization.statutes.index', array_filter([$org->slug, 'q' => $term, 'zakon' => $work->id, 'page' => $works->currentPage() > 1 ? $works->currentPage() : null, 'per_page' => request()->has('per_page') ? $works->perPage() : null, 'sort' => request()->has('sort') ? $sort : null, 'dir' => request()->has('sort') ? $dir : null])) }}"
                        class="zakoni-naziv {{ $selected && $selected->id === $work->id ? 'is-active' : '' }}">{{ $work->title }}</a>
                 @empty
                     <p class="text-muted mb-0">{{ $term === '' ? 'Zakoni se pune iz Narodnih novina.' : 'Nema zakona za taj upit.' }}</p>
@@ -58,14 +63,42 @@
                 <h2 class="h6 text-tema mb-3" style="overflow-wrap:anywhere">{{ $selected->title }}</h2>
                 <div class="table-responsive table-responsive-no-sticky">
                     <table class="table mb-0">
-                        <thead><tr><th>Objava</th></tr></thead>
+                        <thead>
+                            <tr>
+                                @foreach(['objava' => 'Objava', 'datum' => 'Datum', 'naziv' => 'Naziv'] as $key => $label)
+                                    @php
+                                        $nextDir = $sort === $key && $dir === 'asc' ? 'desc' : 'asc';
+                                        $href = route('organization.statutes.index', array_filter([
+                                            $org->slug,
+                                            'q' => $term,
+                                            'zakon' => $selected->id,
+                                            'page' => $works->currentPage() > 1 ? $works->currentPage() : null,
+                                            'per_page' => request()->has('per_page') ? $works->perPage() : null,
+                                            'sort' => $key,
+                                            'dir' => $nextDir,
+                                        ]));
+                                    @endphp
+                                    <th aria-sort="{{ $sort === $key ? ($dir === 'asc' ? 'ascending' : 'descending') : 'none' }}">
+                                        <a class="predmeti-sort" href="{{ $href }}">
+                                            {{ $label }}
+                                            <span class="predmeti-arrows" aria-hidden="true">
+                                                <span @class(['on' => $sort === $key && $dir === 'asc'])>▲</span>
+                                                <span @class(['on' => $sort === $key && $dir === 'desc'])>▼</span>
+                                            </span>
+                                        </a>
+                                    </th>
+                                @endforeach
+                            </tr>
+                        </thead>
                         <tbody>
                         @forelse($selected->statutes as $statute)
                             <tr>
-                                <td><a href="{{ route('organization.statutes.show', [$org->slug, $statute->id]) }}">{{ $statute->citation }}</a></td>
+                                <td class="text-nowrap"><a href="{{ route('organization.statutes.show', [$org->slug, $statute->id]) }}">{{ $statute->citation }}</a></td>
+                                <td class="text-nowrap">{{ $statute->published_on?->format('d.m.Y.') ?: '—' }}</td>
+                                <td class="zakoni-naziv-celija">{{ $statute->title }}</td>
                             </tr>
                         @empty
-                            <tr><td class="text-muted">Nema objava za taj upit.</td></tr>
+                            <tr><td colspan="3" class="text-muted">Nema objava za taj upit.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
