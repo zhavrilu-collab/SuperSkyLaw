@@ -48,7 +48,7 @@
     @endperm
 
     @perm('documents.view')
-    @php $docsOpen = request()->routeIs('organization.documents.*', 'organization.templates.*', 'organization.statutes.*'); @endphp
+    @php $docsOpen = request()->routeIs('organization.documents.*', 'organization.templates.*'); @endphp
     <div class="app-sidebar-group @if($docsOpen) is-open @endif">
         <div class="app-sidebar-group-head">
             <a class="app-sidebar-group-link @if($docsOpen) active @endif" href="{{ route('organization.documents.index', $slug) }}">@include('partials.nav-icon', ['name' => 'folder'])Dokumenti</a>
@@ -59,11 +59,12 @@
             @planFeature('document_templates')
             <a class="app-sidebar-link @if(request()->routeIs('organization.templates.*')) active @endif" href="{{ route('organization.templates.index', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Predlošci</a>
             @endplanFeature
-            @perm('matters.view')
-            <a class="app-sidebar-link @if(request()->routeIs('organization.statutes.*')) active @endif" href="{{ route('organization.statutes.index', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Zakoni</a>
-            @endperm
         </div>
     </div>
+    @endperm
+
+    @perm('matters.view')
+    <a class="app-sidebar-link @if(request()->routeIs('organization.statutes.*')) active @endif" href="{{ route('organization.statutes.index', $slug) }}">@include('partials.nav-icon', ['name' => 'file'])Zakoni</a>
     @endperm
 
     @perm('settings.manage')

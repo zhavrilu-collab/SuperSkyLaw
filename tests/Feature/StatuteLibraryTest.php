@@ -231,9 +231,17 @@ class StatuteLibraryTest extends TestCase
         ]);
         app(StatuteWorkGrouper::class)->attachMissing();
 
-        $this->actingAs($user)
-            ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'obveznim']))
-            ->assertOk()
+        $library = $this->actingAs($user)
+            ->get(route('organization.statutes.index', [$organization->slug, 'q' => 'obveznim']));
+        $library->assertOk()
+            ->assertSee('Zakon o obveznim odnosima');
+        $menu = $library->getContent();
+        preg_match_all('/<div class="app-sidebar-submenu">(.*?)<\/div>/s', $menu, $submenus);
+        foreach ($submenus[1] as $submenu) {
+            $this->assertStringNotContainsString('Zakoni', $submenu);
+        }
+        $this->assertMatchesRegularExpression('/class="app-sidebar-link\s+active\s*"[^>]*>.*?Zakoni<\/a>/s', $menu);
+        $library
             ->assertSee('Zakon o obveznim odnosima')
             ->assertSee('Građansko')
             ->assertSee('Sva područja')
