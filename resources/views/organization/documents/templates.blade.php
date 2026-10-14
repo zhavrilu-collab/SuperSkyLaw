@@ -1,8 +1,9 @@
 @extends('layouts.app')
-@section('title', 'Predlošci')
-@section('nav-suffix', 'Predlošci')
+@section('title', 'Dokumenti')
+@section('nav-suffix', 'Dokumenti')
 @section('content')
-<h1 class="h5 text-tema mb-3">Predlošci</h1>
+<h1 class="h5 text-tema mb-3">Dokumenti</h1>
+@include('organization.document-areas')
 @perm('documents.manage')
 <form method="POST" action="{{ route('organization.templates.generate', $org->slug) }}" class="kartica-kontejner mb-3">
     @csrf

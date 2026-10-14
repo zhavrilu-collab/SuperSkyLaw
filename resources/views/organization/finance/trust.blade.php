@@ -1,8 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Depozit')
+@section('title', 'Financije')
 @section('nav-suffix', 'Financije')
 @section('content')
-<h1 class="h5 text-tema mb-3">Depozitni račun</h1>
+<h1 class="h5 text-tema mb-3">Financije</h1>
+@include('organization.finance-areas')
+<h2 class="h5 text-tema mb-3">Depozitni račun</h2>
 <p class="text-muted">Sredstva stranaka vode se odvojeno od poslovnog IBAN-a{{ $trustIban ? ' '.$trustIban : '' }}. Stanje: <strong>{{ number_format($balanceCents / 100, 2, ',', '.') }} EUR</strong></p>
 <p class="text-muted">Uplata i isplata upisuju se na predmetu, u Obračunu.</p>
 <div class="kartica-kontejner">

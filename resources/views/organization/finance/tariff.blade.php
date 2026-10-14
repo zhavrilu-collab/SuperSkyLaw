@@ -1,8 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Tarifa HOK')
-@section('nav-suffix', 'Tarifa HOK')
+@section('title', 'Financije')
+@section('nav-suffix', 'Financije')
 @section('content')
-<h1 class="h5 text-tema mb-1">{{ $version->name }}</h1>
+<h1 class="h5 text-tema mb-3">Financije</h1>
+@include('organization.finance-areas')
+<h2 class="h5 text-tema mb-1">{{ $version->name }}</h2>
 <p class="text-muted">{{ $version->citation }}. Bod vrijedi {{ number_format($version->point_value_cents / 100, 2, ',', '.') }} EUR. Obračun je pomoć uredu pri sastavljanju nagrade i troškovnika.</p>
 <div class="kartica-kontejner mb-3">
     <h2 class="h6 text-tema">Rasponi po vrijednosti spora (Tbr. 7. t. 1.)</h2>

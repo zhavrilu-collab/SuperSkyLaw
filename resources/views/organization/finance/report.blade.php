@@ -1,8 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Izvještaj')
-@section('nav-suffix', 'Izvještaj')
+@section('title', 'Financije')
+@section('nav-suffix', 'Financije')
 @section('content')
-<h1 class="h5 text-tema mb-3">Izvještaj naplate</h1>
+<h1 class="h5 text-tema mb-3">Financije</h1>
+@include('organization.finance-areas')
+<h2 class="h5 text-tema mb-3">Izvještaj naplate</h2>
 <form method="GET" class="mb-3">
     <input type="month" name="month" value="{{ $report['month'] }}" class="form-control d-inline-block w-auto">
     <button class="btn btn-primary btn-sm" type="submit">Prikaži</button>

@@ -3,6 +3,7 @@
 @section('nav-suffix', 'Dokumenti')
 @section('content')
 <h1 class="h5 text-tema mb-3">Dokumenti</h1>
+@include('organization.document-areas')
 @perm('documents.manage')
 <form method="POST" action="{{ route('organization.documents.store', $org->slug) }}" enctype="multipart/form-data" class="kartica-kontejner mb-3">
     @csrf

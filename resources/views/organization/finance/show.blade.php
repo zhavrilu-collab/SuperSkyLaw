@@ -2,8 +2,10 @@
 @section('title', 'Račun '.$invoice->number)
 @section('nav-suffix', 'Financije')
 @section('content')
+<h1 class="h5 text-tema mb-3">Financije</h1>
+@include('organization.finance-areas')
 <div class="d-flex justify-content-between mb-3">
-    <h1 class="h5 text-tema mb-0">Račun {{ $invoice->number }}</h1>
+    <h2 class="h5 text-tema mb-0">Račun {{ $invoice->number }}</h2>
     <a class="btn btn-outline-success btn-sm" href="{{ route('organization.invoices.pdf', [$org->slug, $invoice->id]) }}">PDF</a>
     @planFeature('e_invoice')
     @perm('finance.manage')

@@ -1,8 +1,9 @@
 @extends('layouts.app')
-@section('title', 'Troškovnik')
-@section('nav-suffix', 'Troškovnik')
+@section('title', 'Financije')
+@section('nav-suffix', 'Financije')
 @section('content')
-<h1 class="h5 text-tema mb-3">Troškovnik</h1>
+<h1 class="h5 text-tema mb-3">Financije</h1>
+@include('organization.finance-areas')
 <p class="text-muted">Nagrada klijentu ide na račun. Ovdje je ono što se potražuje od protivne strane.</p>
 <form method="GET" class="kartica-kontejner mb-3">
     <div class="row g-2 align-items-end">
