@@ -91,6 +91,21 @@ class OfficeThemeTest extends TestCase
         $this->assertSame('kreda', $organization->fresh()->theme_style);
     }
 
+    public function test_settings_areas_stay_on_the_page_and_out_of_the_menu(): void
+    {
+        [$owner, $organization] = $this->office();
+
+        $appearance = $this->actingAs($owner)
+            ->get(route('organization.settings.appearance', $organization->slug));
+        $appearance->assertOk()->assertDontSee('Katalog stadija i predmeta spora', false);
+        $this->assertSettingsArea($appearance->getContent(), 'Izgled');
+
+        $catalog = $this->actingAs($owner)
+            ->get(route('organization.settings.catalog', $organization->slug));
+        $catalog->assertOk()->assertSee('Stadiji', false);
+        $this->assertSettingsArea($catalog->getContent(), 'Katalog');
+    }
+
     public function test_settings_reject_colors_outside_the_palette(): void
     {
         [$owner, $organization] = $this->office();
@@ -153,6 +168,24 @@ class OfficeThemeTest extends TestCase
         ]);
 
         return [$owner, $organization];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function assertSettingsArea(string $html, string $active): void
+    {
+        preg_match('/<nav class="app-sidebar-nav"[^>]*>(.*?)<\/nav>/s', $html, $nav);
+        $this->assertArrayHasKey(1, $nav);
+        preg_match_all('/<div class="app-sidebar-submenu">(.*?)<\/div>/s', $nav[1], $submenus);
+        foreach ($submenus[1] as $submenu) {
+            $this->assertStringNotContainsString('Izgled', $submenu);
+            $this->assertStringNotContainsString('Katalog', $submenu);
+        }
+        $this->assertDoesNotMatchRegularExpression('/>\s*Katalog\s*<\/a>/', $nav[1]);
+        $this->assertDoesNotMatchRegularExpression('/>\s*Izgled\s*<\/a>/', $nav[1]);
+        $this->assertMatchesRegularExpression('/class="app-sidebar-link\s+active\s*"[^>]*>.*?Postavke<\/a>/s', $nav[1]);
+        $this->assertMatchesRegularExpression('/class="nav-link active"[^>]*>'.preg_quote($active, '/').'<\/a>/', $html);
     }
 
     /**

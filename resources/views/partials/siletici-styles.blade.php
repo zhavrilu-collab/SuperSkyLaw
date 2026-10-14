@@ -850,6 +850,9 @@
         font-size: 13px;
         border-bottom-color: var(--primarna-zelena);
     }
+    .predmet-tabovi { border-bottom: 1px solid rgba(var(--tema-rgb), .22); gap: 4px; flex-wrap: wrap; }
+    .predmet-tabovi .nav-link { color: #5c6540; font-weight: 700; border: 0; border-bottom: 2px solid transparent; border-radius: 0; margin-bottom: -1px; }
+    .predmet-tabovi .nav-link.active { color: var(--primarna-tamna); background: transparent; border-bottom-color: var(--primarna-zelena); }
     .settings-subnav .nav-link {
         font-size: 13px;
         font-weight: 400;

@@ -1,8 +1,9 @@
 @extends('layouts.app')
-@section('title', 'Katalog')
+@section('title', 'Postavke')
 @section('nav-suffix', 'Postavke')
 @section('content')
-<h1 class="h5 text-tema mb-1">Katalog</h1>
+<h1 class="h5 text-tema mb-3">Postavke</h1>
+@include('organization.settings-areas')
 <p class="text-muted mb-3">Predložak stadija i predmeti spora za ovaj ured. Vrste predmeta ostaju iste. Promjena predloška ne dira stadije koji su već na predmetima.</p>
 @if(session('status'))<p class="alert alert-warning py-2">{{ session('status') }}</p>@endif
 @if($errors->has('category'))<p class="text-danger small">{{ $errors->first('category') }}</p>@endif

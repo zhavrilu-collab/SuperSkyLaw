@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Postavke — Izgled i Katalog</title>
+<style>
+  :root {
+    --zelena: #b0cb1f;
+    --tamna: #434d0c;
+    --svijetla: #f7fae9;
+    --tinta: #272d07;
+    --prigušeno: #5c6540;
+    --crta: rgba(176, 203, 31, .22);
+    --odabir: #f7fae9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--svijetla);
+    color: var(--tinta);
+    font: 13px/1.45 "Segoe UI", sans-serif;
+  }
+  .ljuska { display: flex; min-height: 100vh; }
+  .izbornik {
+    width: 16.75rem;
+    flex: 0 0 16.75rem;
+    background: #fff;
+    border-right: 1px solid var(--crta);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .znak {
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    padding: 0 .85rem;
+    border-bottom: 3px solid var(--zelena);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--tamna);
+  }
+  .znak i {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--zelena); margin-right: .7rem; display: inline-block;
+  }
+  .stavke { padding: .45rem; overflow: auto; }
+  .stavka, .grupa-glava {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .38rem .5rem; border-radius: 8px;
+    color: var(--tinta); text-decoration: none;
+  }
+  .stavka.aktivna {
+    background: var(--odabir);
+    box-shadow: inset 3px 0 0 var(--zelena);
+  }
+  .ikona { width: 16px; text-align: center; color: var(--tamna); flex: none; }
+  .grupa-glava { justify-content: space-between; }
+  .grupa-glava span { display: flex; align-items: center; gap: .5rem; }
+  .strelica {
+    width: .38rem; height: .38rem;
+    border-right: 1.5px solid #5d6e5d;
+    border-bottom: 1.5px solid #5d6e5d;
+    transform: rotate(-45deg);
+    margin-right: .35rem;
+  }
+  .napomena-izbornik {
+    margin: .35rem .5rem 0;
+    padding: .45rem .55rem;
+    border-radius: 8px;
+    background: #fff8d6;
+    color: #615006;
+    font-size: 11px;
+  }
+  .glavno { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .vrh {
+    height: 3.5rem;
+    background: #fff;
+    border-bottom: 3px solid var(--zelena);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1rem;
+    font-weight: 700;
+  }
+  .vrh small { font-weight: 500; color: #5d6e5d; }
+  .sadrzaj { padding: 18px 22px 48px; max-width: 1080px; }
+  .ogled { margin: 0 0 12px; color: var(--prigušeno); font-size: 12px; }
+  h1 { margin: 0 0 12px; font-size: 18px; color: var(--tamna); }
+  .tabovi {
+    display: flex; gap: 4px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--crta);
+    margin-bottom: 16px;
+  }
+  .tabovi button {
+    background: transparent; border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--prigušeno);
+    font: inherit; font-weight: 700; font-size: 13px;
+    padding: 8px 12px; margin-bottom: -1px; cursor: pointer;
+  }
+  .tabovi button.aktivan { color: var(--tamna); border-bottom-color: var(--zelena); }
+  .kartica {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(0,0,0,.04);
+    box-shadow: 0 4px 16px rgba(0,0,0,.02);
+    margin-bottom: 16px;
+  }
+  .natpis { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .pomoc { font-size: 12px; color: var(--prigušeno); margin: 6px 0 0; }
+  .polje {
+    font: 12px/1.5 "Segoe UI", sans-serif;
+    padding: .25rem .5rem;
+    border: 1px solid #c5cbb0;
+    border-radius: 6px;
+    width: 100%;
+    height: calc(1.5em + .5rem + 2px);
+  }
+  .btn {
+    border-radius: 9px; padding: 6px 12px;
+    font: 12px/1.25 "Segoe UI", sans-serif; font-weight: 500;
+    cursor: pointer; background: #fff;
+  }
+  .btn-zeleni { background: #198754; color: #fff; border: 1px solid #198754; }
+  .btn-plavi { background: #0d6efd; color: #fff; border: 1px solid #0d6efd; }
+  .btn-sivi { border: 1px solid #c5cbb0; color: var(--tinta); }
+  .btn-crveni { border: 1px solid #e7b4b4; color: #9b1c1c; }
+  .kicker { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--prigušeno); }
+  .logo-traka { font-weight: 700; font-size: 22px; letter-spacing: -.03em; margin: 8px 0 14px; color: var(--tamna); }
+  .kugle { display: flex; gap: 8px; flex-wrap: wrap; }
+  .kugla {
+    width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #d5dcc8; cursor: pointer; padding: 0;
+  }
+  .kugla.aktivna { box-shadow: 0 0 0 2px var(--tamna); }
+  .smjerovi { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .smjer {
+    width: 168px; text-align: left; cursor: pointer;
+    border: 1px solid #e4ead6; border-radius: 12px; background: #fff; padding: 8px;
+    font: inherit;
+  }
+  .smjer.aktivan { border-color: var(--zelena); box-shadow: 0 0 0 2px rgba(176,203,31,.45); }
+  .smjer b { display: block; font-size: 12px; margin-bottom: 6px; }
+  .minij { display: grid; grid-template-columns: 58px 1fr; height: 72px; border-radius: 6px; overflow: hidden; border: 1px solid #eef2e4; font-size: 8px; }
+  .minij .strana { background: #fff; padding: 4px; color: #5c6540; }
+  .minij .odabrano { background: var(--odabir); color: var(--tamna); border-left: 2px solid var(--zelena); margin: 1px 0; padding-left: 2px; }
+  .minij .tijelo { background: var(--svijetla); padding: 6px; }
+  .minij .gumb { display: inline-block; background: var(--tamna); color: #fff; border-radius: 3px; padding: 1px 4px; }
+  .red { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
+  .red .raste { flex: 1; }
+  .red .uzak { width: 72px; }
+  .stupci { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  h2 { margin: 0 0 4px; font-size: 15px; color: var(--tamna); }
+  h3 { margin: 0 0 10px; font-size: 13px; }
+  .uvod { color: var(--prigušeno); margin: 0 0 14px; }
+  .skriveno { display: none; }
+  @media (max-width: 900px) {
+    .izbornik { display: none; }
+    .stupci { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="ljuska">
+  <aside class="izbornik">
+    <div class="znak"><i></i>SuperSkyLaw</div>
+    <nav class="stavke" aria-label="Moduli">
+      <a class="stavka" href="#"><span class="ikona">⌂</span>Početna</a>
+      <a class="stavka" href="#"><span class="ikona">▣</span>Ured</a>
+      <a class="stavka" href="#"><span class="ikona">▤</span>Predmeti</a>
+      <a class="stavka" href="#"><span class="ikona">☺</span>Stranke</a>
+      <a class="stavka" href="#"><span class="ikona">▦</span>Kalendar</a>
+      <a class="stavka" href="#"><span class="ikona">✉</span>Pošta</a>
+      <div class="grupa-glava"><span><span class="ikona">€</span>Financije</span><span class="strelica"></span></div>
+      <div class="grupa-glava"><span><span class="ikona">▤</span>Dokumenti</span><span class="strelica"></span></div>
+      <a class="stavka" href="#"><span class="ikona">☰</span>Zakoni</a>
+      <a class="stavka aktivna" href="#postavke"><span class="ikona">⚙</span>Postavke</a>
+      <p class="napomena-izbornik">Postavke nemaju podstavki. Izgled i Katalog su na stranici.</p>
+    </nav>
+  </aside>
+  <div class="glavno">
+    <header class="vrh">
+      <div>Odvjetnički ured Kovač <small>/ Postavke</small></div>
+      <small>partner@law.test</small>
+    </header>
+    <main class="sadrzaj" id="postavke">
+      <p class="ogled">Pokazni mockup. Izbornik ima jednu stavku Postavke. Kartice ispod mijenjaju područje, a izbornik ostaje isti.</p>
+      <h1>Postavke</h1>
+      <div class="tabovi" role="tablist">
+        <button type="button" class="aktivan" id="tab-izgled" role="tab" aria-selected="true" aria-controls="podrucje-izgled">Izgled</button>
+        <button type="button" id="tab-katalog" role="tab" aria-selected="false" aria-controls="podrucje-katalog">Katalog</button>
+      </div>
+
+      <section id="podrucje-izgled" role="tabpanel">
+        <form class="kartica" onsubmit="return false">
+          <span class="kicker">BOJA TEME</span>
+          <div class="logo-traka" id="logoPregled">SuperSkyLaw</div>
+          <label class="natpis">Službena boja</label>
+          <div class="kugle" id="boje">
+            <button type="button" class="kugla aktivna" style="background:#b0cb1f" data-boja="Zelena" aria-label="Zelena"></button>
+            <button type="button" class="kugla" style="background:#50abde" data-boja="Plava" aria-label="Plava"></button>
+            <button type="button" class="kugla" style="background:#e31e24" data-boja="Crvena" aria-label="Crvena"></button>
+            <button type="button" class="kugla" style="background:#ffd310" data-boja="Žuta" aria-label="Žuta"></button>
+            <button type="button" class="kugla" style="background:#ef7f1a" data-boja="Narančasta" aria-label="Narančasta"></button>
+          </div>
+          <p class="pomoc" id="bojaTekst">Boja bira logotip i obitelj nijansi. Sada: Zelena.</p>
+          <div style="height:14px"></div>
+          <label class="natpis">Tema</label>
+          <div class="smjerovi" id="teme">
+            <button type="button" class="smjer aktivan" data-tema="Kreda"><b>Kreda</b><span class="minij"><span class="strana">Početna<span class="odabrano">Postavke</span></span><span class="tijelo"><span class="gumb">Spremi</span></span></span></button>
+            <button type="button" class="smjer" data-tema="Obrub"><b>Obrub</b><span class="minij"><span class="strana">Početna<span class="odabrano">Postavke</span></span><span class="tijelo"><span class="gumb" style="background:#fff;color:#434d0c;border:1px solid #b0cb1f">Spremi</span></span></span></button>
+            <button type="button" class="smjer" data-tema="Pruga"><b>Pruga</b><span class="minij"><span class="strana" style="background:#f4f4f2">Početna<span class="odabrano" style="background:#fff">Postavke</span></span><span class="tijelo" style="background:#f7f7f5"><span class="gumb">Spremi</span></span></span></button>
+            <button type="button" class="smjer" data-tema="Sjena"><b>Sjena</b><span class="minij"><span class="strana" style="background:#f7fae9">Početna<span class="odabrano" style="background:#fff">Postavke</span></span><span class="tijelo"><span class="gumb">Spremi</span></span></span></button>
+            <button type="button" class="smjer" data-tema="Slovo"><b>Slovo</b><span class="minij"><span class="strana">Početna<span class="odabrano" style="background:transparent;border-left-color:transparent;color:#b0cb1f">Postavke</span></span><span class="tijelo"><span class="gumb">Spremi</span></span></span></button>
+          </div>
+          <p class="pomoc" id="temaTekst">Tema bira kako se nijanse slažu. Sada: Kreda.</p>
+          <div style="height:14px"></div>
+          <button type="submit" class="btn btn-zeleni">Spremi temu</button>
+        </form>
+      </section>
+
+      <section id="podrucje-katalog" class="skriveno" role="tabpanel">
+        <p class="uvod">Predložak stadija i predmeti spora za ovaj ured. Vrste predmeta ostaju iste. Promjena predloška ne dira stadije koji su već na predmetima.</p>
+        <article class="kartica">
+          <h2>Građansko</h2>
+          <p class="uvod">Parnični i izvanparnični postupci</p>
+          <div class="stupci">
+            <div>
+              <h3>Stadiji</h3>
+              <div class="red"><div class="raste"><label class="natpis">Naziv</label><input class="polje" value="Priprema"></div><div class="uzak"><label class="natpis">Red</label><input class="polje" value="1"></div><button class="btn btn-plavi" type="button">Spremi</button></div>
+              <p style="margin:-4px 0 12px"><button class="btn btn-crveni" type="button">Ukloni iz predloška</button></p>
+              <div class="red"><div class="raste"><label class="natpis">Naziv</label><input class="polje" value="Tužba"></div><div class="uzak"><label class="natpis">Red</label><input class="polje" value="2"></div><button class="btn btn-plavi" type="button">Spremi</button></div>
+              <p style="margin:-4px 0 12px"><button class="btn btn-crveni" type="button">Ukloni iz predloška</button></p>
+              <div class="red"><div class="raste"><label class="natpis">Novi stadij</label><input class="polje" placeholder=""></div><button class="btn btn-sivi" type="button">Dodaj</button></div>
+            </div>
+            <div>
+              <h3>Predmeti spora</h3>
+              <label class="natpis">Naziv</label>
+              <input class="polje" value="Naknada štete" style="margin-bottom:6px">
+              <p style="margin:0 0 12px"><button class="btn btn-plavi" type="button">Spremi</button> <button class="btn btn-crveni" type="button">Obriši</button></p>
+              <label class="natpis">Naziv</label>
+              <input class="polje" value="Ispunjenje ugovora" style="margin-bottom:6px">
+              <p style="margin:0 0 12px"><button class="btn btn-plavi" type="button">Spremi</button> <button class="btn btn-crveni" type="button">Obriši</button></p>
+              <div class="red"><div class="raste"><label class="natpis">Novi predmet spora</label><input class="polje"></div><button class="btn btn-sivi" type="button">Dodaj</button></div>
+            </div>
+          </div>
+        </article>
+        <article class="kartica">
+          <h2>Kazneno</h2>
+          <p class="uvod">Obrana i zastupanje oštećenika</p>
+          <div class="stupci">
+            <div>
+              <h3>Stadiji</h3>
+              <div class="red"><div class="raste"><label class="natpis">Naziv</label><input class="polje" value="Istraga"></div><div class="uzak"><label class="natpis">Red</label><input class="polje" value="1"></div><button class="btn btn-plavi" type="button">Spremi</button></div>
+              <div class="red"><div class="raste"><label class="natpis">Novi stadij</label><input class="polje"></div><button class="btn btn-sivi" type="button">Dodaj</button></div>
+            </div>
+            <div>
+              <h3>Predmeti spora</h3>
+              <label class="natpis">Naziv</label>
+              <input class="polje" value="Kaznena prijava" style="margin-bottom:6px">
+              <p style="margin:0 0 12px"><button class="btn btn-plavi" type="button">Spremi</button></p>
+              <div class="red"><div class="raste"><label class="natpis">Novi predmet spora</label><input class="polje"></div><button class="btn btn-sivi" type="button">Dodaj</button></div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+</div>
+<script>
+  var tabIzgled = document.getElementById('tab-izgled');
+  var tabKatalog = document.getElementById('tab-katalog');
+  var panelIzgled = document.getElementById('podrucje-izgled');
+  var panelKatalog = document.getElementById('podrucje-katalog');
+  function prikazi(koji) {
+    var izgled = koji === 'izgled';
+    panelIzgled.classList.toggle('skriveno', !izgled);
+    panelKatalog.classList.toggle('skriveno', izgled);
+    tabIzgled.classList.toggle('aktivan', izgled);
+    tabKatalog.classList.toggle('aktivan', !izgled);
+    tabIzgled.setAttribute('aria-selected', izgled ? 'true' : 'false');
+    tabKatalog.setAttribute('aria-selected', izgled ? 'false' : 'true');
+  }
+  tabIzgled.addEventListener('click', function () { prikazi('izgled'); });
+  tabKatalog.addEventListener('click', function () { prikazi('katalog'); });
+  document.getElementById('boje').addEventListener('click', function (e) {
+    var gumb = e.target.closest('.kugla');
+    if (!gumb) return;
+    document.querySelectorAll('.kugla').forEach(function (k) { k.classList.remove('aktivna'); });
+    gumb.classList.add('aktivna');
+    document.getElementById('bojaTekst').textContent = 'Boja bira logotip i obitelj nijansi. Sada: ' + gumb.dataset.boja + '.';
+  });
+  document.getElementById('teme').addEventListener('click', function (e) {
+    var gumb = e.target.closest('.smjer');
+    if (!gumb) return;
+    document.querySelectorAll('.smjer').forEach(function (k) { k.classList.remove('aktivan'); });
+    gumb.classList.add('aktivan');
+    document.getElementById('temaTekst').textContent = 'Tema bira kako se nijanse slažu. Sada: ' + gumb.dataset.tema + '.';
+  });
+</script>
+</body>
+</html>
