@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DU-2026-014 — Ugovor o poslovnoj suradnji</title>
+<style>
+  :root {
+    --zelena: #b0cb1f;
+    --tamna: #434d0c;
+    --svijetla: #f7fae9;
+    --tinta: #272d07;
+    --prigušeno: #5c6540;
+    --crta: rgba(176, 203, 31, .22);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--svijetla);
+    color: var(--tinta);
+    font: 13px/1.45 "Segoe UI", sans-serif;
+  }
+  .traka {
+    background: linear-gradient(135deg, var(--zelena) 0%, var(--tamna) 100%);
+    color: #1a1a1a;
+    padding: 12px 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-weight: 700;
+  }
+  .traka span { font-weight: 500; opacity: .8; }
+  .okvir { max-width: 1180px; margin: 0 auto; padding: 22px 22px 48px; }
+  .ogled {
+    margin: 0 0 14px;
+    color: var(--prigušeno);
+    font-size: 12px;
+  }
+  .glava {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  h1 { margin: 0; font-size: 18px; font-weight: 700; }
+  .podnaslov { margin-top: 4px; color: var(--prigušeno); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .akcije { display: flex; gap: 8px; flex: none; }
+  .btn {
+    border-radius: 6px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #fff;
+  }
+  .btn-sivi { border: 1px solid #c5cbb0; color: var(--tinta); }
+  .btn-crveni { border: 1px solid #e7b4b4; color: #9b1c1c; }
+  .btn-puni { background: var(--tamna); color: #fff; border: 1px solid var(--tamna); }
+  .faza { font-weight: 700; color: #15803d; white-space: nowrap; }
+  .faza::before {
+    content: "";
+    display: inline-block;
+    width: .55rem; height: .55rem;
+    border-radius: 50%;
+    margin-right: .35rem;
+    background: currentColor;
+    vertical-align: middle;
+  }
+  .tabovi {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--crta);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .tabovi button {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--prigušeno);
+    font: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-bottom: -1px;
+  }
+  .tabovi button.aktivan { color: var(--tamna); border-bottom-color: var(--zelena); }
+  .stupci { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.2fr); gap: 16px; }
+  .kartica {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 22px;
+    border: 1px solid rgba(0, 0, 0, .04);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .02);
+  }
+  .kartica h2 { margin: 0 0 14px; font-size: 15px; }
+  .par { display: grid; grid-template-columns: 148px 1fr; gap: 6px 12px; margin: 0; }
+  .par dt { font-size: 12px; font-weight: 700; color: var(--prigušeno); padding-top: 2px; }
+  .par dd { margin: 0; }
+  .osobe { display: flex; gap: 8px; align-items: center; }
+  .krug {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--svijetla);
+    border: 1px solid var(--crta);
+    display: grid; place-items: center;
+    font-size: 10px; font-weight: 700; color: var(--tamna);
+  }
+  .stadij-glava { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .stadij-glava .btn { flex: none; }
+  .stadij-glava p { margin: 0; font-size: 12px; }
+  .stadij-glava strong { letter-spacing: .03em; }
+  .traka-stadija { display: flex; height: 18px; border-radius: 4px; overflow: hidden; margin: 8px 0 18px; }
+  .traka-stadija span { display: block; height: 100%; }
+  .zapis { padding: 12px 0; border-top: 1px solid #eef2e4; }
+  .zapis-vrh { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .zapis h3 { margin: 0; font-size: 13px; letter-spacing: .02em; }
+  .zapis .kad { font-size: 12px; color: var(--prigušeno); font-weight: 700; }
+  .zapis p { margin: 6px 0 0; }
+  .prilog {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    background: #eef3ff;
+    color: #1d4ed8;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .ured { margin-top: 16px; }
+  .ured .red { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid #eef2e4; }
+  .natpis { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .polje, .odabir {
+    font: 12px/1.5 "Segoe UI", sans-serif;
+    font-weight: 400;
+    padding: .25rem .5rem;
+    border: 1px solid #d5dcc4;
+    border-radius: 4px;
+    width: 100%;
+    color: var(--tinta);
+    background: #fff;
+  }
+  .red-forme { display: flex; gap: 8px; align-items: end; margin-top: 8px; }
+  .red-forme .polje { width: 180px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 12px; color: var(--prigušeno); padding: 8px 8px 8px 0; border-bottom: 1px solid var(--crta); }
+  td { padding: 10px 8px 10px 0; border-bottom: 1px solid #eef2e4; vertical-align: top; }
+  .vrsta {
+    font-size: 11px; font-weight: 700;
+    background: var(--svijetla);
+    border: 1px solid var(--crta);
+    border-radius: 999px;
+    padding: 1px 8px;
+  }
+  .biljeska { padding: 12px 0; border-top: 1px solid #eef2e4; }
+  .biljeska strong { font-size: 12px; }
+  .vidi { color: var(--tamna); font-weight: 700; font-size: 12px; }
+  .filteri { display: flex; gap: 6px; margin-bottom: 12px; }
+  .filteri button {
+    border: 1px solid var(--crta);
+    background: #fff;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--prigušeno);
+  }
+  .filteri button.aktivan { background: var(--tamna); color: #fff; border-color: var(--tamna); }
+  @media (max-width: 860px) {
+    .stupci { grid-template-columns: 1fr; }
+    .glava { flex-direction: column; }
+    .par { grid-template-columns: 120px 1fr; }
+    .stadij-glava { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<header class="traka">SuperSkyLaw <span>Predmeti</span></header>
+<div class="okvir">
+  <p class="ogled">Ogledni pregled kartice predmeta. Podaci su izmišljeni. Strelice lijevo i desno mijenjaju tab.</p>
+  <div class="glava">
+    <div>
+      <h1>DU-2026-014 — Ugovor o poslovnoj suradnji</h1>
+      <div class="podnaslov">
+        <span>Trgovačko</span>
+        <span>·</span>
+        <span>Trgovački sud u Zagrebu</span>
+        <span>·</span>
+        <span>P-145/2026</span>
+        <span>·</span>
+        <span class="faza">U roku</span>
+      </div>
+    </div>
+    <div class="akcije">
+      <button type="button" class="btn btn-sivi">Pauziraj</button>
+      <button type="button" class="btn btn-crveni">Arhiviraj</button>
+    </div>
+  </div>
+
+  <div class="tabovi" role="tablist">
+    <button type="button" class="aktivan" data-tab="podaci" role="tab">Podaci</button>
+    <button type="button" data-tab="rokovi" role="tab">Rokovi</button>
+    <button type="button" data-tab="dokumenti" role="tab">Dokumenti</button>
+    <button type="button" data-tab="biljeske" role="tab">Bilješke</button>
+    <button type="button" data-tab="kronologija" role="tab">Kronologija</button>
+  </div>
+
+  <section id="podaci">
+    <div class="stupci">
+      <article class="kartica">
+        <h2>Podaci predmeta</h2>
+        <dl class="par">
+          <dt>Klijent</dt><dd>Horizon d.o.o.</dd>
+          <dt>Protustranka</dt><dd>Adriatic Trade d.o.o.</dd>
+          <dt>Sud</dt><dd>Trgovački sud u Zagrebu</dd>
+          <dt>Sudski broj</dt><dd>P-145/2026</dd>
+          <dt>Podneseno</dt><dd>12. 3. 2026.</dd>
+          <dt>Predmet spora</dt><dd>Gospodarski ugovor</dd>
+          <dt>Vrijednost</dt><dd>155.000,00 EUR</dd>
+          <dt>Pozicija ureda</dt><dd>Zastupanje klijenta</dd>
+          <dt>Vodi</dt><dd>Ana Kovač</dd>
+          <dt>Na predmetu</dt>
+          <dd>
+            <div class="osobe">
+              <span class="krug">AK</span>
+              <span class="krug">MB</span>
+              <span>Ana Kovač, Marko Babić</span>
+            </div>
+          </dd>
+          <dt>Otvorio</dt><dd>Ana Kovač · 12. 3. 2026.</dd>
+        </dl>
+      </article>
+
+      <article class="kartica">
+        <div class="stadij-glava">
+          <div>
+            <h2 style="margin-bottom:4px">Stadij rada</h2>
+            <p>Aktivni stadij: <strong>POTPIS</strong></p>
+          </div>
+          <button type="button" class="btn btn-sivi">Dodaj stadij</button>
+        </div>
+        <div class="traka-stadija" aria-hidden="true">
+          <span style="width:10%;background:#c5d48a" title="Izrada"></span>
+          <span style="width:74%;background:#7d8f2e" title="Pregovori"></span>
+          <span style="width:16%;background:#434d0c" title="Potpis"></span>
+        </div>
+        <div class="zapis">
+          <div class="zapis-vrh">
+            <h3>POTPIS</h3>
+            <span class="kad">21. 9. 2026. — danas</span>
+          </div>
+          <p>Tekst je usklađen. Čeka se potpis Adriatic Tradea i ovjera punomoći. Rok za očitovanje na prijedlog suda teče do 28. 10. 2026.</p>
+          <span class="prilog">aneks-potpis.pdf</span>
+        </div>
+        <div class="zapis">
+          <div class="zapis-vrh">
+            <h3>PREGOVORI</h3>
+            <span class="kad">3. 4. 2026. — 20. 9. 2026.</span>
+          </div>
+          <p>Usuglašene su cijena, trajanje i raskid. Otvorena je ostala samo klauzula o nadležnosti suda. Zapisnik sastanka od 18. 6. priložen je uz stadij.</p>
+          <span class="prilog">zapisnik-18-06.pdf</span>
+        </div>
+        <div class="zapis">
+          <div class="zapis-vrh">
+            <h3>IZRADA</h3>
+            <span class="kad">12. 3. 2026. — 2. 4. 2026.</span>
+          </div>
+          <p>Prvi nacrt ugovora poslan klijentu. Horizon je potvrdio predmet suradnje i vrijednost od 155.000,00 EUR.</p>
+          <span class="prilog">nacrt-v1.docx</span>
+        </div>
+      </article>
+    </div>
+
+    <article class="kartica ured">
+      <h2>Ured</h2>
+      <div class="red"><span>SPNFT obveza za ovaj predmet</span><strong>Nije označeno</strong></div>
+      <div class="red"><span>Etički zid</span><span>Nitko nije isključen</span></div>
+    </article>
+  </section>
+
+  <section id="rokovi" hidden>
+    <article class="kartica">
+      <h2>Rokovi i ročišta</h2>
+      <table>
+        <thead>
+          <tr><th>Što</th><th>Kad</th><th>Tko</th><th>Stanje</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rok za očitovanje na prijedlog suda</td>
+            <td>28. 10. 2026.</td>
+            <td>Ana Kovač</td>
+            <td>Otvoren · u roku</td>
+          </tr>
+          <tr>
+            <td>Ročište</td>
+            <td>22. 10. 2026. u 09:30<br>Trgovački sud u Zagrebu, dvorana 3</td>
+            <td>Ana Kovač</td>
+            <td>Zakazano</td>
+          </tr>
+          <tr>
+            <td>Dostava nacrta klijentu</td>
+            <td>2. 4. 2026.</td>
+            <td>Marko Babić</td>
+            <td>Završeno</td>
+          </tr>
+        </tbody>
+      </table>
+      <h2 style="margin-top:22px">Zakonski rok</h2>
+      <p style="margin:0 0 8px;color:#5c6540;font-size:12px">Orijentacijski izračun. U predmet se upisuje tek kad se rok spremi.</p>
+      <label class="natpis" for="rok-vrsta">Vrsta roka</label>
+      <select id="rok-vrsta" class="odabir" style="max-width:360px">
+        <option>Rok za žalbu</option>
+        <option>Rok za odgovor na tužbu</option>
+      </select>
+      <div class="red-forme">
+        <div>
+          <label class="natpis" for="rok-primitak">Datum primitka</label>
+          <input id="rok-primitak" class="polje" type="text" readonly value="9. 10. 2026.">
+        </div>
+        <button type="button" class="btn btn-sivi">Izračunaj</button>
+        <button type="button" class="btn btn-puni">Upiši rok</button>
+      </div>
+    </article>
+  </section>
+
+  <section id="dokumenti" hidden>
+    <article class="kartica">
+      <h2>Dokumenti</h2>
+      <div class="filteri" id="filteri">
+        <button type="button" class="aktivan" data-vrsta="sve">Sve</button>
+        <button type="button" data-vrsta="podnesak">Podnesci</button>
+        <button type="button" data-vrsta="punomoc">Punomoći</button>
+        <button type="button" data-vrsta="dokaz">Dokazi</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Datoteka</th><th>Vrsta</th><th>Stadij</th><th>Datum</th><th>Tko</th></tr>
+        </thead>
+        <tbody>
+          <tr data-vrsta="dokaz"><td>aneks-potpis.pdf</td><td><span class="vrsta">Dokaz</span></td><td>Potpis</td><td>21. 9. 2026.</td><td>Ana Kovač</td></tr>
+          <tr data-vrsta="dokaz"><td>zapisnik-18-06.pdf</td><td><span class="vrsta">Dokaz</span></td><td>Pregovori</td><td>18. 6. 2026.</td><td>Marko Babić</td></tr>
+          <tr data-vrsta="podnesak"><td>prijedlog-suda.pdf</td><td><span class="vrsta">Podnesak</span></td><td>Potpis</td><td>2. 9. 2026.</td><td>Ana Kovač</td></tr>
+          <tr data-vrsta="punomoc"><td>punomoc.pdf</td><td><span class="vrsta">Punomoć</span></td><td>Izrada</td><td>20. 3. 2026.</td><td>Ana Kovač</td></tr>
+          <tr data-vrsta="dokaz"><td>nacrt-v1.docx</td><td><span class="vrsta">Dokaz</span></td><td>Izrada</td><td>12. 3. 2026.</td><td>Marko Babić</td></tr>
+        </tbody>
+      </table>
+    </article>
+  </section>
+
+  <section id="biljeske" hidden>
+    <article class="kartica">
+      <h2>Bilješke</h2>
+      <p style="margin:0 0 8px;color:#5c6540;font-size:12px">Vide ih samo ljudi u uredu. Ne izlaze klijentu na portal.</p>
+      <div class="biljeska">
+        <strong>Ana Kovač · 21. 9. 2026.</strong>
+        <p>Adriatic Trade traži da se nadležnost ostavi na Trgovačkom sudu u Zagrebu. Klijent je to prihvatio usmeno, čeka se pisana potvrda.</p>
+      </div>
+      <div class="biljeska">
+        <strong>Marko Babić · 18. 6. 2026.</strong>
+        <p>Na sastanku nisu dirali kaznu za kašnjenje. Vratiti se na to prije potpisa, iznos je ostao iz prvog nacrta.</p>
+      </div>
+      <form style="margin-top:16px" onsubmit="return false">
+        <label class="natpis" for="nova-biljeska">Nova bilješka</label>
+        <textarea id="nova-biljeska" class="polje" rows="3" readonly>Klijent želi potpis do kraja listopada.</textarea>
+      </form>
+    </article>
+  </section>
+
+  <section id="kronologija" hidden>
+    <article class="kartica">
+      <h2>Kronologija</h2>
+      <div class="biljeska">
+        <strong>Pravna radnja · 21. 9. 2026. 10:15</strong>
+        <span class="vidi"> · vidi klijent</span>
+        <p>Ugovor je prešao u stadij potpisa. Klijentu je poslan aneks.</p>
+      </div>
+      <div class="biljeska">
+        <strong>Dopis · 2. 9. 2026. 14:02</strong>
+        <p>Sudu je podnesen prijedlog za određivanje ročišta.</p>
+      </div>
+      <div class="biljeska">
+        <strong>E-mail · 18. 6. 2026. 16:40</strong>
+        <span class="vidi"> · vidi klijent</span>
+        <p>Zapisnik sastanka poslan obje strane.</p>
+      </div>
+      <div class="biljeska">
+        <strong>Zabilješka s ročišta · 12. 3. 2026. 09:00</strong>
+        <p>Predmet otvoren nakon upita Horizona. Dogovoreno je da ured pripremi prvi nacrt.</p>
+      </div>
+    </article>
+  </section>
+</div>
+<script>
+(function () {
+  var tabovi = Array.prototype.slice.call(document.querySelectorAll("[data-tab]"));
+  var sekcije = ["podaci", "rokovi", "dokumenti", "biljeske", "kronologija"];
+
+  function prikazi(id) {
+    if (sekcije.indexOf(id) === -1) id = "podaci";
+    sekcije.forEach(function (kljuc) {
+      document.getElementById(kljuc).hidden = kljuc !== id;
+    });
+    tabovi.forEach(function (gumb) {
+      var ukljucen = gumb.getAttribute("data-tab") === id;
+      gumb.classList.toggle("aktivan", ukljucen);
+      if (ukljucen) gumb.setAttribute("aria-selected", "true");
+      else gumb.removeAttribute("aria-selected");
+    });
+  }
+
+  tabovi.forEach(function (gumb) {
+    gumb.addEventListener("click", function () {
+      var id = gumb.getAttribute("data-tab");
+      prikazi(id);
+      history.replaceState(null, "", "#" + id);
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    var trenutni = sekcije.findIndex(function (id) { return !document.getElementById(id).hidden; });
+    var korak = e.key === "ArrowRight" ? 1 : -1;
+    var sljedeci = (trenutni + korak + sekcije.length) % sekcije.length;
+    prikazi(sekcije[sljedeci]);
+    history.replaceState(null, "", "#" + sekcije[sljedeci]);
+  });
+
+  document.getElementById("filteri").addEventListener("click", function (e) {
+    var gumb = e.target.closest("button");
+    if (!gumb) return;
+    var vrsta = gumb.getAttribute("data-vrsta");
+    Array.prototype.forEach.call(gumb.parentNode.children, function (d) { d.classList.remove("aktivan"); });
+    gumb.classList.add("aktivan");
+    Array.prototype.forEach.call(document.querySelectorAll("#dokumenti tbody tr"), function (red) {
+      red.hidden = vrsta !== "sve" && red.getAttribute("data-vrsta") !== vrsta;
+    });
+  });
+
+  prikazi((location.hash || "#podaci").replace("#", ""));
+})();
+</script>
+</body>
+</html>

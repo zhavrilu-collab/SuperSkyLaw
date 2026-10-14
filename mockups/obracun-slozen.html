@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Obračun — ogled složenog taba</title>
+<style>
+  :root {
+    --zelena: #b0cb1f;
+    --tamna: #434d0c;
+    --svijetla: #f4f7ea;
+    --tinta: #272d07;
+    --prigušeno: #5c6540;
+    --crta: rgba(176, 203, 31, .28);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #eef2e4;
+    color: var(--tinta);
+    font: 13px/1.45 "Segoe UI", sans-serif;
+  }
+  .traka {
+    background: linear-gradient(135deg, var(--zelena) 0%, var(--tamna) 100%);
+    color: #1a1a1a;
+    padding: 12px 22px;
+    font-weight: 700;
+  }
+  .okvir { max-width: 1180px; margin: 0 auto; padding: 18px 22px 56px; }
+  .ogled { margin: 0 0 12px; color: var(--prigušeno); font-size: 12px; }
+  .tabovi { display: flex; gap: 4px; border-bottom: 1px solid var(--crta); margin-bottom: 16px; flex-wrap: wrap; }
+  .tabovi span {
+    padding: 8px 12px;
+    font-weight: 700;
+    color: var(--prigušeno);
+    border-bottom: 2px solid transparent;
+  }
+  .tabovi .aktivan { color: var(--tamna); border-bottom-color: var(--zelena); }
+  .kartica {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.04);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.02);
+    padding: 20px 22px;
+    margin-bottom: 14px;
+  }
+  .glava { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 16px; color: var(--zelena); }
+  h2 { margin: 0 0 12px; font-size: 14px; color: var(--zelena); }
+  .prigušeno { color: var(--prigušeno); margin: 4px 0 0; }
+  .veze { display: flex; gap: 8px; }
+  .btn {
+    border-radius: 6px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #c5cbb0;
+    background: #fff;
+    color: var(--tinta);
+    height: calc(1.5em + .5rem + 2px);
+  }
+  .btn-puni { background: var(--tamna); color: #fff; border-color: var(--tamna); }
+  .btn-tanak { padding: 3px 8px; height: auto; font-weight: 600; }
+  .sazetak { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+  .sazetak div { border: 1px solid #e4e8d8; border-radius: 8px; padding: 8px 10px; }
+  .sazetak strong { display: block; font-size: 12px; }
+  .napomena { margin: 10px 0 0; color: var(--prigušeno); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 12px; font-weight: 600; color: var(--tamna); background: #f7fae9; padding: 8px 6px; }
+  td { padding: 8px 6px; border-top: 1px solid #eef1e4; vertical-align: middle; }
+  .unos { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: flex-end; margin-top: 14px; padding-top: 12px; border-top: 1px solid #eef1e4; }
+  .polje { display: flex; flex-direction: column; min-width: 0; }
+  .polje.raste { flex: 1 1 180px; }
+  .polje.usko { flex: 0 0 110px; }
+  .polje.srednje { flex: 0 1 220px; }
+  label { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  input, select {
+    font: 12px/1.5 "Segoe UI", sans-serif;
+    padding: .25rem .5rem;
+    border: 1px solid #cfd6be;
+    border-radius: 6px;
+    height: calc(1.5em + .5rem + 2px);
+    background: #fff;
+    color: var(--tinta);
+  }
+  .prazno { color: var(--prigušeno); margin: 0; }
+  .stanje { font-weight: 700; }
+  .kvacica { width: 14px; height: 14px; }
+  @media (max-width: 800px) {
+    .sazetak { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="traka">SuperSky Law</div>
+<div class="okvir">
+  <p class="ogled">Ogled rasporeda. Brojevi su s predmeta na slici. Ovo nije stranica u aplikaciji.</p>
+  <div class="tabovi">
+    <span>Podaci</span><span>Rokovi</span><span>Dokumenti</span><span>Bilješke</span><span>Kronologija</span><span>Aktivnosti</span><span class="aktivan">Obračun</span>
+  </div>
+
+  <section class="kartica">
+    <div class="glava">
+      <div>
+        <h1>Obračun predmeta</h1>
+        <p class="prigušeno">Sati, troškovi, tarifa, računi i depozit ovog predmeta.</p>
+      </div>
+      <div class="veze">
+        <button class="btn" type="button">Financije</button>
+        <button class="btn" type="button">Troškovnik PDF</button>
+      </div>
+    </div>
+    <div class="sazetak">
+      <div><strong>Sati</strong>150,00 EUR</div>
+      <div><strong>Troškovi</strong>0,00 EUR</div>
+      <div><strong>Tarifa</strong>0,00 EUR</div>
+      <div><strong>Nenaplaćeno</strong>150,00 EUR</div>
+    </div>
+    <p class="napomena">Nenaplaćeno zbraja odobrene sate, troškove klijentu i nagradu klijentu koji još nisu na računu.</p>
+  </section>
+
+  <section class="kartica">
+    <h2>Sati</h2>
+    <table>
+      <thead>
+        <tr><th>Kad</th><th>Tko</th><th>Opis</th><th>Minute</th><th>Stanje</th><th>Iznos</th><th>Na račun</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>08.10.2026. 20:42</td>
+          <td>Petra Kovač</td>
+          <td>sastanak</td>
+          <td>60</td>
+          <td>Odobreno</td>
+          <td>150,00 EUR</td>
+          <td><input class="kvacica" type="checkbox" checked form="izdajRacun" aria-label="sastanak na račun"></td>
+          <td>
+            <button class="btn btn-tanak" type="button">Otpis</button>
+            <button class="btn btn-tanak" type="button">Nenaplativo</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="unos">
+      <div class="polje raste">
+        <label>Štoperica</label>
+        <input placeholder="Opis radnje">
+      </div>
+      <button class="btn btn-puni" type="button">Pokreni</button>
+      <div class="polje raste">
+        <label>Ručni unos</label>
+        <input placeholder="Opis radnje">
+      </div>
+      <div class="polje usko">
+        <label>Minute</label>
+        <input placeholder="60">
+      </div>
+      <button class="btn btn-puni" type="button">Unesi sate</button>
+    </div>
+  </section>
+
+  <section class="kartica">
+    <h2>Troškovi</h2>
+    <p class="prazno">Nema troškova.</p>
+    <div class="unos">
+      <div class="polje srednje">
+        <label>Vrsta</label>
+        <select><option>Sudska pristojba</option><option>Putni trošak</option></select>
+      </div>
+      <div class="polje raste">
+        <label>Opis</label>
+        <input>
+      </div>
+      <div class="polje usko">
+        <label>Iznos EUR</label>
+        <input>
+      </div>
+      <div class="polje srednje">
+        <label>Kome</label>
+        <select><option>Klijent</option><option>Protivna strana</option></select>
+      </div>
+      <button class="btn btn-puni" type="button">Unesi</button>
+    </div>
+  </section>
+
+  <section class="kartica">
+    <h2>Tarifa</h2>
+    <table>
+      <thead>
+        <tr><th>Opis</th><th>Kome</th><th>Bodovi</th><th>Iznos</th><th>Račun</th><th>Na račun</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sastavljanje tužbe (Tbr. 7. t. 1.)</td>
+          <td>Nagrada klijentu</td>
+          <td>100</td>
+          <td>200,00 EUR</td>
+          <td>Na računu</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>Odgovor na tužbu (Tbr. 8. t. 1.)</td>
+          <td>Trošak protivne strane</td>
+          <td>100</td>
+          <td>200,00 EUR</td>
+          <td>Nije na računu</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="unos">
+      <div class="polje raste">
+        <label>Radnja</label>
+        <select><option>Sastavljanje tužbe (Tbr. 7. t. 1.)</option></select>
+      </div>
+      <div class="polje srednje">
+        <label>Kome</label>
+        <select><option>Nagrada klijentu</option><option>Trošak protivne strane</option></select>
+      </div>
+      <button class="btn btn-puni" type="button">Obračunaj</button>
+    </div>
+  </section>
+
+  <section class="kartica">
+    <h2>Računi</h2>
+    <table>
+      <thead>
+        <tr><th>Broj</th><th>Datum</th><th>Ukupno</th><th>Plaćeno</th><th>Stanje</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>2026-001</strong></td>
+          <td>09.10.2026.</td>
+          <td>250,00 EUR</td>
+          <td>0,00 EUR</td>
+          <td>Neplaćeno</td>
+        </tr>
+      </tbody>
+    </table>
+    <form class="unos" id="izdajRacun">
+      <div class="polje srednje">
+        <label>Kupac</label>
+        <select><option>Ime tužitelja</option></select>
+      </div>
+      <button class="btn btn-puni" type="button">Izdaj račun</button>
+    </form>
+    <p class="napomena">Označeni sastanak (60 min, 150,00 EUR) ide na sljedeći račun. Nagrada koja je već na računu i trošak protivne strane nemaju kvačicu.</p>
+  </section>
+
+  <section class="kartica">
+    <h2>Depozit</h2>
+    <p class="stanje">Stanje: 0,00 EUR</p>
+    <p class="prazno">Nema uplata ni isplata.</p>
+    <div class="unos">
+      <div class="polje usko">
+        <label>Smjer</label>
+        <select><option>Uplata</option><option>Isplata</option></select>
+      </div>
+      <div class="polje usko">
+        <label>Iznos EUR</label>
+        <input>
+      </div>
+      <div class="polje raste">
+        <label>Od koga / kome</label>
+        <input>
+      </div>
+      <div class="polje raste">
+        <label>Svrha</label>
+        <input>
+      </div>
+      <button class="btn btn-puni" type="button">Upiši</button>
+    </div>
+  </section>
+</div>
+</body>
+</html>

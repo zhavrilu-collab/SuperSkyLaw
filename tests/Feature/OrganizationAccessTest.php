@@ -15,6 +15,19 @@ class OrganizationAccessTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_signed_in_member_opening_the_root_is_not_sent_back_to_login(): void
+    {
+        [$user, $organization] = $this->seedActiveOrganization(OrganizationRole::Owner);
+
+        $this->actingAs($user)
+            ->get('/')
+            ->assertRedirect(route('organization.dashboard', $organization->slug));
+
+        $this->actingAs($user)
+            ->get(route('login'))
+            ->assertRedirect(route('organization.dashboard', $organization->slug));
+    }
+
     public function test_active_member_can_access_dashboard(): void
     {
         [$user, $organization] = $this->seedActiveOrganization(OrganizationRole::Owner);

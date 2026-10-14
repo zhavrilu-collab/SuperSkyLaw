@@ -203,6 +203,11 @@ class DemoOfficeSeeder extends Seeder
             'iva' => [PartyKind::Person, 'Iva Špoljar', 'Sisak', null, null, false],
             'mobbing' => [PartyKind::Person, 'Helena Grgić', 'Zagreb', null, null, false],
             'agencija' => [PartyKind::Company, 'Agencija Sjever d.o.o.', 'Zagreb', null, null, false],
+            'boris' => [PartyKind::Person, 'Boris Pavlić', 'Zagreb', null, null, false],
+            'oliva' => [PartyKind::Company, 'Oliva d.o.o.', 'Zagreb', 'pravni@oliva.demo', null, false],
+            'vjestak' => [PartyKind::Person, 'dr. sc. Nina Babić', 'Zagreb', null, null, false],
+            'sudac' => [PartyKind::Person, 'sutkinja Marija Lončar', 'Zagreb', null, null, false],
+            'nakladnik' => [PartyKind::Company, 'Naklada Sjever d.o.o.', 'Varaždin', null, null, false],
         ];
 
         $parties = [];
@@ -241,14 +246,14 @@ class DemoOfficeSeeder extends Seeder
                 'internal_number' => $spec['number'],
                 'kind' => $spec['kind'],
                 'status' => $spec['status'],
-                'office_position' => match ($spec['client_role']) {
+                'office_position' => $spec['position'] ?? match ($spec['client_role']) {
                     MatterPartyRole::Plaintiff => OfficePosition::Plaintiff,
                     MatterPartyRole::Defendant => OfficePosition::Defendant,
                     MatterPartyRole::Creditor => OfficePosition::Petitioner,
                     MatterPartyRole::Debtor => OfficePosition::Opposing,
                     default => $spec['kind'] === MatterKind::Criminal ? OfficePosition::Accused : OfficePosition::Petitioner,
                 },
-                'outcome' => $spec['status'] === MatterStatus::Archived ? MatterOutcome::Granted : null,
+                'outcome' => $spec['outcome'] ?? ($spec['status'] === MatterStatus::Archived ? MatterOutcome::Granted : null),
                 'spnft_required' => $spec['spnft'] ?? false,
                 'court_id' => $spec['court'] ? Court::query()->where('name', $spec['court'])->value('id') : null,
                 'court_name' => $spec['court'],
@@ -265,6 +270,15 @@ class DemoOfficeSeeder extends Seeder
 
             $assigneeIds = array_map(fn (string $key): int => $users[$key]->id, $spec['assignees']);
             $matter->assignees()->sync($assigneeIds);
+            $matter->stages()->create([
+                'organization_id' => $org->id,
+                'name' => 'Priprema',
+                'color' => 'lime',
+                'started_on' => now()->toDateString(),
+                'position' => 1,
+                'ended_on' => $spec['status'] === MatterStatus::Archived ? now()->subMonths(2)->toDateString() : null,
+                'body' => $spec['status'] === MatterStatus::Archived ? 'Spis je zaključen.' : null,
+            ]);
 
             $this->linkParty($org, $matter, $parties[$spec['client']], $spec['client_role'], PartySide::Client);
             if (isset($spec['opposing'])) {
@@ -292,6 +306,11 @@ class DemoOfficeSeeder extends Seeder
             'DU-2026-009' => 'Ovrha na temelju vjerodostojne isprave',
             'DU-2026-005' => 'Isplata iz trgovačkih ugovora',
             'DU-2026-010' => 'Sporovi u vezi s gradnjom i prostornim uređenjem',
+            'DU-2026-016' => 'Smetanje posjeda',
+            'DU-2026-020' => 'Javna nabava (postupci pred DKOM-om)',
+            'DU-2024-040' => 'Razvrgnuće suvlasničke zajednice',
+            'DU-2024-041' => 'Povreda prava intelektualnog vlasništva',
+            'DU-2026-019' => 'Protuovrha i odgoda ovrhe',
         ];
         foreach ($categoryNames as $number => $name) {
             $category = DisputeCategory::query()->where('organization_id', $created[$number]->organization_id)->where('kind', $created[$number]->kind)->where('name', $name)->first();
@@ -479,6 +498,22 @@ class DemoOfficeSeeder extends Seeder
         $this->linkParty($org, $matters['DU-2026-014'], $parties['nikola_b'], MatterPartyRole::ThirdParty, PartySide::Other);
 
         $this->expense($org, $matters['DU-2026-015'], ExpenseCategory::Travel, 'Put na pregovore u Split', 8400);
+
+        $dueToday = $this->event($org, $matters['DU-2026-016'], $users['ivana'], CourtEventType::AppealDeadline, 'Rok za žalbu ističe danas', now()->setTime(16, 0), 'Županijski sud u Zagrebu', null, true);
+        $this->suppressDueReminders($dueToday);
+        $this->time($org, $matters['DU-2026-016'], $users['ivana'], 'Pregled presude i sastav žalbe', 80, 12000, TimeEntryStatus::Draft, now()->subHours(5));
+
+        $lodged = $this->event($org, $matters['DU-2026-017'], $users['sara'], CourtEventType::AppealDeadline, 'Rok za žalbu na presudu', now()->subDays(12)->setTime(23, 59), 'Visoki trgovački sud Republike Hrvatske', now()->subDays(12), true);
+        $this->suppressDueReminders($lodged);
+
+        $counter = $this->event($org, $matters['DU-2026-019'], $users['luka'], CourtEventType::ObjectionDeadline, 'Rok za protuovrhu', now()->addDays(20)->setTime(23, 59), 'Općinski sud u Zagrebu', null, true);
+        $this->suppressDueReminders($counter);
+
+        $this->event($org, $matters['DU-2026-021'], $users['ivana'], CourtEventType::Hearing, 'Ročište radi vještačenja', now()->addDays(18)->setTime(11, 15), 'Općinski građanski sud u Zagrebu');
+        $this->linkParty($org, $matters['DU-2026-021'], $parties['vjestak'], MatterPartyRole::Expert, PartySide::Other);
+        $this->linkParty($org, $matters['DU-2026-021'], $parties['sudac'], MatterPartyRole::Judge, PartySide::Other);
+        $this->expense($org, $matters['DU-2026-021'], ExpenseCategory::Expert, 'Predujam za vještakinju', 25000);
+        $this->time($org, $matters['DU-2026-021'], $users['tin'], 'Dostava medicinske dokumentacije vještakinji', 40, 8000, TimeEntryStatus::Approved, now()->subDays(3));
     }
 
     /**
@@ -492,8 +527,8 @@ class DemoOfficeSeeder extends Seeder
             $this->spec('DU-2025-014', 'Smetanje posjeda', MatterKind::Civil, MatterStatus::Paused, BillingMethod::Hourly, 'ivana', ['ivana'], 'fran', MatterPartyRole::Plaintiff, 'davor', MatterPartyRole::Defendant, 'Općinski građanski sud u Zagrebu', 'P', '1402', 2025, 150000, 12000, null, null, 'Predmet pauziran dok stranke pregovaraju o ogradi.'),
             $this->spec('DU-2024-008', 'Ostavinski postupak', MatterKind::Civil, MatterStatus::Archived, BillingMethod::Flat, 'ivana', ['ivana'], 'kolar', MatterPartyRole::Client, null, null, 'Općinski građanski sud u Zagrebu', 'O', '77', 2024, null, null, 60000, null, 'Rješenje o nasljeđivanju je pravomoćno. Spis je arhiviran.'),
             $this->spec('DU-2026-003', 'Obrana u kaznenom postupku', MatterKind::Criminal, MatterStatus::Active, BillingMethod::SuccessFee, 'luka', ['luka', 'tin'], 'marko', MatterPartyRole::Client, 'rh', MatterPartyRole::OpposingCounsel, 'Općinski kazneni sud u Zagrebu', 'K', '19', 2026, null, null, null, 'Nagrada samo ako postupak završi oslobađajućom presudom.', 'Rasprava je sutra. Vježbenik je dodijeljen, ali je iza etičkog zida i predmet ne vidi.'),
-            $this->spec('DU-2026-004', 'Imovinskopravni zahtjev oštećenice', MatterKind::Criminal, MatterStatus::Active, BillingMethod::Hourly, 'luka', ['luka'], 'ema', MatterPartyRole::Client, 'rh', MatterPartyRole::OpposingCounsel, 'Županijski sud u Zagrebu', 'Kž', '441', 2026, 300000, 15000, null, null, 'Žalbeni rok ističe za tri dana i prekluzivan je.'),
-            $this->spec('DU-2024-021', 'Okončana kaznena obrana', MatterKind::Criminal, MatterStatus::Archived, BillingMethod::Flat, 'luka', ['luka'], 'marko', MatterPartyRole::Client, 'rh', MatterPartyRole::OpposingCounsel, 'Općinski kazneni sud u Zagrebu', 'K', '4', 2024, null, null, 200000, null, 'Oslobađajuća presuda je pravomoćna.'),
+            $this->spec('DU-2026-004', 'Imovinskopravni zahtjev oštećenice', MatterKind::Criminal, MatterStatus::Active, BillingMethod::Hourly, 'luka', ['luka'], 'ema', MatterPartyRole::Client, 'rh', MatterPartyRole::OpposingCounsel, 'Županijski sud u Zagrebu', 'Kž', '441', 2026, 300000, 15000, null, null, 'Žalbeni rok ističe za tri dana i prekluzivan je. Ured zastupa oštećenicu.', false, false, null, OfficePosition::Injured),
+            $this->spec('DU-2024-021', 'Okončana kaznena obrana', MatterKind::Criminal, MatterStatus::Archived, BillingMethod::Flat, 'luka', ['luka'], 'marko', MatterPartyRole::Client, 'rh', MatterPartyRole::OpposingCounsel, 'Općinski kazneni sud u Zagrebu', 'K', '4', 2024, null, null, 200000, null, 'Osuda je pravomoćna. Spis je arhiviran kao odbijen zahtjev obrane.', false, false, MatterOutcome::Denied),
             $this->spec('DU-2026-005', 'Naplata tražbine za hotelske usluge', MatterKind::Commercial, MatterStatus::Active, BillingMethod::Tariff, 'sara', ['sara'], 'hotel', MatterPartyRole::Plaintiff, 'sunce', MatterPartyRole::Defendant, 'Trgovački sud u Zagrebu', 'P', '55', 2026, 2500000, null, null, null, 'SPNFT lista je djelomično ispunjena. Na fiducijarnom računu stoji ostatak predujma.', false, true),
             $this->spec('DU-2026-006', 'Regres osiguranja protiv hotela', MatterKind::Commercial, MatterStatus::Active, BillingMethod::Hourly, 'sara', ['sara'], 'val', MatterPartyRole::Plaintiff, 'hotel', MatterPartyRole::Defendant, 'Trgovački sud u Zagrebu', 'P', '61', 2026, 1800000, 15000, null, null, 'Tvrdi sukob: Hotel Jadran je klijent u drugom predmetu. Partnerica je sukob potvrdila.'),
             $this->spec('DU-2025-019', 'Prijava tražbine u stečaju', MatterKind::Commercial, MatterStatus::Active, BillingMethod::Flat, 'sara', ['sara'], 'banka', MatterPartyRole::Creditor, 'stekstil', MatterPartyRole::Debtor, 'Trgovački sud u Zagrebu', 'St', '12', 2025, 6400000, null, 150000, null, 'Tražbina je prijavljena. Račun je djelomično plaćen, e-račun je poslan.'),
@@ -501,7 +536,7 @@ class DemoOfficeSeeder extends Seeder
             $this->spec('DU-2025-011', 'Uznemiravanje na radu', MatterKind::Labor, MatterStatus::Paused, BillingMethod::Hourly, 'ivana', ['ivana'], 'mobbing', MatterPartyRole::Plaintiff, 'agencija', MatterPartyRole::Defendant, 'Općinski radni sud u Zagrebu', 'Pr', '203', 2025, 400000, 12000, null, null, 'Klijentica je zatražila stanku. Sati su otpisani.'),
             $this->spec('DU-2026-008', 'Ovrha na temelju pravomoćne presude', MatterKind::Enforcement, MatterStatus::Active, BillingMethod::Tariff, 'luka', ['luka'], 'banka', MatterPartyRole::Creditor, 'josip', MatterPartyRole::Debtor, 'Općinski sud u Zagrebu', 'Ovr', '900', 2026, 2100000, null, null, null, 'Zastara je potvrđena i upisana u kalendar.'),
             $this->spec('DU-2026-009', 'Ovrha na temelju vjerodostojne isprave', MatterKind::Enforcement, MatterStatus::Active, BillingMethod::Flat, 'luka', ['luka'], 'sunce', MatterPartyRole::Creditor, 'josip', MatterPartyRole::Debtor, 'Općinski sud u Zagrebu', 'Ovr', '144', 2026, 180000, null, 45000, null, 'Ovršenik je uložio prigovor. Ročište je za dva tjedna.'),
-            $this->spec('DU-2024-030', 'Namirena ovrha', MatterKind::Enforcement, MatterStatus::Archived, BillingMethod::Flat, 'luka', ['luka'], 'banka', MatterPartyRole::Creditor, 'ivan', MatterPartyRole::Debtor, 'Općinski sud u Zagrebu', 'Ovr', '11', 2024, 90000, null, 40000, null, 'Tražbina je namirena, račun je plaćen, spis je u arhivi.'),
+            $this->spec('DU-2024-030', 'Namirena ovrha', MatterKind::Enforcement, MatterStatus::Archived, BillingMethod::Flat, 'luka', ['luka'], 'banka', MatterPartyRole::Creditor, 'ivan', MatterPartyRole::Debtor, 'Općinski sud u Zagrebu', 'Ovr', '11', 2024, 90000, null, 40000, null, 'Tražbina je djelomično namirena, račun je plaćen, spis je u arhivi.', false, false, MatterOutcome::Partial),
             $this->spec('DU-2026-010', 'Poništaj građevinske dozvole', MatterKind::Administrative, MatterStatus::Active, BillingMethod::Hourly, 'sara', ['sara'], 'delta', MatterPartyRole::Plaintiff, 'grad', MatterPartyRole::Defendant, 'Upravni sud u Zagrebu', 'Us', '33', 2026, null, 15000, null, null, 'Zakazan je očevid na gradilištu.'),
             $this->spec('DU-2026-011', 'Porezni spor', MatterKind::Administrative, MatterStatus::Active, BillingMethod::Tariff, 'sara', ['sara'], 'medo', MatterPartyRole::Plaintiff, 'porezna', MatterPartyRole::Defendant, 'Upravni sud u Osijeku', 'Us', '8', 2026, 720000, null, null, null, 'Žalba je podnesena. E-račun je pripremljen, još nije poslan.'),
             $this->spec('DU-2026-012', 'Razvod braka i skrbništvo', MatterKind::Civil, MatterStatus::Active, BillingMethod::Hourly, 'ivana', ['ivana', 'sara'], 'elena', MatterPartyRole::Plaintiff, 'tomislav', MatterPartyRole::Defendant, 'Općinski građanski sud u Zagrebu', 'P', '2', 2026, null, 12000, null, null, 'Osjetljiv spis. Sara je na predmetu, ali je iza etičkog zida i ne vidi ga.'),
@@ -509,6 +544,15 @@ class DemoOfficeSeeder extends Seeder
             $this->spec('DU-2026-014', 'Regres nakon prometne nezgode', MatterKind::Civil, MatterStatus::Active, BillingMethod::Hourly, 'ivana', ['ivana'], 'nikola_a', MatterPartyRole::Plaintiff, 'val', MatterPartyRole::Defendant, 'Općinski građanski sud u Puli', 'P', '70', 2026, 540000, 12000, null, null, 'Mogući sukob imena: postoji drugi Nikola Radić s drugim OIB-om.'),
             $this->spec('DU-2025-006', 'Prekršajni postupak u mirovanju', MatterKind::Criminal, MatterStatus::Paused, BillingMethod::Flat, 'luka', ['luka'], 'iva', MatterPartyRole::Client, 'rh', MatterPartyRole::OpposingCounsel, 'Prekršajni sud u Sisku', 'Pp', '300', 2025, null, null, 30000, null, 'Sud je odgodio ročište na neodređeno. Predmet je pauziran.'),
             $this->spec('DU-2026-015', 'Kolektivni radni spor', MatterKind::Labor, MatterStatus::Active, BillingMethod::SuccessFee, 'petra', ['petra', 'ivana'], 'sindikat', MatterPartyRole::Plaintiff, 'market', MatterPartyRole::Defendant, 'Županijski sud u Zagrebu', 'Pr', '1', 2026, 5000000, null, null, 'Osnovna nagrada plus postotak ako sindikat uspije u sporu.', 'Partnerica vodi predmet uz Ivanu. Putni trošak još nije fakturiran.'),
+            $this->spec('DU-2026-016', 'Žalba na presudu o smetanju posjeda', MatterKind::Civil, MatterStatus::Active, BillingMethod::Hourly, 'ivana', ['ivana'], 'fran', MatterPartyRole::Plaintiff, 'davor', MatterPartyRole::Defendant, 'Županijski sud u Zagrebu', 'Gž', '220', 2026, 150000, 12000, null, null, 'Rok za žalbu ističe danas i prekluzivan je.'),
+            $this->spec('DU-2026-017', 'Žalba na presudu o naplati', MatterKind::Commercial, MatterStatus::Active, BillingMethod::Tariff, 'sara', ['sara'], 'hotel', MatterPartyRole::Plaintiff, 'sunce', MatterPartyRole::Defendant, 'Visoki trgovački sud Republike Hrvatske', 'Pž', '410', 2026, 2500000, null, null, null, 'Žalba je predana. Predmet čeka odluku višeg suda.'),
+            $this->spec('DU-2026-018', 'Odgovor na tužbu za naknadu štete', MatterKind::Civil, MatterStatus::Active, BillingMethod::Hourly, 'luka', ['luka'], 'oliva', MatterPartyRole::Defendant, 'boris', MatterPartyRole::Plaintiff, 'Općinski građanski sud u Zagrebu', 'P', '901', 2026, 320000, 15000, null, null, 'Ured zastupa tuženika. Tužba je zaprimljena, odgovor još nije podnesen.'),
+            $this->spec('DU-2026-019', 'Protuovrha i odgoda ovrhe', MatterKind::Enforcement, MatterStatus::Active, BillingMethod::Tariff, 'luka', ['luka'], 'josip', MatterPartyRole::Debtor, 'banka', MatterPartyRole::Creditor, 'Općinski sud u Zagrebu', 'Ovr', '77', 2026, 2100000, null, null, null, 'Zastupamo ovršenika. Rok za protuovrhu još teče.'),
+            $this->spec('DU-2026-020', 'Žalba u postupku javne nabave', MatterKind::Administrative, MatterStatus::Active, BillingMethod::Hourly, 'sara', ['sara'], 'delta', MatterPartyRole::Plaintiff, 'grad', MatterPartyRole::Defendant, 'Visoki upravni sud Republike Hrvatske', 'Us', '12', 2026, null, 15000, null, null, 'Novi predmet. Žalba na odabir ponuditelja još nije predana.'),
+            $this->spec('DU-2026-021', 'Vještačenje naknade štete', MatterKind::Civil, MatterStatus::Active, BillingMethod::Hourly, 'ivana', ['ivana', 'tin'], 'marina', MatterPartyRole::Plaintiff, 'ivan', MatterPartyRole::Defendant, 'Općinski građanski sud u Zagrebu', 'P', '318', 2026, 850000, 12000, null, null, 'Sud je odredio vještakinju. Ročište je za nešto više od dva tjedna.'),
+            $this->spec('DU-2025-031', 'Privremena mjera u mirovanju', MatterKind::Enforcement, MatterStatus::Paused, BillingMethod::Flat, 'luka', ['luka'], 'banka', MatterPartyRole::Creditor, 'josip', MatterPartyRole::Debtor, 'Općinski sud u Zagrebu', 'Ovr', '44', 2025, 900000, null, 35000, null, 'Privremena mjera je odobrena. Predmet je pauziran do glavnog spora.'),
+            $this->spec('DU-2024-040', 'Nagodba o razvrgnuću suvlasništva', MatterKind::Civil, MatterStatus::Archived, BillingMethod::Flat, 'ivana', ['ivana'], 'kolar', MatterPartyRole::Client, null, null, 'Općinski građanski sud u Zagrebu', 'R1', '15', 2024, 1100000, null, 90000, null, 'Stranke su se nagodile. Spis je arhiviran.', false, false, MatterOutcome::Settlement),
+            $this->spec('DU-2024-041', 'Povučena tužba za žig', MatterKind::Commercial, MatterStatus::Archived, BillingMethod::Tariff, 'sara', ['sara'], 'holding', MatterPartyRole::Plaintiff, 'nakladnik', MatterPartyRole::Defendant, 'Trgovački sud u Zagrebu', 'P', '9', 2024, 400000, null, null, null, 'Klijent je povukao tužbu prije ročišta.', false, false, MatterOutcome::Withdrawn),
         ];
     }
 
@@ -539,6 +583,8 @@ class DemoOfficeSeeder extends Seeder
         string $note,
         bool $clientVisible = false,
         bool $spnft = false,
+        ?MatterOutcome $outcome = null,
+        ?OfficePosition $position = null,
     ): array {
         return [
             'number' => $number,
@@ -563,6 +609,8 @@ class DemoOfficeSeeder extends Seeder
             'client_visible' => $clientVisible,
             'spnft' => $spnft,
             'lead' => $lead,
+            'outcome' => $outcome,
+            'position' => $position,
         ];
     }
 

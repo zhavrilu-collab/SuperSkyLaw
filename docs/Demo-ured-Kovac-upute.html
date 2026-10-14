@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<title>SuperSkyLaw — pristup demo uredu</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: "Segoe UI", Calibri, sans-serif; color: #1c2414; line-height: 1.45; max-width: 980px; margin: 32px auto; padding: 0 24px 48px; }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  h2 { font-size: 18px; margin-top: 28px; border-bottom: 1px solid #c5d0b0; padding-bottom: 4px; }
+  h3 { font-size: 15px; margin-top: 18px; }
+  p, li { font-size: 14px; }
+  .lead { color: #3d4a2e; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0 16px; }
+  th, td { border: 1px solid #d5dcc8; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eef3e4; }
+  code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 13px; }
+  .box { background: #f6f8f2; border: 1px solid #d5dcc8; padding: 12px 14px; margin: 12px 0; }
+  .warn { background: #fff8e8; border: 1px solid #e6d7a8; padding: 12px 14px; margin: 12px 0; }
+  @media print { body { margin: 0; } a { color: inherit; text-decoration: none; } }
+</style>
+</head>
+<body>
+
+<h1>SuperSkyLaw — demo ured</h1>
+<p class="lead">Upute i pristupni podaci za isprobavanje. Ured je otvoren i odobren. U njemu je 31 izmišljeni predmet, pokrivene su sve faze s popisa, sva tri statusa spisa i svih pet ishoda arhive.</p>
+
+<div class="box">
+  <strong>Adresa za osoblje:</strong> <a href="https://law.superskytech.com/prijava">https://law.superskytech.com/prijava</a><br>
+  <strong>Ured:</strong> Odvjetnički ured Kovač i partneri (demo)<br>
+  <strong>Lozinka svih računa:</strong> <span class="mono">Demo2026!</span>
+</div>
+
+<h2>1. Računi osoblja</h2>
+<p>Svaki račun vidi drukčiji dio ureda. Najbolje je krenuti od partnerice, pa usporediti odvjetnike, vježbenika i tajnicu.</p>
+<table>
+  <thead>
+    <tr><th>Osoba</th><th>Uloga</th><th>E-pošta</th><th>Što vidi</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Petra Kovač</td>
+      <td>Partnerica</td>
+      <td class="mono">petra.kovac@demo-ured.test</td>
+      <td>Cijeli ured: svih 31 predmeta, tim, postavke, katalog, financije i odobrenje sati.</td>
+    </tr>
+    <tr>
+      <td>Ivana Horvat</td>
+      <td>Odvjetnica</td>
+      <td class="mono">ivana.horvat@demo-ured.test</td>
+      <td>12 svojih predmeta (građanski, radni, obiteljski). Nema izbornik Financije ni postavke ureda.</td>
+    </tr>
+    <tr>
+      <td>Luka Babić</td>
+      <td>Odvjetnik</td>
+      <td class="mono">luka.babic@demo-ured.test</td>
+      <td>10 predmeta: kazneni, ovrhe i obrana tuženika Olive. Nema izbornik Financije.</td>
+    </tr>
+    <tr>
+      <td>Sara Novak</td>
+      <td>Odvjetnica</td>
+      <td class="mono">sara.novak@demo-ured.test</td>
+      <td>9 trgovačkih i upravnih predmeta. Razvod DU-2026-012 joj je dodijeljen, ali je iza etičkog zida.</td>
+    </tr>
+    <tr>
+      <td>Tin Marić</td>
+      <td>Vježbenik</td>
+      <td class="mono">tin.maric@demo-ured.test</td>
+      <td>Samo DU-2026-001, DU-2026-007 i DU-2026-021. Na kaznenom DU-2026-003 je dodijeljen, ali ga etički zid skriva.</td>
+    </tr>
+    <tr>
+      <td>Maja Jurić</td>
+      <td>Tajnica</td>
+      <td class="mono">maja.juric@demo-ured.test</td>
+      <td>Sve predmete, stranke, kalendar, dokumente i financije. Ne uređuje predmete i ne vidi sate kao zaseban modul.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. Portal klijenta</h2>
+<p>Klijent se ne prijavljuje na istu stranicu kao osoblje.</p>
+<div class="box">
+  <strong>Adresa:</strong> <a href="https://law.superskytech.com/demo-ured-kovac/portal/prijava">https://law.superskytech.com/demo-ured-kovac/portal/prijava</a><br>
+  <strong>Klijentica:</strong> Marina Božić<br>
+  <strong>E-pošta:</strong> <span class="mono">marina.bozic@demo-ured.test</span><br>
+  <strong>Lozinka:</strong> <span class="mono">Demo2026!</span>
+</div>
+<p>Marina vidi dva svoja predmeta: <strong>DU-2026-001</strong> (tužba, račun i dokument podijeljen s klijentom) i <strong>DU-2026-021</strong> (vještačenje, bez podijeljenog dokumenta i bez računa). Ostali predmeti ureda joj nisu vidljivi.</p>
+
+<h2>3. Kako ući</h2>
+<ol>
+  <li>Otvorite <a href="https://law.superskytech.com/prijava">https://law.superskytech.com/prijava</a>.</li>
+  <li>Upišite e-poštu i lozinku <span class="mono">Demo2026!</span>.</li>
+  <li>Nakon prijave otvara se početna stranica ureda.</li>
+  <li>Za drugi račun prvo se odjavite, pa se prijavite drugim podacima.</li>
+</ol>
+<div class="warn">
+  Ako preglednik javi da je stranica preusmjeravana previše puta, obrišite kolačiće za <span class="mono">law.superskytech.com</span> i osvježite stranicu. E-pošta na <span class="mono">@demo-ured.test</span> ne prima pravu poštu. Podsjetnici i računi ostaju unutar aplikacije.
+</div>
+
+<h2>4. Što je u izborniku</h2>
+<table>
+  <thead><tr><th>Stavka</th><th>Čemu služi</th></tr></thead>
+  <tbody>
+    <tr><td>Početna</td><td>Pregled ureda. Ističe predmete kojima rok istječe danas ili su hitni.</td></tr>
+    <tr><td>Ured</td><td>Naziv, adresa, MBS i oblik ureda te tim. Vidi je samo partnerica.</td></tr>
+    <tr><td>Predmeti</td><td>Popis spisa. Filter statusa i stupci: broj, stranka, naziv, vrsta, predmet spora, sud, status.</td></tr>
+    <tr><td>Stranke</td><td>Fizičke i pravne osobe, OIB i pristup portalu.</td></tr>
+    <tr><td>Kalendar</td><td>Ročišta, rokovi, sastanci i očevidi.</td></tr>
+    <tr><td>Financije</td><td>Računi, sati, tarifa HOK, troškovnik, izvještaj i depozit. Partnerica i tajnica.</td></tr>
+    <tr><td>Dokumenti</td><td>Zajedničke mape ureda i predlošci.</td></tr>
+    <tr><td>Zakoni</td><td>Biblioteka propisa iz Narodnih novina.</td></tr>
+    <tr><td>Postavke</td><td>Boja i izgled ureda. Samo partnerica.</td></tr>
+    <tr><td>Katalog</td><td>Stadiji predmeta i vrste sporova. Srednji stadij i stadij koji već ima dokumente ne mogu se obrisati.</td></tr>
+  </tbody>
+</table>
+
+<h2>5. Statusi na popisu</h2>
+<p>Na popisu predmeta filter „status” pokazuje fazu rada, ne samo to je li spis otvoren. Faza se računa iz rokova i ročišta. U bazi su sve faze:</p>
+<table>
+  <thead><tr><th>Na popisu</th><th>Kada se pojavi</th><th>Primjer</th></tr></thead>
+  <tbody>
+    <tr><td>Novi predmet</td><td>Aktivan spis bez otvorenog pisanog roka i bez zakazanog ročišta.</td><td>DU-2026-018, DU-2026-020</td></tr>
+    <tr><td>U roku</td><td>Pisani rok istječe za više od sedam dana.</td><td>DU-2026-007, DU-2026-008, DU-2026-019</td></tr>
+    <tr><td>Hitno</td><td>Pisani rok istječe unutar sedam dana.</td><td>DU-2026-004</td></tr>
+    <tr><td>Danas istječe</td><td>Pisani rok istječe danas ili je već prošao, a nije zaključen.</td><td>DU-2026-016</td></tr>
+    <tr><td>Čeka se sud</td><td>Pisani rok je odrađen, ročište nije zakazano.</td><td>DU-2026-017</td></tr>
+    <tr><td>Ročište zakazano</td><td>Ima buduće ročište ili očevid, nema otvorenog pisanog roka.</td><td>DU-2026-001, DU-2026-003, DU-2026-010</td></tr>
+    <tr><td>Pauziran</td><td>Spis je stavljen na čekanje. Četiri takva predmeta.</td><td>DU-2025-006, DU-2025-011, DU-2025-014, DU-2025-031</td></tr>
+    <tr><td>Arhiviran</td><td>Spis je zatvoren. Pet predmeta, svaki s drugim ishodom.</td><td>Vidi tablicu ishoda niže.</td></tr>
+  </tbody>
+</table>
+<p>Sam spis ima i status čuvanja: <strong>aktivan</strong> (22), <strong>pauziran</strong> (4) ili <strong>arhiviran</strong> (5). Arhivirani predmeti pokrivaju sve ishode:</p>
+<table>
+  <thead><tr><th>Ishod</th><th>Predmet</th></tr></thead>
+  <tbody>
+    <tr><td>Usvojeno</td><td>DU-2024-008 ostavinski postupak</td></tr>
+    <tr><td>Odbijeno</td><td>DU-2024-021 okončana kaznena obrana</td></tr>
+    <tr><td>Djelomično</td><td>DU-2024-030 djelomično namirena ovrha</td></tr>
+    <tr><td>Nagodba</td><td>DU-2024-040 razvrgnuće suvlasništva</td></tr>
+    <tr><td>Povučeno</td><td>DU-2024-041 povučena tužba za žig</td></tr>
+  </tbody>
+</table>
+
+<h2>6. Predmet iznutra</h2>
+<p>Kartice predmeta su Podaci, Rokovi, Dokumenti, Aktivnosti i Obračun. Na Podacima su stranke, sud, vrijednost, napomena i stadij Priprema. Arhivirani predmeti imaju taj stadij zaključen. Obračun vide oni koji rade sa satima. Tajnica račune vidi u Financijama.</p>
+<p>Položaj ureda pokriva tužitelja, tuženika (DU-2026-018), okrivljenika (DU-2026-003), oštećenicu (DU-2026-004), predlagatelja ovrhe i ovršenika (DU-2026-019).</p>
+
+<h2>7. Predloženi obilazak</h2>
+<ol>
+  <li>Prijavite se kao <strong>Petra Kovač</strong>. Na Predmetima filtrirajte redom: Danas istječe, Hitno, U roku, Čeka se sud, Ročište zakazano, Novi predmet, Pauziran, Arhiviran.</li>
+  <li>Otvorite <strong>DU-2026-016</strong>. Žalbeni rok istječe danas.</li>
+  <li>Otvorite <strong>DU-2026-006</strong>. Tvrdi sukob: Hotel Jadran je klijent na DU-2026-005, a ovdje je tuženik.</li>
+  <li>Otvorite <strong>DU-2026-014</strong>. Blaži sukob imena, dva različita OIB-a.</li>
+  <li>Otvorite jedan arhivirani predmet i pogledajte ishod, na primjer nagodbu DU-2024-040.</li>
+  <li>U Financijama su računi neplaćen, djelomično plaćen, plaćen, dospjeli s neuspjelih e-računom (DU-2026-005) i pripremljen e-račun (DU-2026-011). Depozit pokazuje ostatak predujma hotela.</li>
+  <li>Odjavite se i prijavite kao <strong>Tin Marić</strong>. Popis ima tri predmeta. Kazneni DU-2026-003 nije među njima.</li>
+  <li>Otvorite portal kao <strong>Marina Božić</strong>. Dva predmeta; dokument i račun samo na naknadi štete.</li>
+</ol>
+
+<h2>8. Svih 31 predmeta</h2>
+<p>Petra i Maja vide cijeli popis. Odvjetnik vidi samo retke u kojima je naveden. Ako je uz ime etički zid, predmet mu se ne prikazuje.</p>
+<table>
+  <thead>
+    <tr><th>Broj</th><th>Naziv</th><th>Faza</th><th>Tko radi</th><th>Što pokazati</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>DU-2026-001</td><td>Naknada štete u prometnoj nezgodi</td><td>Ročište zakazano</td><td>Ivana, Tin</td><td>Satnica, portal, dokument, neplaćeni račun.</td></tr>
+    <tr><td>DU-2026-002</td><td>Raskid ugovora o djelu</td><td>Novi predmet</td><td>Ivana</td><td>Paušal, nagodba plaćena, tužba još nije povučena.</td></tr>
+    <tr><td>DU-2025-014</td><td>Smetanje posjeda</td><td>Pauziran</td><td>Ivana</td><td>Pregovori o ogradi.</td></tr>
+    <tr><td>DU-2024-008</td><td>Ostavinski postupak</td><td>Arhiviran, usvojeno</td><td>Ivana</td><td>Pravomoćno rješenje.</td></tr>
+    <tr><td>DU-2026-003</td><td>Obrana u kaznenom postupku</td><td>Ročište zakazano</td><td>Luka; Tin iza zida</td><td>Nagrada po uspjehu. Vježbenik ne vidi spis.</td></tr>
+    <tr><td>DU-2026-004</td><td>Imovinskopravni zahtjev oštećenice</td><td>Hitno</td><td>Luka</td><td>Ured je oštećenik. Žalba za tri dana.</td></tr>
+    <tr><td>DU-2024-021</td><td>Okončana kaznena obrana</td><td>Arhiviran, odbijeno</td><td>Luka</td><td>Obrana nije uspjela.</td></tr>
+    <tr><td>DU-2026-005</td><td>Naplata tražbine za hotelske usluge</td><td>Novi predmet</td><td>Sara</td><td>Tarifa, SPNFT, fiducija, dospjeli e-račun.</td></tr>
+    <tr><td>DU-2026-006</td><td>Regres osiguranja protiv hotela</td><td>Novi predmet</td><td>Sara</td><td>Tvrdi sukob s DU-2026-005.</td></tr>
+    <tr><td>DU-2025-019</td><td>Prijava tražbine u stečaju</td><td>Novi predmet</td><td>Sara</td><td>Djelomično plaćen račun, e-račun poslan.</td></tr>
+    <tr><td>DU-2026-007</td><td>Nedopušteni otkaz</td><td>U roku</td><td>Ivana, Tin</td><td>Rok za tužbu za deset dana. Dio sati čeka odobrenje.</td></tr>
+    <tr><td>DU-2025-011</td><td>Uznemiravanje na radu</td><td>Pauziran</td><td>Ivana</td><td>Sati otpisani.</td></tr>
+    <tr><td>DU-2026-008</td><td>Ovrha na temelju pravomoćne presude</td><td>U roku</td><td>Luka</td><td>Zastara potvrđena, daleko u kalendaru.</td></tr>
+    <tr><td>DU-2026-009</td><td>Ovrha na temelju vjerodostojne isprave</td><td>Ročište zakazano</td><td>Luka</td><td>Paušal. Prigovor, ročište za dva tjedna.</td></tr>
+    <tr><td>DU-2024-030</td><td>Namirena ovrha</td><td>Arhiviran, djelomično</td><td>Luka</td><td>Račun plaćen.</td></tr>
+    <tr><td>DU-2026-010</td><td>Poništaj građevinske dozvole</td><td>Ročište zakazano</td><td>Sara</td><td>Očevid na gradilištu.</td></tr>
+    <tr><td>DU-2026-011</td><td>Porezni spor</td><td>Novi predmet</td><td>Sara</td><td>E-račun pripremljen, nije poslan.</td></tr>
+    <tr><td>DU-2026-012</td><td>Razvod braka i skrbništvo</td><td>Novi predmet</td><td>Ivana; Sara iza zida</td><td>Osjetljiv spis. Sara ga ne otvara.</td></tr>
+    <tr><td>DU-2026-013</td><td>Due diligence kupnje udjela</td><td>Novi predmet</td><td>Sara, Petra</td><td>Sukob čist. Dio rada nije za naplatu.</td></tr>
+    <tr><td>DU-2026-014</td><td>Regres nakon prometne nezgode</td><td>Novi predmet</td><td>Ivana</td><td>Mogući sukob imena, različiti OIB-ovi.</td></tr>
+    <tr><td>DU-2025-006</td><td>Prekršajni postupak u mirovanju</td><td>Pauziran</td><td>Luka</td><td>Ročište odgođeno.</td></tr>
+    <tr><td>DU-2026-015</td><td>Kolektivni radni spor</td><td>Novi predmet</td><td>Petra, Ivana</td><td>Nagrada po uspjehu. Putni trošak nije na računu.</td></tr>
+    <tr><td>DU-2026-016</td><td>Žalba na presudu o smetanju posjeda</td><td>Danas istječe</td><td>Ivana</td><td>Prekluzivni rok danas. Sati u nacrtu.</td></tr>
+    <tr><td>DU-2026-017</td><td>Žalba na presudu o naplati</td><td>Čeka se sud</td><td>Sara</td><td>Žalba predana Visokom trgovačkom sudu.</td></tr>
+    <tr><td>DU-2026-018</td><td>Odgovor na tužbu za naknadu štete</td><td>Novi predmet</td><td>Luka</td><td>Ured je na strani tuženika, Olive d.o.o.</td></tr>
+    <tr><td>DU-2026-019</td><td>Protuovrha i odgoda ovrhe</td><td>U roku</td><td>Luka</td><td>Ured zastupa ovršenika. Rok teče još dvadeset dana.</td></tr>
+    <tr><td>DU-2026-020</td><td>Žalba u postupku javne nabave</td><td>Novi predmet</td><td>Sara</td><td>Upravni predmet, žalba još nije predana.</td></tr>
+    <tr><td>DU-2026-021</td><td>Vještačenje naknade štete</td><td>Ročište zakazano</td><td>Ivana, Tin</td><td>Vještakinja i sutkinja na spisu. Klijentica ga vidi na portalu, bez dokumenta.</td></tr>
+    <tr><td>DU-2025-031</td><td>Privremena mjera u mirovanju</td><td>Pauziran</td><td>Luka</td><td>Mjera odobrena, čeka se glavni spor.</td></tr>
+    <tr><td>DU-2024-040</td><td>Nagodba o razvrgnuću suvlasništva</td><td>Arhiviran, nagodba</td><td>Ivana</td><td>Ishod nagodba.</td></tr>
+    <tr><td>DU-2024-041</td><td>Povučena tužba za žig</td><td>Arhiviran, povučeno</td><td>Sara</td><td>Ishod povučeno.</td></tr>
+  </tbody>
+</table>
+
+<h2>9. Uloge ukratko</h2>
+<ul>
+  <li><strong>Partnerica</strong> vidi sve, uključujući tim, katalog, temu i odobrenje sati. Etički zid postavlja ona.</li>
+  <li><strong>Odvjetnik</strong> vidi predmete na koje je dodijeljen. Ne vidi tuđe spise, financijski izbornik ni postavke ureda.</li>
+  <li><strong>Vježbenik</strong> vidi samo dodijeljene predmete koji nisu iza zida. Može upisivati sate. Ne otvara nove predmete.</li>
+  <li><strong>Tajnica</strong> vidi sve spise i vodi stranke, kalendar, dokumente i račune. Ne mijenja predmete.</li>
+  <li><strong>Klijent na portalu</strong> vidi svoje predmete. Dokument vidi samo ako ga je ured podijelio.</li>
+</ul>
+
+<div class="warn">
+  Ovo je zajednički demo. Upis i izmjene vidi sljedeći tko se prijavi. Molimo da se ne brišu stranke i predmeti i da se ne mijenja lozinka.
+</div>
+
+<p>SuperSkyLaw · demo ured Kovač i partneri · listopad 2026.</p>
+</body>
+</html>

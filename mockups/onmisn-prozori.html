@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OnMisn — prozori s kolaža</title>
+<style>
+  :root {
+    --plava: #018dca;
+    --plava-tamna: #0178ad;
+    --zelena: #67b82e;
+    --zelena-tekst: #2f8f3a;
+    --tinta: #243038;
+    --prigušeno: #6b7780;
+    --crta: #e3e8ec;
+    --pozadina: #f3f5f7;
+    --vrpca: #2eaf4a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    display: flex;
+    min-height: 100vh;
+    background: #e7edf1;
+    color: var(--tinta);
+    font: 14px/1.45 "Segoe UI", sans-serif;
+  }
+  .ogled {
+    width: 248px;
+    flex: none;
+    background: #102838;
+    color: #e8f2f6;
+    padding: 18px 14px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: auto;
+  }
+  .ogled h1 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 650;
+    letter-spacing: .02em;
+  }
+  .ogled .uvod {
+    margin: 0 0 14px;
+    color: #b7c9d2;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .ogled button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    color: #d5e4ea;
+    border: 0;
+    border-left: 3px solid transparent;
+    padding: 8px 10px;
+    margin: 0 0 2px;
+    font: inherit;
+    cursor: pointer;
+  }
+  .ogled button small {
+    display: block;
+    color: #8ea6b2;
+    font-size: 11px;
+  }
+  .ogled button.active {
+    background: #1a3c52;
+    border-left-color: #3ec0ea;
+    color: #fff;
+  }
+  .ogled button.active small { color: #c5dbe4; }
+  main {
+    flex: 1;
+    min-width: 0;
+    padding: 18px 22px 36px;
+  }
+  .screenhead h2 { margin: 0 0 2px; font-size: 18px; }
+  .screenhead p { margin: 0 0 12px; color: var(--prigušeno); font-size: 13px; max-width: 820px; }
+  .app {
+    background: var(--pozadina);
+    border: 1px solid #d5dee4;
+    min-height: 680px;
+    max-width: 1180px;
+    box-shadow: 0 8px 24px rgba(16, 40, 56, .08);
+  }
+  .top {
+    height: 46px;
+    background: var(--plava);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 0 14px;
+  }
+  .brand { font-weight: 700; letter-spacing: .04em; }
+  .mods { display: flex; gap: 16px; font-size: 13px; }
+  .mods span { opacity: .8; }
+  .mods .on { opacity: 1; font-weight: 700; border-bottom: 2px solid #fff; padding-bottom: 2px; }
+  .user { margin-left: auto; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .avatar-mini {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #7fd0ef; display: inline-block;
+  }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #fff;
+    border-bottom: 1px solid var(--crta);
+    min-height: 52px;
+  }
+  .crumbs { color: var(--zelena-tekst); font-size: 12px; font-weight: 700; }
+  .green {
+    background: var(--zelena);
+    color: #fff;
+    border: 0;
+    border-radius: 2px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .btncol { display: flex; flex-direction: column; gap: 6px; }
+  .search {
+    margin-left: auto;
+    border: 1px solid #d5dde3;
+    background: #fff;
+    border-radius: 2px;
+    padding: 6px 10px;
+    width: 240px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--tinta);
+  }
+  .search.naglas { border-color: var(--plava); box-shadow: 0 0 0 2px rgba(1, 141, 202, .15); }
+  .pad { padding: 16px; }
+  .sheet {
+    background: #fff;
+    border: 1px solid var(--crta);
+    padding: 20px 22px 28px;
+    min-height: 520px;
+    position: relative;
+  }
+  .docno { margin: 0 0 8px; font-size: 26px; font-weight: 750; letter-spacing: -.02em; }
+  .tabs { display: flex; gap: 16px; margin: 0 0 18px; }
+  .tabs span { color: var(--zelena-tekst); font-size: 13px; font-weight: 700; padding-bottom: 4px; }
+  .tabs .on { border-bottom: 2px solid var(--zelena-tekst); }
+  .split { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; }
+  .split.tri { grid-template-columns: 1fr 1fr .8fr; }
+  h3.blok { margin: 0 0 10px; font-size: 16px; }
+  .kv { display: grid; grid-template-columns: 118px 1fr; gap: 7px 12px; margin: 0; }
+  .kv dt { color: var(--prigušeno); font-size: 12px; font-weight: 700; padding-top: 1px; }
+  .kv dd { margin: 0; }
+  .sivo {
+    background: #f4f6f8;
+    border: 1px solid var(--crta);
+    min-height: 92px;
+    padding: 10px 12px;
+    color: var(--prigušeno);
+    font-size: 13px;
+  }
+  .linkovi { display: flex; gap: 16px; margin-top: 22px; }
+  .linkovi span { color: var(--zelena-tekst); font-size: 13px; font-weight: 700; }
+  .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .karta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--crta);
+    padding: 12px;
+    min-height: 84px;
+  }
+  .silueta, .zgrada {
+    width: 52px; height: 52px; flex: none;
+    background: #d7dee3;
+    display: grid; place-items: center;
+  }
+  .karta strong { display: block; font-size: 14px; }
+  .karta em { display: block; font-style: normal; color: var(--prigušeno); font-size: 12px; }
+  .tl, .zadaci { list-style: none; margin: 0; padding: 0; }
+  .tl li, .zadaci li {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid #f0f3f5;
+  }
+  .zadaci li { grid-template-columns: 18px 1fr; align-items: start; }
+  time, .rok { color: var(--prigušeno); font-size: 12px; font-weight: 700; }
+  .donje { margin-top: 26px; }
+  .donje h3 { margin: 16px 0 6px; font-size: 15px; }
+  .donje p { margin: 0; color: #3c4a52; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  th {
+    text-align: left;
+    background: #eceff2;
+    color: #546068;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 10px;
+  }
+  td { padding: 8px 10px; border-bottom: 1px solid #eef1f3; vertical-align: top; }
+  td.desno, th.desno { text-align: right; }
+  tr.prazno td { background: #f4f6f8; color: transparent; }
+  .zbroj { margin-top: 12px; margin-left: auto; width: 260px; }
+  .zbroj div { display: flex; justify-content: space-between; padding: 3px 0; }
+  .zbroj .ukupno { font-weight: 750; font-size: 16px; border-top: 1px solid var(--crta); margin-top: 4px; padding-top: 6px; }
+  .vrpca {
+    position: absolute;
+    top: 0; right: 0;
+    width: 148px; height: 148px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .vrpca span {
+    position: absolute;
+    display: block;
+    width: 190px;
+    top: 30px;
+    right: -50px;
+    transform: rotate(45deg);
+    background: var(--vrpca);
+    color: #fff;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: .14em;
+    font-size: 13px;
+    padding: 8px 0;
+  }
+  .tjedan { display: flex; gap: 12px; align-items: stretch; }
+  .mreza {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 52px repeat(7, 1fr);
+    background: #fff;
+    border: 1px solid var(--crta);
+  }
+  .mh, .dh, .sat, .cel {
+    border-bottom: 1px solid #eef2f4;
+    border-right: 1px solid #f2f5f7;
+    min-height: 28px;
+  }
+  .dh { padding: 8px 4px; text-align: center; font-size: 12px; font-weight: 700; background: #fafbfc; }
+  .dh small { display: block; font-weight: 500; color: var(--prigušeno); }
+  .sat { font-size: 11px; color: var(--prigušeno); padding: 4px 6px 0 0; text-align: right; background: #fff; }
+  .cel { position: relative; height: 36px; background: #fff; }
+  .cel.breskva { background: #fbf4ec; }
+  .ev {
+    position: absolute;
+    left: 3px; right: 3px; top: 2px;
+    background: #b9e4ea;
+    color: #1d4d56;
+    border-radius: 2px;
+    padding: 3px 6px;
+    font-size: 12px;
+    font-weight: 650;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .bok {
+    width: 210px;
+    flex: none;
+    background: #fff;
+    border: 1px solid var(--crta);
+    padding: 12px;
+  }
+  .bok h3 { margin: 0 0 8px; font-size: 14px; text-align: center; }
+  .mini {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+    font-size: 11px;
+  }
+  .mini .dan { color: var(--prigušeno); font-weight: 700; }
+  .mini .prazno { visibility: hidden; }
+  .mini .krug {
+    width: 20px; height: 20px; margin: 0 auto;
+    border-radius: 50%;
+    background: var(--plava);
+    color: #fff;
+    line-height: 20px;
+  }
+  .legenda { margin-top: 16px; font-size: 12px; }
+  .legenda div { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .tocka { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .ploča {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .ploča h3 { margin: 0 0 8px; font-size: 13px; color: var(--prigušeno); font-weight: 700; }
+  .tk {
+    background: #fff;
+    border: 1px solid var(--crta);
+    border-left: 4px solid var(--rub);
+    padding: 12px 14px;
+    min-height: 92px;
+  }
+  .tk strong { display: block; margin-bottom: 4px; }
+  .tk p { margin: 0; color: var(--prigušeno); font-size: 12px; }
+  .žuta-točka {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #e2b423;
+    margin-right: 6px;
+  }
+  .naslov-spis { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+  .kvacica {
+    width: 16px; height: 16px;
+    border: 1.5px solid #9aa6ae;
+    border-radius: 2px;
+    flex: none;
+  }
+  .meta4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+  .meta4 span { display: block; color: var(--prigušeno); font-size: 12px; font-weight: 700; }
+  .home { position: relative; min-height: 634px; background: #2b86bf; overflow: hidden; }
+  .geo { position: absolute; inset: 0; }
+  .g { position: absolute; inset: 0; }
+  .g-teal { background: #12b4c6; clip-path: polygon(62% 0, 100% 0, 100% 78%, 78% 100%, 48% 100%, 74% 18%); }
+  .g-purp { background: #343ea8; clip-path: polygon(48% 0, 64% 8%, 40% 100%, 16% 100%); }
+  .g-cyan { background: #3ec6ea; clip-path: polygon(70% 42%, 100% 28%, 100% 100%, 46% 100%); }
+  .g-deep { background: #1e6eae; clip-path: polygon(0 0, 34% 0, 0 46%); }
+  .home-search { position: relative; z-index: 2; width: min(680px, 78%); margin: 26px auto 0; }
+  .home-search input {
+    width: 100%;
+    border: 0;
+    padding: 8px 12px;
+    font: inherit;
+    font-size: 13px;
+  }
+  .tiles {
+    position: relative;
+    z-index: 2;
+    width: 624px;
+    margin: 36px auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 18px;
+  }
+  .tilewrap { width: 89px; text-align: center; color: #fff; font-size: 11px; }
+  .tile {
+    width: 62px; height: 62px;
+    margin: 0 auto 6px;
+    border-radius: 4px;
+    display: grid;
+    place-items: center;
+    box-shadow: 7px 8px 0 rgba(0, 0, 0, .13);
+  }
+  .wordmark {
+    position: absolute;
+    z-index: 2;
+    left: 36px;
+    bottom: 32px;
+    color: #fff;
+    font-size: 44px;
+    font-weight: 400;
+    letter-spacing: .01em;
+    line-height: 1;
+  }
+  .wordmark small {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    letter-spacing: .2em;
+    font-weight: 600;
+    opacity: .9;
+  }
+  .viewbtns { display: flex; gap: 4px; }
+  .viewbtns .green { min-width: 28px; }
+  .viewbtns .ghost {
+    background: #eef1f3;
+    color: var(--tinta);
+    border: 0;
+    border-radius: 2px;
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<aside class="ogled">
+  <h1>OnMisn</h1>
+  <p class="uvod">Devet prozora s kolaža, svaki zasebno. Strelice gore i dolje mijenjaju prozor. Sitna slova na izvoru od 1024×522 px nisu čitljiva, pa je tekst ogledni. Raspored prati sliku.</p>
+  <button type="button" data-screen="pocetna" class="active">1 · Početna<small>Ploče modula</small></button>
+  <button type="button" data-screen="kontakti">2 · Kontakti<small>Kartice osoba i tvrtki</small></button>
+  <button type="button" data-screen="kontakt">3 · Kontakt<small>Kartica jedne osobe</small></button>
+  <button type="button" data-screen="ponuda">4 · Ponuda<small>PN-00001-2020</small></button>
+  <button type="button" data-screen="predmet">5 · Predmet<small>Tijek i zadaci</small></button>
+  <button type="button" data-screen="kalendar">6 · Kalendar<small>Tjedan i mjesec</small></button>
+  <button type="button" data-screen="faktura">7 · Faktura<small>Zelena vrpca</small></button>
+  <button type="button" data-screen="predlosci">8 · Predlošci<small>Kartice s bojom na rubu</small></button>
+  <button type="button" data-screen="spis">9 · Spis<small>Naslov s kvačicom</small></button>
+</aside>
+<main>
+  <section class="screen" id="pocetna">
+    <div class="screenhead">
+      <h2>Početna</h2>
+      <p>Plavo polje, tražilica i jedanaest pločica u dva reda. Natpisi ispod pločica na slici se ne čitaju; ovdje su ogledni, prema ikoni.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span class="on">Početna</span><span>Kontakti</span><span>Predmeti</span><span>Dokumenti</span><span>Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="home">
+        <div class="geo">
+          <div class="g g-deep"></div>
+          <div class="g g-teal"></div>
+          <div class="g g-purp"></div>
+          <div class="g g-cyan"></div>
+        </div>
+        <div class="home-search"><input type="text" readonly value="" placeholder="Pretraga" aria-label="Pretraga"></div>
+        <div class="tiles">
+          <div class="tilewrap"><div class="tile" style="background:#e15b55"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M4 5h16v10H8l-4 3.2V5z"/></svg></div>Poruke</div>
+          <div class="tilewrap"><div class="tile" style="background:#e0a43a"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M6 4h2v2h8V4h2v2h2v14H4V6h2V4zm0 6v8h12v-8H6z"/></svg></div>Kalendar</div>
+          <div class="tilewrap"><div class="tile" style="background:#3e9a62"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M6 3h9l5 5v13H6V3zm8 1.5V9h4.2L14 4.5zM8 12h8v1.6H8V12zm0 3h8v1.6H8V15z"/></svg></div>Imenik</div>
+          <div class="tilewrap"><div class="tile" style="background:#e08a32"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M4 18h16v2H4v-2zm2-3 3-4 3 2 5-7 2 1.4-6.4 9-3-2-2.2 3L6 15z"/></svg></div>Pregled</div>
+          <div class="tilewrap"><div class="tile" style="background:#e07a28"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7zm0 9.2A2.2 2.2 0 1 0 12 6.8a2.2 2.2 0 0 0 0 4.4z"/></svg></div>Karta</div>
+          <div class="tilewrap"><div class="tile" style="background:#e08a32"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M7 3h7l5 5v13H7V3zm6 1.6V9h4.2L13 4.6z"/></svg></div>Dokumenti</div>
+          <div class="tilewrap"><div class="tile" style="background:#2f4f78"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M3 20V9l5-3v3l4-2.4V20H3zm10 0V10l8 3.2V20h-8zM6 12h2v2H6v-2zm0 3.5h2v2H6v-2z"/></svg></div>Tvrtke</div>
+          <div class="tilewrap"><div class="tile" style="background:#d24b48"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm0 4a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 3.2a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6z"/></svg></div>Rokovi</div>
+          <div class="tilewrap"><div class="tile" style="background:#2f9a68"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm8 1a2.6 2.6 0 1 1 0-5.2A2.6 2.6 0 0 1 16 12zM3 19v-1.2C3 15.2 5.4 14 8 14s5 1.2 5 3.8V19H3zm10 .1V19c0-.7.2-1.5.7-2.2 1 .4 2.3.7 3.8.7 1.8 0 3.5-.5 4.5-1.4V19H13z"/></svg></div>Tim</div>
+          <div class="tilewrap"><div class="tile" style="background:#8a7044"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M7 7h11l-2.2-2.2 1.4-1.4L22 8l-4.8 4.6-1.4-1.4L18 9H7V7zM17 17H6l2.2 2.2-1.4 1.4L2 16l4.8-4.6 1.4 1.4L6 15h11v2z"/></svg></div>Razmjena</div>
+          <div class="tilewrap"><div class="tile" style="background:#e07a94"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="#fff" d="M4 11 12 4l8 7v9h-6v-5H10v5H4v-9z"/></svg></div>Ured</div>
+        </div>
+        <div class="wordmark">OnMisn<small>POSLOVNI SOFTVER</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="kontakti" hidden>
+    <div class="screenhead">
+      <h2>Kontakti</h2>
+      <p>Mreža kartica: lijevo silueta, desno ime. Jedna kartica je tvrtka, sa zgradom umjesto osobe. Imena su ogledna.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span>Početna</span><span class="on">Kontakti</span><span>Predmeti</span><span>Dokumenti</span><span>Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="toolbar">
+        <div class="crumbs">Kontakti</div>
+        <button type="button" class="green">+ Novo</button>
+        <input class="search" readonly placeholder="Pretraga kontakata" aria-label="Pretraga kontakata">
+      </div>
+      <div class="pad">
+        <div class="cards">
+          <article class="karta"><div class="silueta" aria-hidden="true"><svg viewBox="0 0 24 24" width="32" height="32"><path fill="#9aa6ae" d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4 0-7 2-7 4v1h14v-1c0-2-3-4-7-4z"/></svg></div><div><strong>Ana Marić</strong><em>Odvjetnica</em></div></article>
+          <article class="karta"><div class="silueta" aria-hidden="true"><svg viewBox="0 0 24 24" width="32" height="32"><path fill="#9aa6ae" d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4 0-7 2-7 4v1h14v-1c0-2-3-4-7-4z"/></svg></div><div><strong>Marko Babić</strong><em>Stranka</em></div></article>
+          <article class="karta"><div class="zgrada" aria-hidden="true"><svg viewBox="0 0 24 24" width="32" height="32"><path fill="#8b97a0" d="M4 20V8l6-3v3l4-2v14H4zm2-2h2v-2H6v2zm0-3.5h2v-2H6v2zM14 20h6v-8l-4-2v10z"/></svg></div><div><strong>Horizon d.o.o.</strong><em>Tvrtka · naručitelj</em></div></article>
+          <article class="karta"><div class="silueta" aria-hidden="true"><svg viewBox="0 0 24 24" width="32" height="32"><path fill="#9aa6ae" d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4 0-7 2-7 4v1h14v-1c0-2-3-4-7-4z"/></svg></div><div><strong>Ivana Jurić</strong><em>Stranka</em></div></article>
+          <article class="karta"><div class="silueta" aria-hidden="true"><svg viewBox="0 0 24 24" width="32" height="32"><path fill="#9aa6ae" d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4 0-7 2-7 4v1h14v-1c0-2-3-4-7-4z"/></svg></div><div><strong>Luka Petrić</strong><em>Sudski vještak</em></div></article>
+          <article class="karta"><div class="silueta" aria-hidden="true"><svg viewBox="0 0 24 24" width="32" height="32"><path fill="#9aa6ae" d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4 0-7 2-7 4v1h14v-1c0-2-3-4-7-4z"/></svg></div><div><strong>Petra Novak</strong><em>Protustranka</em></div></article>
+          <article class="karta"><div class="silueta" aria-hidden="true"><svg viewBox="0 0 24 24" width="32" height="32"><path fill="#9aa6ae" d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4 0-7 2-7 4v1h14v-1c0-2-3-4-7-4z"/></svg></div><div><strong>Ivan Horvat</strong><em>Stranka</em></div></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="kontakt" hidden>
+    <div class="screenhead">
+      <h2>Kontakt</h2>
+      <p>Kartica jedne osobe: krupni naslov, dva stupca podataka i zeleni linkovi na dnu. Ime na slici nije čitljivo.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span>Početna</span><span class="on">Kontakti</span><span>Predmeti</span><span>Dokumenti</span><span>Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="toolbar">
+        <div class="crumbs">Kontakti / Marko Babić</div>
+        <button type="button" class="green">Uredi</button>
+        <input class="search" readonly placeholder="Pretraga" aria-label="Pretraga">
+      </div>
+      <div class="pad">
+        <div class="sheet">
+          <h3 class="blok" style="font-size:22px;margin-bottom:16px">Marko Babić</h3>
+          <div class="split tri">
+            <dl class="kv">
+              <dt>Uloga</dt><dd>Stranka</dd>
+              <dt>Mobitel</dt><dd>091 555 0142</dd>
+              <dt>E-pošta</dt><dd>marko.babic@example.com</dd>
+              <dt>Adresa</dt><dd>Ilica 42, 10000 Zagreb</dd>
+              <dt>OIB</dt><dd>12345678901</dd>
+            </dl>
+            <dl class="kv">
+              <dt>Predmeti</dt><dd>P-145/2020</dd>
+              <dt></dt><dd>Ovr-88/2020</dd>
+              <dt>Odvjetnik</dt><dd>Ana Kovač</dd>
+              <dt>Zadnji kontakt</dt><dd>12. 3. 2020.</dd>
+              <dt>Napomena</dt><dd>Javlja se radnim danom.</dd>
+            </dl>
+            <div>
+              <div class="sivo">Nema otvorenih poruka.<br>Zadnja: ponuda PN-00001-2020.</div>
+            </div>
+          </div>
+          <div class="linkovi"><span>Predmeti</span><span>Dokumenti</span><span>Poruke</span><span>Kalendar</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="ponuda" hidden>
+    <div class="screenhead">
+      <h2>Ponuda</h2>
+      <p>Broj PN-00001-2020 vidi se na slici. Ostala polja, primatelj i sivi okvir poruke ogledni su, u istom rasporedu: lijevo podaci, desno poruka.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span>Početna</span><span>Kontakti</span><span>Predmeti</span><span class="on">Dokumenti</span><span>Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="toolbar">
+        <div class="crumbs">Dokumenti / Ponude / PN-00001-2020</div>
+        <div class="btncol">
+          <button type="button" class="green">Nova</button>
+          <button type="button" class="green">Uredi</button>
+        </div>
+        <input class="search" readonly placeholder="Pretraga" aria-label="Pretraga">
+      </div>
+      <div class="pad">
+        <div class="sheet">
+          <p class="docno">PN-00001-2020</p>
+          <div class="tabs"><span class="on">Stavke</span><span>Prilozi</span><span>Poruke</span></div>
+          <div class="split">
+            <dl class="kv">
+              <dt>Naručitelj</dt><dd>Horizon d.o.o.</dd>
+              <dt>Adresa</dt><dd>Radnička 18, 10000 Zagreb</dd>
+              <dt>OIB</dt><dd>99887766554</dd>
+              <dt>Datum</dt><dd>12. 3. 2020.</dd>
+              <dt>Valuta</dt><dd>30 dana</dd>
+              <dt>Način</dt><dd>Transakcijski račun</dd>
+              <dt>Predmet</dt><dd>P-145/2020</dd>
+              <dt>Status</dt><dd>Poslano</dd>
+            </dl>
+            <div>
+              <dl class="kv">
+                <dt>Primatelj</dt><dd>ivan.horvat@horizon.example</dd>
+                <dt>Naslov</dt><dd>Ponuda za zastupanje</dd>
+              </dl>
+              <div class="sivo" style="margin-top:10px">Poštovani,<br><br>u prilogu je ponuda PN-00001-2020 za pravno zastupanje u predmetu P-145/2020.</div>
+            </div>
+          </div>
+          <p style="margin:22px 0 0;font-size:13px">Stavka: pravno savjetovanje i sastav podneska — 1.400,00 kn + PDV.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="predmet" hidden>
+    <div class="screenhead">
+      <h2>Predmet</h2>
+      <p>Lijevo datirani tijek, desno zadaci, ispod dva naslova. Tekst unutar stupaca na slici nije čitljiv.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span>Početna</span><span>Kontakti</span><span class="on">Predmeti</span><span>Dokumenti</span><span>Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="toolbar">
+        <div class="crumbs">Predmeti / P-145/2020</div>
+        <button type="button" class="green">+ Novo</button>
+        <input class="search naglas" readonly placeholder="Pretraga u predmetu" aria-label="Pretraga u predmetu">
+      </div>
+      <div class="pad">
+        <div class="sheet">
+          <h3 class="blok">P-145/2020 · Horizon d.o.o.</h3>
+          <div class="split">
+            <div>
+              <h3 class="blok" style="font-size:14px">Tijek</h3>
+              <ul class="tl">
+                <li><time>12. 3. 2020.</time><span>Zaprimljen upit stranke</span></li>
+                <li><time>18. 3. 2020.</time><span>Poslana ponuda PN-00001-2020</span></li>
+                <li><time>2. 4. 2020.</time><span>Potpisana punomoć</span></li>
+                <li><time>15. 4. 2020.</time><span>Ročište, Općinski sud u Zagrebu</span></li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="blok" style="font-size:14px">Zadaci</h3>
+              <ul class="zadaci">
+                <li><span class="kvacica" style="background:#67b82e;border-color:#67b82e"></span><span>Pripremiti punomoć <span class="rok"> · 20. 3. 2020.</span></span></li>
+                <li><span class="kvacica"></span><span>Sastaviti podnesak <span class="rok"> · 8. 4. 2020.</span></span></li>
+                <li><span class="kvacica"></span><span>Potvrditi termin ročišta <span class="rok"> · 10. 4. 2020.</span></span></li>
+                <li><span class="kvacica"></span><span>Javiti se stranci nakon ročišta <span class="rok"> · 15. 4. 2020.</span></span></li>
+              </ul>
+            </div>
+          </div>
+          <div class="donje">
+            <h3>Bilješke</h3>
+            <p>Stranka želi mirno rješenje prije ročišta. Protivna strana još nije dostavila očitovanje.</p>
+            <h3>Prilozi</h3>
+            <p>Punomoć.pdf · Ponuda PN-00001-2020.pdf · Poziv na ročište.pdf</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="kalendar" hidden>
+    <div class="screenhead">
+      <h2>Kalendar</h2>
+      <p>Tjedni raspored s tri plava termina, jedan stupac u boji breskve i mali mjesec desno. Natpisi termina na slici nisu čitljivi.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span>Početna</span><span>Kontakti</span><span>Predmeti</span><span>Dokumenti</span><span class="on">Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="toolbar">
+        <div class="crumbs">6. – 12. srpnja 2020.</div>
+        <div class="viewbtns">
+          <button type="button" class="ghost">Dan</button>
+          <button type="button" class="green">Tjedan</button>
+          <button type="button" class="ghost">Mjesec</button>
+        </div>
+        <input class="search" readonly placeholder="Pretraga termina" aria-label="Pretraga termina">
+      </div>
+      <div class="pad">
+        <div class="tjedan">
+          <div class="mreza" id="mreza"></div>
+          <aside class="bok">
+            <h3>Srpanj 2020.</h3>
+            <div class="mini" id="mini"></div>
+            <div class="legenda">
+              <div><span class="tocka" style="background:#7ec9d4"></span> Predmeti</div>
+              <div><span class="tocka" style="background:#67b82e"></span> Rokovi</div>
+              <div><span class="tocka" style="background:#e0a43a"></span> Osobno</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="faktura" hidden>
+    <div class="screenhead">
+      <h2>Faktura</h2>
+      <p>Zelena vrpca u kutu vidi se na slici. Broj završava na 00001-2020; slovo ispred na slici nije čitljivo, ovdje stoji R. Stavke su ogledne.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span>Početna</span><span>Kontakti</span><span>Predmeti</span><span class="on">Dokumenti</span><span>Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="toolbar">
+        <div class="crumbs">Dokumenti / Računi / R-00001-2020</div>
+        <button type="button" class="green">Novi</button>
+        <input class="search" readonly placeholder="Pretraga" aria-label="Pretraga">
+      </div>
+      <div class="pad">
+        <div class="sheet">
+          <div class="vrpca"><span>PLAĆENO</span></div>
+          <p class="docno">R-00001-2020</p>
+          <div class="split" style="margin-bottom:18px">
+            <dl class="kv">
+              <dt>Kupac</dt><dd>Horizon d.o.o.</dd>
+              <dt>Adresa</dt><dd>Radnička 18, 10000 Zagreb</dd>
+              <dt>OIB</dt><dd>99887766554</dd>
+              <dt>Predmet</dt><dd>P-145/2020</dd>
+            </dl>
+            <dl class="kv">
+              <dt>Datum</dt><dd>2. 4. 2020.</dd>
+              <dt>Dospijeće</dt><dd>2. 5. 2020.</dd>
+              <dt>Plaćeno</dt><dd>18. 4. 2020.</dd>
+              <dt>Način</dt><dd>Transakcijski račun</dd>
+            </dl>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Opis</th><th class="desno">Kol.</th><th class="desno">Cijena</th><th class="desno">PDV</th><th class="desno">Iznos</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Pravno savjetovanje, sastanak</td><td class="desno">2 h</td><td class="desno">400,00 kn</td><td class="desno">25%</td><td class="desno">1.000,00 kn</td></tr>
+              <tr><td>Sastav podneska</td><td class="desno">1</td><td class="desno">600,00 kn</td><td class="desno">25%</td><td class="desno">750,00 kn</td></tr>
+            </tbody>
+          </table>
+          <div class="zbroj">
+            <div><span>Osnovica</span><span>1.400,00 kn</span></div>
+            <div><span>PDV 25%</span><span>350,00 kn</span></div>
+            <div class="ukupno"><span>Ukupno</span><span>1.750,00 kn</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="predlosci" hidden>
+    <div class="screenhead">
+      <h2>Predlošci</h2>
+      <p>Tri kartice u redu, svaka s obojenim lijevim rubom: plavi, crveni i žuti. Na žutoj je točka. Naslovi kartica na slici nisu čitljivi.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span>Početna</span><span>Kontakti</span><span>Predmeti</span><span class="on">Dokumenti</span><span>Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="toolbar">
+        <div class="crumbs">Dokumenti / Predlošci</div>
+        <button type="button" class="green">+ Novo</button>
+        <input class="search" readonly placeholder="Pretraga predložaka" aria-label="Pretraga predložaka">
+      </div>
+      <div class="pad">
+        <div class="ploča">
+          <div>
+            <h3>Opći</h3>
+            <article class="tk" style="--rub:#3aa0d8">
+              <strong>Punomoć za zastupanje</strong>
+              <p>Opći obrazac. Zadnja izmjena 4. 3. 2020.<br>Ana Kovač</p>
+            </article>
+          </div>
+          <div>
+            <h3>Parnica</h3>
+            <article class="tk" style="--rub:#e25b78">
+              <strong>Tužba</strong>
+              <p>Obrazac za parnični postupak. Zadnja izmjena 11. 2. 2020.<br>Ana Kovač</p>
+            </article>
+          </div>
+          <div>
+            <h3>U radu</h3>
+            <article class="tk" style="--rub:#e2c04a">
+              <strong><span class="žuta-točka"></span>Opoziv punomoći</strong>
+              <p>Otvoren za doradu. Zadnja izmjena 20. 3. 2020.<br>Marko Babić</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="spis" hidden>
+    <div class="screenhead">
+      <h2>Spis</h2>
+      <p>Naslov s praznom kvačicom, četiri podatka u redu, zeleni gumb i tablica ispod. Broj spisa na slici nije pouzdano čitljiv.</p>
+    </div>
+    <div class="app">
+      <header class="top">
+        <div class="brand">OnMisn</div>
+        <div class="mods"><span>Početna</span><span>Kontakti</span><span class="on">Predmeti</span><span>Dokumenti</span><span>Kalendar</span></div>
+        <div class="user"><span class="avatar-mini"></span> Ana Kovač</div>
+      </header>
+      <div class="toolbar">
+        <div class="crumbs">Predmeti / Uvid u spis</div>
+        <button type="button" class="green">Zaprimi</button>
+        <input class="search" readonly placeholder="Pretraga" aria-label="Pretraga">
+      </div>
+      <div class="pad">
+        <div class="sheet">
+          <div class="tabs" style="justify-content:flex-end"><span>Pregled</span><span class="on">Stavke</span><span>Prilozi</span></div>
+          <h3 class="naslov-spis"><span class="kvacica"></span> Uvid u spis Tž-52/1</h3>
+          <div class="meta4">
+            <div><span>Sud</span>Općinski sud u Zagrebu</div>
+            <div><span>Stranka</span>Marko Babić</div>
+            <div><span>Zastupnik</span>Ana Kovač</div>
+            <div><span>Stanje</span><em style="font-style:normal;background:#5b4dbd;color:#fff;border-radius:10px;padding:2px 8px;font-size:12px">U tijeku</em></div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Stavka</th><th>Tko</th><th>Rok</th><th>Stanje</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Uvid obavljen</td><td>Ana Kovač</td><td>10. 7. 2020.</td><td>Gotovo</td></tr>
+              <tr><td>Preslika spisa</td><td>Marko Babić</td><td>12. 7. 2020.</td><td>U tijeku</td></tr>
+              <tr class="prazno"><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+              <tr class="prazno"><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  var screens = Array.prototype.slice.call(document.querySelectorAll(".screen"));
+  var buttons = Array.prototype.slice.call(document.querySelectorAll("[data-screen]"));
+
+  function show(id) {
+    var known = screens.some(function (s) { return s.id === id; });
+    if (!known) id = "pocetna";
+    screens.forEach(function (s) { s.hidden = s.id !== id; });
+    buttons.forEach(function (b) {
+      var on = b.getAttribute("data-screen") === id;
+      b.classList.toggle("active", on);
+      if (on) b.setAttribute("aria-current", "true");
+      else b.removeAttribute("aria-current");
+    });
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var id = b.getAttribute("data-screen");
+      show(id);
+      history.replaceState(null, "", "#" + id);
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.target && e.target.matches && e.target.matches("input, textarea")) return;
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    var i = screens.findIndex(function (s) { return !s.hidden; });
+    var n = e.key === "ArrowDown" ? (i + 1) % screens.length : (i - 1 + screens.length) % screens.length;
+    show(screens[n].id);
+    history.replaceState(null, "", "#" + screens[n].id);
+  });
+
+  window.addEventListener("hashchange", function () {
+    show(location.hash.replace("#", ""));
+  });
+
+  var mreza = document.getElementById("mreza");
+  var dani = ["Pon", "Uto", "Sri", "Čet", "Pet", "Sub", "Ned"];
+  var datumi = ["6. 7.", "7. 7.", "8. 7.", "9. 7.", "10. 7.", "11. 7.", "12. 7."];
+  var head = '<div class="mh"></div>';
+  dani.forEach(function (d, i) {
+    head += '<div class="dh">' + d + "<small>" + datumi[i] + "</small></div>";
+  });
+  var sati = [];
+  for (var h = 8; h <= 17; h++) sati.push((h < 10 ? "0" : "") + h + ":00");
+  var tijelo = "";
+  sati.forEach(function (sat) {
+    tijelo += '<div class="sat">' + sat + "</div>";
+    for (var c = 0; c < 7; c++) {
+      var cls = "cel" + (c === 1 ? " breskva" : "");
+      var ev = "";
+      if (sat === "10:00" && c === 1) ev = '<div class="ev" style="height:34px">Sastanak</div>';
+      if (sat === "11:00" && c === 3) ev = '<div class="ev" style="height:34px">Rok</div>';
+      if (sat === "14:00" && c === 3) ev = '<div class="ev" style="height:70px">Ročište<br>P-145/2020</div>';
+      tijelo += '<div class="' + cls + '">' + ev + "</div>";
+    }
+  });
+  mreza.innerHTML = head + tijelo;
+
+  var mini = document.getElementById("mini");
+  var imena = ["P", "U", "S", "Č", "P", "S", "N"];
+  var html = imena.map(function (d) { return '<div class="dan">' + d + "</div>"; }).join("");
+  for (var p = 0; p < 2; p++) html += '<div class="prazno">0</div>';
+  for (var day = 1; day <= 31; day++) {
+    if (day === 8) html += '<div><span class="krug">8</span></div>';
+    else html += "<div>" + day + "</div>";
+  }
+  mini.innerHTML = html;
+
+  show(location.hash.replace("#", "") || "pocetna");
+})();
+</script>
+</body>
+</html>

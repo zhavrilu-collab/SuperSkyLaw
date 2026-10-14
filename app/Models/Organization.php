@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OfficeKind;
 use App\Enums\OrganizationStatus;
 use App\Support\OfficeThemes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ class Organization extends Model
 
     protected $fillable = [
         'name',
+        'office_kind',
         'slug',
         'status',
         'plan',
@@ -22,6 +24,7 @@ class Organization extends Model
         'status_changed_at',
         'email',
         'oib',
+        'mbs',
         'phone',
         'city',
         'address',
@@ -38,6 +41,7 @@ class Organization extends Model
     protected function casts(): array
     {
         return [
+            'office_kind' => OfficeKind::class,
             'status' => OrganizationStatus::class,
             'status_changed_at' => 'datetime',
             'trial_ends_at' => 'datetime',

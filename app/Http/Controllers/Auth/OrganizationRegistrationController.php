@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\OfficeKind;
 use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
+use App\Rules\ValidIban;
 use App\Rules\ValidOib;
 use App\Services\AdminConsoleWebhookService;
 use App\Services\CoreAuthService;
+use App\Services\CourtRegister;
+use App\Services\LawyerDirectoryLookupService;
 use App\Services\OrganizationOnboardingService;
+use App\Support\OfficeName;
 use App\Support\UserOrganizationNavigation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -20,15 +25,66 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class OrganizationRegistrationController extends Controller
 {
-    public function create(): View
+    public function create(LawyerDirectoryLookupService $directory): View
     {
+        try {
+            $directoryCount = $directory->count();
+        } catch (\Throwable) {
+            $directoryCount = 0;
+        }
+
         return view('auth.register-organization', [
             'isLoggedIn' => Auth::check(),
+            'officeKinds' => OfficeKind::cases(),
+            'directoryCount' => $directoryCount,
+            'directoryLookupUrl' => route('register.organization.directory'),
+            'courtLookupUrl' => route('register.organization.court'),
+            'courtKinds' => [OfficeKind::Firm->value, OfficeKind::ForeignBranch->value],
+            'soleKind' => OfficeKind::Sole->value,
         ]);
+    }
+
+    public function directory(Request $request, LawyerDirectoryLookupService $directory): JsonResponse
+    {
+        $data = $request->validate([
+            'q' => ['required', 'string', 'min:2', 'max:120'],
+        ]);
+
+        return response()->json([
+            'results' => $directory->search($data['q']),
+            'meta' => [
+                'count' => $directory->count(),
+            ],
+        ]);
+    }
+
+    public function court(Request $request, CourtRegister $court): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'min:2', 'max:255'],
+            'office_kind' => ['required', Rule::enum(OfficeKind::class)],
+        ]);
+
+        $kind = OfficeKind::from($data['office_kind']);
+        if (! $kind->usesCourtRegister()) {
+            return response()->json(['matches' => []]);
+        }
+
+        try {
+            $matches = $court->findByCompanyName($data['name']);
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'message' => collect($exception->errors())->flatten()->first(),
+                'matches' => [],
+            ], 422);
+        }
+
+        return response()->json(['matches' => $matches]);
     }
 
     public function pending(): View|RedirectResponse
@@ -73,13 +129,17 @@ class OrganizationRegistrationController extends Controller
         Request $request,
         AdminConsoleWebhookService $webhook,
         CoreAuthService $coreAuth,
+        CourtRegister $court,
     ): RedirectResponse {
         $rules = [
+            'office_kind' => ['required', Rule::enum(OfficeKind::class)],
             'name' => ['required', 'string', 'max:255'],
             'oib' => ['required', 'string', new ValidOib, Rule::unique('organizations', 'oib')],
+            'address' => ['required', 'string', 'max:255'],
+            'city' => ['required', 'string', 'max:120'],
+            'phone' => ['required', 'string', 'max:50'],
             'organization_email' => ['required', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'city' => ['nullable', 'string', 'max:100'],
+            'iban' => ['required', 'string', 'max:34', new ValidIban],
         ];
 
         if (! Auth::check()) {
@@ -93,8 +153,20 @@ class OrganizationRegistrationController extends Controller
         }
 
         $data = $request->validate($rules);
+        $kind = OfficeKind::from($data['office_kind']);
+        $mbs = null;
 
-        $organization = DB::transaction(function () use ($data, $coreAuth, $request) {
+        if ($kind->usesCourtRegister()) {
+            $official = $court->officialRecord($data['oib']);
+            if (! OfficeName::matches($official['name'], $data['name'])) {
+                throw ValidationException::withMessages([
+                    'oib' => 'Naziv u sudskom registru („'.$official['name'].'”) ne odgovara upisanom nazivu.',
+                ]);
+            }
+            $mbs = $official['mbs'];
+        }
+
+        $organization = DB::transaction(function () use ($data, $coreAuth, $kind, $mbs) {
             $user = Auth::user();
 
             if ($user === null) {
@@ -123,14 +195,18 @@ class OrganizationRegistrationController extends Controller
 
             $organization = Organization::query()->create([
                 'name' => $data['name'],
+                'office_kind' => $kind,
                 'slug' => OrganizationOnboardingService::makeUniqueSlug($data['name']),
                 'status' => OrganizationStatus::Pending,
                 'plan' => 'basic',
                 'status_changed_at' => now(),
                 'email' => $data['organization_email'],
                 'oib' => preg_replace('/\s+/', '', $data['oib']),
-                'phone' => $data['phone'] ?? null,
-                'city' => $data['city'] ?? null,
+                'mbs' => $mbs,
+                'phone' => $data['phone'],
+                'city' => $data['city'],
+                'address' => $data['address'],
+                'iban' => strtoupper(preg_replace('/\s+/', '', $data['iban']) ?? ''),
             ]);
 
             OrganizationUser::query()->create([
@@ -153,6 +229,6 @@ class OrganizationRegistrationController extends Controller
 
         return redirect()
             ->route('registration.pending')
-            ->with('status', 'Tvrtka je registrirana i čeka odobrenje administratora.');
+            ->with('status', 'Ured je prijavljen i čeka odobrenje administratora.');
     }
 }

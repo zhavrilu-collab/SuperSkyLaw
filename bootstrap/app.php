@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\UserOrganizationNavigation;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,6 +25,13 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return route('login');
+        });
+        $middleware->redirectUsersTo(function (Request $request) {
+            $path = UserOrganizationNavigation::postAuthRedirectPath(
+                UserOrganizationNavigation::organizationUsers((int) $request->user()->id),
+            );
+
+            return $path ?? route('register.organization');
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {

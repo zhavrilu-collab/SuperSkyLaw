@@ -38,10 +38,19 @@ use App\Http\Controllers\Portal\LoginController as PortalLoginController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TariffController;
 use App\Http\Controllers\TimeEntryController;
+use App\Support\UserOrganizationNavigation;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    if (! auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $path = UserOrganizationNavigation::postAuthRedirectPath(
+        UserOrganizationNavigation::organizationUsers((int) auth()->id()),
+    );
+
+    return redirect($path ?? route('register.organization'));
 });
 
 Route::get('/kalendar/feed/{token}', [CalendarFeedController::class, 'publicFeed'])
@@ -75,6 +84,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/registracija', [OrganizationRegistrationController::class, 'create'])->name('register.organization');
+Route::get('/registracija/imenik', [OrganizationRegistrationController::class, 'directory'])->name('register.organization.directory');
+Route::get('/registracija/sudski-registar', [OrganizationRegistrationController::class, 'court'])->name('register.organization.court');
 Route::post('/registracija', [OrganizationRegistrationController::class, 'store'])
     ->middleware('throttle:6,1');
 

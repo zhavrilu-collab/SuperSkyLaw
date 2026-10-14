@@ -1,0 +1,27 @@
+---
+description: Objava na law.superskytech.com samo s commitom, bez prepisivanja cijelog stabla
+alwaysApply: true
+---
+
+# Objava
+
+Živi kod na `/var/www/legal-saas` prati git commit. Radni direktorij se ne pakira i ne raspakiva preko te mape.
+
+## Kako
+
+- Prije objave: čisto stablo, commit, push na `origin/main`.
+- Objava je samo `powershell -File scripts/deploy-law.ps1`.
+- Skripta šalje `git archive` tog commita. Staje ako stablo nije čisto, ako HEAD nije na `origin/main`, ako novi commit nije iznad zadnje objave, ili ako je datoteka na poslužitelju drukčija od zadnjeg objavljenog commita.
+- Skripta ne briše datoteke kojih nema u commitu. Ne zove `git reset --hard`, `git clean` ni `git checkout -f`.
+- Ne pokreće `DemoOfficeSeeder` ni `db:seed`. To briše demo predmete i stranke.
+- `composer install` nije dio objave.
+
+## Zabranjeno
+
+```powershell
+tar -czf legal-saas.tgz --exclude .git .
+scp legal-saas.tgz ...
+ssh ... "tar -xzf /tmp/legal-saas.tgz -C /var/www/legal-saas"
+```
+
+Time noviji kod na poslužitelju postane starije stablo, a baza ostane. Stranica izgleda kao da su izmjene nestale.
