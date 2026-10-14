@@ -19,7 +19,8 @@ $sshTarget = 'ubuntu@148.163.187.14'
 $sshArgs = @('-p', '2222', '-i', $sshKey, '-o', 'IdentitiesOnly=yes', $sshTarget)
 $scpArgs = @('-P', '2222', '-i', $sshKey, '-o', 'IdentitiesOnly=yes')
 
-$deployed = (ssh @sshArgs "cat /var/www/legal-saas/.deploy-sha 2>/dev/null || true").Trim()
+$deployedRaw = ssh @sshArgs "cat /var/www/legal-saas/.deploy-sha 2>/dev/null || true"
+$deployed = if ($null -eq $deployedRaw) { '' } else { "$deployedRaw".Trim() }
 if ($deployed) {
     git merge-base --is-ancestor $deployed $head
     if ($LASTEXITCODE -ne 0) {

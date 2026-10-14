@@ -42,18 +42,26 @@ collect() {
   )
 }
 
+same_text() {
+  cmp -s <(tr -d '\r' < "$1") <(tr -d '\r' < "$2")
+}
+
 fail=0
 while IFS= read -r rel; do
   skip "$rel" && continue
-  if [ ! -f "$REF/$rel" ]; then
-    echo "EXTRA $rel"
-    fail=1
+  server="$APP/$rel"
+  if [ -f "$WORK/old/$rel" ] && same_text "$server" "$WORK/old/$rel"; then
     continue
   fi
-  if ! cmp -s "$APP/$rel" "$REF/$rel"; then
-    echo "DIFF $rel"
-    fail=1
+  if [ -f "$WORK/new/$rel" ] && same_text "$server" "$WORK/new/$rel"; then
+    continue
   fi
+  if [ ! -f "$WORK/new/$rel" ] && [ ! -f "$WORK/old/$rel" ]; then
+    echo "EXTRA $rel"
+  else
+    echo "DIFF $rel"
+  fi
+  fail=1
 done < <(collect "$APP")
 
 if [ "$fail" -ne 0 ]; then
