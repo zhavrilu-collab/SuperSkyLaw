@@ -282,10 +282,18 @@
                         @endif
                         @if($indeks < count($stageTemplate) - 1)<span class="predlozak-strelica" aria-hidden="true">&gt;</span>@endif
                     @endforeach
+                    @perm('matters.manage')
+                    <button type="button" class="ikona predlozak-dodaj" id="dodajStadij" title="Dodaj stadij" aria-label="Dodaj stadij">
+                        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
+                    </button>
+                    @endperm
                 </div>
             @endif
+            @php
+                $otvoriNoviStadij = ! old('_stage') && ($errors->has('name') || $errors->has('body'));
+            @endphp
             @perm('matters.manage')
-            <form method="POST" action="{{ route('organization.matters.stages.store', [$org->slug, $matter->id]) }}" class="novi-stadij">
+            <form method="POST" action="{{ route('organization.matters.stages.store', [$org->slug, $matter->id]) }}" class="novi-stadij" @if(! $otvoriNoviStadij) hidden @endif>
                 @csrf
                 <div>
                     <label class="form-label" for="nazivStadija">Novi stadij</label>
@@ -295,14 +303,16 @@
                     <label class="form-label" for="zapisStadija">Zapis</label>
                     <input name="body" id="zapisStadija" class="form-control form-control-sm" value="{{ old('_stage') ? '' : old('body') }}" placeholder="Kratki zapis uz stadij">
                 </div>
-                <button class="btn btn-primary btn-sm" type="submit">Otvori stadij</button>
+                <button class="ikona" type="submit" title="Otvori stadij" aria-label="Otvori stadij">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                </button>
+                @if($nextStageName === null)
+                    <p class="form-text novi-stadij-napomena">Predložak je iskorišten. Upišite svoj naziv.</p>
+                @endif
+                @if(! old('_stage'))
+                    @error('name')<p class="text-danger small novi-stadij-napomena">{{ $message }}</p>@enderror
+                @endif
             </form>
-            @if($nextStageName === null)
-                <p class="form-text">Predložak je iskorišten. Upišite svoj naziv.</p>
-            @endif
-            @if(! old('_stage'))
-                @error('name')<p class="text-danger small">{{ $message }}</p>@enderror
-            @endif
             @endperm
             @if($errors->has('stage'))<p class="text-danger small mb-2">{{ $errors->first('stage') }}</p>@endif
             @if($matter->stages->isNotEmpty())
@@ -334,7 +344,7 @@
                         @csrf @method('PUT')
                         <input type="hidden" name="_stage" value="{{ $stage->id }}">
                         <h3 class="stadij-naslov">
-                            <span class="prikaz" style="color: {{ $bojaStadija[mb_strtolower($stage->name)] ?? '' }}">{{ $stage->name }}</span>
+                            <span class="prikaz">{{ $stage->name }}</span>
                             <input name="name" class="form-control form-control-sm unos" required value="{{ $nazivUnos }}" aria-label="Naziv stadija">
                         </h3>
                         <div class="stadij-zapis">
@@ -619,10 +629,26 @@
     syncKind();
     syncCourt();
 
+    const noviStadij = document.querySelector('.novi-stadij');
+    const dodajStadij = document.getElementById('dodajStadij');
+    function pokaziNoviStadij() {
+        if (noviStadij) noviStadij.hidden = false;
+    }
+    if (dodajStadij) {
+        dodajStadij.addEventListener('click', function () {
+            if (!noviStadij) return;
+            noviStadij.hidden = !noviStadij.hidden;
+            if (!noviStadij.hidden) {
+                const polje = document.getElementById('nazivStadija');
+                if (polje) polje.focus();
+            }
+        });
+    }
     document.querySelectorAll('.predlozak-korak.ceka').forEach(function (gumb) {
         gumb.addEventListener('click', function () {
             const polje = document.getElementById('nazivStadija');
             if (polje && gumb.dataset.naziv) polje.value = gumb.dataset.naziv;
+            pokaziNoviStadij();
         });
     });
 

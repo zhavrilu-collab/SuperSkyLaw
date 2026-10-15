@@ -46,12 +46,14 @@
     .stadij-red.ureduje .unos.datumi { display: flex; gap: 6px; align-items: center; }
     .stadij-red.ureduje .unos.datumi input { width: 132px; }
     .predlozak { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 12px; }
+    .predlozak-dodaj { margin-left: auto; }
     .predlozak-korak { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; font-weight: 700; background: none; border: 0; padding: 0; color: #5c6540; }
     .predlozak-korak.aktivan { color: var(--primarna-tamna); }
     .predlozak-korak.ceka { font-weight: 400; color: #8b9374; }
     button.predlozak-korak.ceka { cursor: pointer; }
     .predlozak-strelica { color: #8b9374; font-size: 12px; }
     .novi-stadij { display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr) auto; gap: 8px; align-items: end; margin-bottom: 12px; }
+    .novi-stadij-napomena { grid-column: 1 / -1; margin: 0; }
     .stadij-red { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) auto auto; gap: 8px 12px; align-items: center; padding: 11px 0; border-top: 1px solid #e6eadc; }
     .stadij-zapis { min-width: 0; }
     .stadij-zapis .prazno { color: #8b9374; }
