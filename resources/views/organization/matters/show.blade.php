@@ -23,8 +23,10 @@
     .ikona svg { width: 15px; height: 15px; display: block; }
     .ikona:disabled { color: #c5cbb0; cursor: not-allowed; }
     .ikona:disabled:hover { background: transparent; color: #c5cbb0; }
-    .povezi-formu { display: none; }
-    .podaci-kartica.povezuje .povezi-formu { display: block; }
+    .stranka-prikaz { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .stranka-unos { display: none; }
+    .stranka-red.ureduje .stranka-prikaz { display: none; }
+    .stranka-red.ureduje .stranka-unos { display: block; }
     .stadij-blok { border-top: 1px solid #e6eadc; }
     .stadij-blok .stadij-red { border-top: 0; }
     .stadij-dodatak { padding: 0 0 12px; }

@@ -70,9 +70,15 @@ class MatterCardTest extends TestCase
             ->assertOk()
             ->assertSee('Usuglašena je cijena.')
             ->assertSee('Pregovori')
-            ->assertSee('aria-label="Poveži stranku"', false)
-            ->assertSee('aria-label="Dodaj dokument"', false)
-            ->assertSee('aria-label="Dodaj aktivnost"', false)
+            ->assertSee('title="Poveži stranku"', false)
+            ->assertSee('title="Uredi podatke"', false)
+            ->assertSee('title="Uredi stranku"', false)
+            ->assertSee('title="Uredi stadij"', false)
+            ->assertSee('title="Dodaj dokument"', false)
+            ->assertSee('title="Dodaj aktivnost"', false)
+            ->assertSee('title="Obriši stadij"', false)
+            ->assertSee('id="poveziStrankuProzor"', false)
+            ->assertSee('.stranka-unos { display: none; }', false)
             ->assertSee('title="Brisati se može samo zadnji stadij."', false);
 
         $stages = $matter->stages()->reorder()->orderBy('position')->get();
@@ -385,26 +391,30 @@ class MatterCardTest extends TestCase
             ->assertSee('Vještak');
 
         $client = $matter->parties()->where('side', 'client')->first();
+        $marina = Party::query()->create([
+            'organization_id' => $org->id,
+            'kind' => 'person',
+            'name' => 'Marina Božić',
+        ]);
         $this->actingAs($user)
-            ->put(route('organization.matters.update', [$org->slug, $matter->id]), [
-                'title' => 'Novi predmet',
-                'kind' => 'civil',
-                'office_position' => 'plaintiff',
-                'billing_method' => 'hourly',
-                'links' => [
-                    $client->id => [
-                        'name' => 'Marina Božić',
-                        'oib' => '12345678903',
-                        'kind' => 'person',
-                        'role' => 'plaintiff',
-                        'side' => 'client',
-                    ],
-                ],
+            ->put(route('organization.matters.parties.update', [$org->slug, $matter->id, $client->id]), [
+                'party_id' => $marina->id,
+                'role' => 'plaintiff',
+                'side' => 'client',
             ])
             ->assertRedirect();
 
-        $this->assertSame('Marina Božić', $client->party->fresh()->name);
-        $this->assertSame('plaintiff', $client->fresh()->role->value);
+        $client->refresh();
+        $this->assertSame($marina->id, $client->party_id);
+        $this->assertSame('plaintiff', $client->role->value);
+        $this->assertSame('Klijent', Party::query()->where('oib', '12345678903')->first()->name);
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id]))
+            ->assertOk()
+            ->assertSee('Marina Božić')
+            ->assertSee('name="party_id"', false)
+            ->assertDontSee('aria-label="OIB"', false);
     }
 
     public function test_office_can_add_a_dispute_category_and_see_it_on_the_matter_form(): void

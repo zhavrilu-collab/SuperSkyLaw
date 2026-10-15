@@ -479,6 +479,22 @@ class MatterController extends Controller
         return back()->with('status', 'Stranka je povezana s predmetom.');
     }
 
+    public function updateParty(Request $request, string $slug, int $matter, int $link): RedirectResponse
+    {
+        $this->authorizePerm('matters.manage');
+        $model = $this->findVisibleMatter($matter);
+        $record = MatterParty::query()->where('matter_id', $model->id)->findOrFail($link);
+        $data = $request->validate([
+            'party_id' => ['required', 'integer'],
+            'role' => ['required', Rule::enum(MatterPartyRole::class)],
+            'side' => ['required', Rule::enum(PartySide::class)],
+        ]);
+
+        $this->reassignPartyLink($request, $model, $record, (int) $data['party_id'], $data['role'], PartySide::from($data['side']));
+
+        return back()->with('status', 'Stranka na predmetu je spremljena.');
+    }
+
     private function syncLinkedParties(Request $request, Matter $model): void
     {
         $links = $request->input('links');
@@ -488,42 +504,50 @@ class MatterController extends Controller
 
         $request->validate([
             'links' => ['array'],
-            'links.*.name' => ['required', 'string', 'max:255'],
-            'links.*.oib' => ['nullable', 'string'],
-            'links.*.kind' => ['required', Rule::enum(PartyKind::class)],
+            'links.*.party_id' => ['required', 'integer'],
             'links.*.role' => ['required', Rule::enum(MatterPartyRole::class)],
             'links.*.side' => ['required', Rule::enum(PartySide::class)],
         ]);
 
         foreach ($links as $id => $row) {
             $link = MatterParty::query()->where('matter_id', $model->id)->find($id);
-            $party = $link?->party;
-            if ($link === null || $party === null) {
+            if ($link === null) {
                 continue;
             }
 
-            $oib = $row['oib'] ?? null;
-            $oib = $oib !== '' ? $oib : null;
-            $request->validate([
-                'links.'.$id.'.oib' => ['nullable', 'string', new ValidOib, Rule::unique('parties', 'oib')->where('organization_id', $this->office()->id)->ignore($party->id)],
-            ]);
+            $this->reassignPartyLink($request, $model, $link, (int) $row['party_id'], $row['role'], PartySide::from($row['side']));
+        }
+    }
 
-            $side = PartySide::from($row['side']);
-            $changed = $link->side !== $side || $party->name !== $row['name'] || ($party->oib ?? null) !== $oib;
-            if ($changed) {
-                $this->assertPartyLinkAllowed($model, $row['name'], $oib, $side, $request);
-            }
-
-            $party->update([
-                'name' => $row['name'],
-                'oib' => $oib,
-                'kind' => $row['kind'],
-            ]);
-            $link->update([
-                'role' => $row['role'],
-                'side' => $side,
+    private function reassignPartyLink(Request $request, Matter $model, MatterParty $link, int $partyId, string $role, PartySide $side): void
+    {
+        $party = Party::query()->find($partyId);
+        if ($party === null) {
+            throw ValidationException::withMessages([
+                'party_id' => 'Odabrana stranka nije u uredu.',
             ]);
         }
+
+        $taken = MatterParty::query()
+            ->where('matter_id', $model->id)
+            ->where('party_id', $party->id)
+            ->where('id', '!=', $link->id)
+            ->exists();
+        if ($taken) {
+            throw ValidationException::withMessages([
+                'party_id' => 'Ta stranka je već povezana s predmetom.',
+            ]);
+        }
+
+        if ($link->party_id !== $party->id || $link->side !== $side) {
+            $this->assertPartyLinkAllowed($model, $party->name, $party->oib, $side, $request);
+        }
+
+        $link->update([
+            'party_id' => $party->id,
+            'role' => $role,
+            'side' => $side,
+        ]);
     }
 
     private function assertPartyLinkAllowed(Matter $model, string $name, ?string $oib, PartySide $side, Request $request): void
@@ -536,13 +560,13 @@ class MatterController extends Controller
 
         if ($evaluation['result'] !== ConflictResult::Clear && ! $request->boolean('acknowledge_conflict')) {
             throw ValidationException::withMessages([
-                'links' => 'Provjera sukoba traži potvrdu partnera prije izmjene stranke.',
+                'party_id' => 'Provjera sukoba traži potvrdu partnera prije izmjene stranke.',
             ]);
         }
 
         if ($evaluation['result'] !== ConflictResult::Clear && $this->membership()->role !== OrganizationRole::Owner) {
             throw ValidationException::withMessages([
-                'links' => 'Sukob može potvrditi samo partner.',
+                'party_id' => 'Sukob može potvrditi samo partner.',
             ]);
         }
 

@@ -25,7 +25,7 @@
     $otvorenaImena = $matter->stages->map(fn ($stage) => mb_strtolower($stage->name));
     $aktivnoIme = mb_strtolower((string) ($aktivni->name ?? ''));
     $ostaleStranke = $matter->parties->reject(fn ($link) => in_array($link->side, [\App\Enums\PartySide::Client, \App\Enums\PartySide::Opposing], true));
-    $povezuje = $errors->has('party_id');
+    $povezuje = $errors->has('party_id') && old('_link') === null;
     $predlozakKljucevi = collect($stageTemplate ?? [])->map(fn ($naziv) => mb_strtolower($naziv));
     $izvanPredloska = $matter->stages->filter(fn ($stage) => ! $predlozakKljucevi->contains(mb_strtolower($stage->name)))->unique(fn ($stage) => mb_strtolower($stage->name))->values();
     $nijanse = \App\Support\OfficeThemes::stageShades(max(1, count($stageTemplate ?? []) + $izvanPredloska->count()), \App\Support\OfficeThemes::palette($org->theme_color, $org->theme_style));
@@ -45,15 +45,15 @@
 @endphp
 <div class="row g-3">
     <div class="col-lg-5">
-        <div class="kartica-kontejner h-100 podaci-kartica {{ $urediPodatke ? 'ureduje' : '' }} {{ $povezuje ? 'povezuje' : '' }}" id="podaciKartica">
+        <div class="kartica-kontejner h-100 podaci-kartica {{ $urediPodatke ? 'ureduje' : '' }}" id="podaciKartica">
             <div class="d-flex justify-content-between align-items-start gap-2">
                 <h2 class="h6 text-tema">Podaci predmeta</h2>
                 @perm('matters.manage')
                 <div class="d-flex">
-                    <button type="button" class="ikona" id="poveziStranku" aria-label="Poveži stranku">
+                    <button type="button" class="ikona" data-bs-toggle="modal" data-bs-target="#poveziStrankuProzor" title="Poveži stranku" aria-label="Poveži stranku">
                         <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9q-.13 0-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/><path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4 4 0 0 1-.82 1H12a3 3 0 1 0 0-6z"/></svg>
                     </button>
-                    <button type="button" class="ikona olovka-kartice" id="urediPodatke" aria-label="Uredi podatke">
+                    <button type="button" class="ikona olovka-kartice" id="urediPodatke" title="Uredi podatke" aria-label="Uredi podatke">
                         <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
                     </button>
                 </div>
@@ -78,26 +78,27 @@
                         </select>
                         <div class="form-text unos" id="vrstaOpis"></div>
                     </dd>
-                    <dt>Klijent</dt>
-                    <dd class="moze">
-                        <span class="prikaz">{{ $klijenti->map(fn ($link) => $opisVeze($link))->filter()->implode(', ') ?: '—' }}</span>
+                    @if($klijenti->isEmpty())
+                        <dt>Klijent</dt>
+                        <dd>—</dd>
+                    @else
                         @foreach($klijenti as $veza)
-                            @include('organization.matters.party-link-fields', ['veza' => $veza])
+                            <dt>Klijent</dt>
+                            @include('organization.matters.party-link-fields', ['veza' => $veza, 'opis' => $opisVeze($veza)])
                         @endforeach
-                    </dd>
-                    <dt>Protustranka</dt>
-                    <dd class="moze">
-                        <span class="prikaz">{{ $protiv->map(fn ($link) => $opisVeze($link))->filter()->implode(', ') ?: '—' }}</span>
+                    @endif
+                    @if($protiv->isEmpty())
+                        <dt>Protustranka</dt>
+                        <dd>—</dd>
+                    @else
                         @foreach($protiv as $veza)
-                            @include('organization.matters.party-link-fields', ['veza' => $veza])
+                            <dt>Protustranka</dt>
+                            @include('organization.matters.party-link-fields', ['veza' => $veza, 'opis' => $opisVeze($veza)])
                         @endforeach
-                    </dd>
+                    @endif
                     @foreach($ostaleStranke as $veza)
                         <dt>{{ $veza->role?->label() ?: 'Stranka' }}</dt>
-                        <dd class="moze">
-                            <span class="prikaz">{{ $opisStranke($veza, true) ?: '—' }} · {{ $veza->side?->label() }}</span>
-                            @include('organization.matters.party-link-fields', ['veza' => $veza])
-                        </dd>
+                        @include('organization.matters.party-link-fields', ['veza' => $veza, 'opis' => ($opisStranke($veza, true) ?: '—').' · '.$veza->side?->label()])
                     @endforeach
                     <dt><label for="sudPredmeta">Sud</label></dt>
                     <dd class="moze">
@@ -212,29 +213,48 @@
                 </div>
                 @endperm
             </form>
+            @perm('matters.manage')
+            @foreach($matter->parties as $veza)
+                <form id="urediStranku{{ $veza->id }}" method="POST" action="{{ route('organization.matters.parties.update', [$org->slug, $matter->id, $veza->id]) }}" class="d-none">
+                    @csrf @method('PUT')
+                </form>
+            @endforeach
+            @endperm
             @if($matter->conflictChecks->isNotEmpty())
                 <p class="small text-muted mt-3 mb-0">Zadnja provjera sukoba: <strong>{{ $matter->conflictChecks->last()->result->label() }}</strong>
                     @if($matter->conflictChecks->last()->checker) ({{ $matter->conflictChecks->last()->checker->name }}) @endif
                 </p>
             @endif
             @perm('matters.manage')
-            <form method="POST" action="{{ route('organization.matters.parties.store', [$org->slug, $matter->id]) }}" class="povezi-formu mt-3">
-                @csrf
-                <label class="form-label" for="strankaPredmeta">Stranka</label>
-                <select name="party_id" id="strankaPredmeta" class="form-select form-select-sm mb-2" required>
-                    @foreach($parties as $party)<option value="{{ $party->id }}">{{ $party->name }}</option>@endforeach
-                </select>
-                @error('party_id')<p class="text-danger small">{{ $message }}</p>@enderror
-                <label class="form-label" for="ulogaStranke">Uloga</label>
-                <select name="role" id="ulogaStranke" class="form-select form-select-sm mb-2">@foreach(\App\Enums\MatterPartyRole::cases() as $role)<option value="{{ $role->value }}">{{ $role->label() }}</option>@endforeach</select>
-                <label class="form-label" for="stranaStranke">Strana</label>
-                <select name="side" id="stranaStranke" class="form-select form-select-sm mb-2">@foreach(\App\Enums\PartySide::cases() as $side)<option value="{{ $side->value }}">{{ $side->label() }}</option>@endforeach</select>
-                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="acknowledge_conflict" value="1" id="ack2"><label class="form-check-label" for="ack2">Potvrđujem provjeru sukoba</label></div>
-                <div class="d-flex justify-content-end gap-2">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="odustaniPovezi">Odustani</button>
-                    <button class="btn btn-primary btn-sm" type="submit">Poveži</button>
+            <div class="modal fade" id="poveziStrankuProzor" tabindex="-1" aria-labelledby="poveziStrankuNaslov" aria-hidden="true" data-otvori="{{ $povezuje ? '1' : '0' }}">
+                <div class="modal-dialog modal-dialog-centered">
+                    <form method="POST" action="{{ route('organization.matters.parties.store', [$org->slug, $matter->id]) }}" class="modal-content">
+                        @csrf
+                        <div class="modal-header">
+                            <h2 class="modal-title h6 text-tema" id="poveziStrankuNaslov">Poveži stranku</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" title="Zatvori" aria-label="Zatvori"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label class="form-label" for="strankaPredmeta">Stranka</label>
+                            <select name="party_id" id="strankaPredmeta" class="form-select form-select-sm mb-2" required>
+                                @foreach($parties as $party)<option value="{{ $party->id }}" @selected((string) old('party_id') === (string) $party->id)>{{ $party->name }}</option>@endforeach
+                            </select>
+                            @if($povezuje)
+                                @error('party_id')<p class="text-danger small">{{ $message }}</p>@enderror
+                            @endif
+                            <label class="form-label" for="ulogaStranke">Uloga</label>
+                            <select name="role" id="ulogaStranke" class="form-select form-select-sm mb-2">@foreach(\App\Enums\MatterPartyRole::cases() as $role)<option value="{{ $role->value }}" @selected(old('role') === $role->value)>{{ $role->label() }}</option>@endforeach</select>
+                            <label class="form-label" for="stranaStranke">Strana</label>
+                            <select name="side" id="stranaStranke" class="form-select form-select-sm mb-2">@foreach(\App\Enums\PartySide::cases() as $side)<option value="{{ $side->value }}" @selected(old('side') === $side->value)>{{ $side->label() }}</option>@endforeach</select>
+                            <div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="acknowledge_conflict" value="1" id="ack2" @checked(old('acknowledge_conflict'))><label class="form-check-label" for="ack2">Potvrđujem provjeru sukoba</label></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Odustani</button>
+                            <button class="btn btn-primary btn-sm" type="submit">Poveži</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
             @endperm
         </div>
     </div>
@@ -328,19 +348,19 @@
                         </div>
                         <div class="stadij-akcije">
                             @perm('matters.manage')
-                            <button type="button" class="ikona ikona-pregled uredi-stadij" aria-label="Uredi stadij">
+                            <button type="button" class="ikona ikona-pregled uredi-stadij" title="Uredi stadij" aria-label="Uredi stadij">
                                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
                             </button>
                             @perm('documents.manage')
-                            <button type="button" class="ikona ikona-pregled" data-otvori=".dodatak-dokument" aria-label="Dodaj dokument">
+                            <button type="button" class="ikona ikona-pregled" data-otvori=".dodatak-dokument" title="Dodaj dokument" aria-label="Dodaj dokument">
                                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/></svg>
                             </button>
                             @endperm
-                            <button type="button" class="ikona ikona-pregled" data-otvori=".dodatak-aktivnost" aria-label="Dodaj aktivnost">
+                            <button type="button" class="ikona ikona-pregled" data-otvori=".dodatak-aktivnost" title="Dodaj aktivnost" aria-label="Dodaj aktivnost">
                                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-11A1.5 1.5 0 0 0 13.5 1zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
                             </button>
                             @if($mozeObrisati)
-                            <button type="submit" class="ikona opasno ikona-pregled" form="brisiStadij{{ $stage->id }}" aria-label="Obriši stadij">
+                            <button type="submit" class="ikona opasno ikona-pregled" form="brisiStadij{{ $stage->id }}" title="Obriši stadij" aria-label="Obriši stadij">
                                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3h11V2h-11v1z"/></svg>
                             </button>
                             @else
@@ -556,21 +576,32 @@
     if (olovka && kartica) {
         olovka.addEventListener('click', function () {
             kartica.classList.add('ureduje');
-            kartica.classList.remove('povezuje');
         });
     }
-    const lanac = document.getElementById('poveziStranku');
-    if (lanac && kartica) {
-        lanac.addEventListener('click', function () {
-            kartica.classList.toggle('povezuje');
-        });
+    const poveziProzor = document.getElementById('poveziStrankuProzor');
+    if (poveziProzor && poveziProzor.dataset.otvori === '1' && window.bootstrap) {
+        window.bootstrap.Modal.getOrCreateInstance(poveziProzor).show();
     }
-    const odustaniPovezi = document.getElementById('odustaniPovezi');
-    if (odustaniPovezi && kartica) {
-        odustaniPovezi.addEventListener('click', function () {
-            kartica.classList.remove('povezuje');
+    document.querySelectorAll('.uredi-stranku').forEach(function (gumb) {
+        gumb.addEventListener('click', function () {
+            const red = gumb.closest('.stranka-red');
+            document.querySelectorAll('.stranka-red.ureduje').forEach(function (drugi) {
+                if (drugi !== red) drugi.classList.remove('ureduje');
+            });
+            if (red) red.classList.add('ureduje');
         });
-    }
+    });
+    document.querySelectorAll('.odustani-stranku').forEach(function (gumb) {
+        gumb.addEventListener('click', function () {
+            const red = gumb.closest('.stranka-red');
+            if (!red) return;
+            red.querySelectorAll('select').forEach(function (polje) {
+                const izvorna = Array.from(polje.options).find(function (opcija) { return opcija.defaultSelected; });
+                polje.value = izvorna ? izvorna.value : '';
+            });
+            red.classList.remove('ureduje');
+        });
+    });
     const odustani = document.getElementById('odustaniPodaci');
     if (odustani) {
         odustani.addEventListener('click', function () {
