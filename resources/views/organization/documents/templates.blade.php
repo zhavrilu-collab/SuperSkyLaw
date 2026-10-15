@@ -11,7 +11,7 @@
         <div class="col-md-4"><label class="form-label">Predložak</label><select name="template_id" class="form-select" required>@foreach($templates as $template)<option value="{{ $template->id }}">{{ $template->name }}</option>@endforeach</select></div>
         <div class="col-md-3"><label class="form-label">Predmet</label><select name="matter_id" class="form-select" required>@foreach($matters as $matter)<option value="{{ $matter->id }}">{{ $matter->internal_number }}</option>@endforeach</select></div>
         <div class="col-md-3"><label class="form-label">Stranka</label><select name="party_id" class="form-select" required>@foreach($parties as $party)<option value="{{ $party->id }}">{{ $party->name }}</option>@endforeach</select></div>
-        <div class="col-md-2"><button class="btn btn-primary" type="submit">Izradi</button></div>
+        <div class="col-md-2"><x-ikona znak="check" label="Izradi" /></div>
     </div>
 </form>
 @endperm

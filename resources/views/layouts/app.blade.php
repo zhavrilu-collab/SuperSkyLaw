@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}" class="mb-0">@csrf
-                    <button type="submit" class="btn btn-navbar-logout">Odjava</button>
+                    <x-ikona znak="logout" label="Odjava" />
                 </form>
             </div>
         </header>

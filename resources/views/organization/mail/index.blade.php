@@ -12,6 +12,6 @@
     <div class="mb-2"><input name="from" type="email" class="form-control" placeholder="Pošiljatelj" required></div>
     <div class="mb-2"><input name="subject" class="form-control" placeholder="Predmet, npr. Dopis [2026/001]" required></div>
     <div class="mb-2"><textarea name="body" class="form-control" rows="6" placeholder="Tekst poruke" required></textarea></div>
-    <button class="btn btn-primary btn-sm" type="submit">Spremi u predmet</button>
+    <x-ikona znak="check" label="Spremi u predmet" />
 </form>
 @endsection

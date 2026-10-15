@@ -23,7 +23,7 @@
                     <label class="form-label" for="novaBiljeska">Nova bilješka</label>
                     <p class="small text-muted">Vide ih samo ljudi u uredu. Ne izlaze klijentu na portal.</p>
                     <textarea name="body" id="novaBiljeska" class="form-control" rows="3" required>{{ old('body') }}</textarea>
-                    <button class="btn btn-primary btn-sm mt-2" type="submit">Spremi bilješku</button>
+                    <x-ikona znak="check" label="Spremi bilješku" class="mt-2" />
                 </form>
             </div>
             <div class="col-lg-7">
@@ -43,7 +43,7 @@
                             <textarea name="body" id="tijeloZapisa" class="form-control" rows="3" required></textarea>
                         </div>
                         <div class="col-12"><label class="form-check-label"><input class="form-check-input" type="checkbox" name="visible_to_client" value="1"> Vidljivo klijentu na portalu</label></div>
-                        <div class="col-12"><button class="btn btn-primary btn-sm" type="submit">Dodaj zapis</button></div>
+                        <div class="col-12"><x-ikona znak="check" label="Dodaj zapis" /></div>
                     </div>
                 </form>
             </div>

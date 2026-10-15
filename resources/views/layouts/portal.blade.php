@@ -16,7 +16,7 @@
             <a class="app-brand-lockup mb-0" href="{{ route('portal.home', $org->slug) }}">
                 <img src="{{ asset(\App\Support\OfficeThemes::horizontalPath($org->themeColor())) }}" class="app-brand-logo-wide" alt="SuperSkyLaw">
             </a>
-            <form method="POST" action="{{ route('portal.logout', $org->slug) }}">@csrf<button class="btn btn-navbar-logout" type="submit">Odjava</button></form>
+            <form method="POST" action="{{ route('portal.logout', $org->slug) }}">@csrf<x-ikona znak="logout" label="Odjava" /></form>
         </div>
         @include('partials.flash-messages')
         @yield('content')

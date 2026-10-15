@@ -39,6 +39,6 @@
         </div>
         <div class="mb-3"><label class="form-label">Bilješka</label><textarea name="conflict_note" class="form-control">{{ old('conflict_note') }}</textarea></div>
     @endif
-    <button class="btn btn-primary" type="submit">Otvori predmet</button>
+    <x-ikona znak="check" label="Otvori predmet" />
 </form>
 @endsection

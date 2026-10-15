@@ -16,9 +16,9 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-3"><button class="btn btn-primary" type="submit">Prikaži</button></div>
+        <div class="col-md-3"><x-ikona znak="search" label="Prikaži" /></div>
         @if($matter)
-        <div class="col-md-3"><a class="btn btn-outline-success" href="{{ route('organization.cost-bills.pdf', [$org->slug, $matter->id]) }}">PDF</a></div>
+        <div class="col-md-3"><x-ikona znak="file" label="PDF" :href="route('organization.cost-bills.pdf', [$org->slug, $matter->id])" /></div>
         @endif
     </div>
 </form>

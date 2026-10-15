@@ -52,7 +52,7 @@
     <label class="form-label" for="q">Naziv ili broj</label>
     <div class="row g-2">
         <div class="col-md-9"><input id="q" name="q" value="{{ $term }}" class="form-control form-control-sm" placeholder="npr. sav, obveznim odnosima ili NN 34/2023"></div>
-        <div class="col-md-3"><button class="btn btn-primary btn-sm" type="submit">Traži</button></div>
+        <div class="col-md-3"><x-ikona znak="search" label="Traži" /></div>
     </div>
 </form>
 <div class="row g-3">

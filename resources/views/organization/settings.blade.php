@@ -26,7 +26,7 @@
     <div class="row">
         <div class="col-md-6 mb-3"><label class="form-label">IBAN depozitnog računa</label><input name="trust_iban" class="form-control" value="{{ old('trust_iban', $organization->trust_iban) }}"><div class="form-text">Odvojen od poslovnog IBAN-a. Sredstva stranaka ne ulaze u prihod ureda.</div></div>
     </div>
-    <button class="btn btn-primary" type="submit">Spremi</button>
+    <x-ikona znak="check" label="Spremi" />
 </form>
 
 @perm('team.manage')

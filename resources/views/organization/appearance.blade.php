@@ -95,7 +95,7 @@
     @error('icon_style')
         <div class="text-danger small mb-2">{{ $message }}</div>
     @enderror
-    <button type="submit" class="btn btn-success btn-sm btn-spremi">Spremi temu</button>
+    <x-ikona znak="check" label="Spremi temu" />
     <span id="temaPoruka" class="ms-2 small text-muted"></span>
 </form>
 @endsection

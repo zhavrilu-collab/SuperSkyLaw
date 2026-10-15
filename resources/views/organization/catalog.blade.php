@@ -25,11 +25,11 @@
                             <label class="form-label" for="red{{ $template->id }}">Red</label>
                             <input type="number" name="position" id="red{{ $template->id }}" class="form-control" min="1" max="50" required value="{{ $template->position }}">
                         </div>
-                        <button class="btn btn-primary btn-sm" type="submit">Spremi</button>
+                        <x-ikona znak="check" label="Spremi" />
                     </form>
                     <form method="POST" action="{{ route('organization.settings.catalog.stages.destroy', [$organization->slug, $template->id]) }}" class="mb-3">
                         @csrf @method('DELETE')
-                        <button class="btn btn-outline-danger btn-sm" type="submit">Ukloni iz predloška</button>
+                        <x-ikona znak="trash" label="Ukloni iz predloška" />
                     </form>
                 @endforeach
                 <form method="POST" action="{{ route('organization.settings.catalog.stages.store', $organization->slug) }}" class="d-flex gap-2 align-items-end">
@@ -39,7 +39,7 @@
                         <label class="form-label" for="noviStadij{{ $kind->value }}">Novi stadij</label>
                         <input name="name" id="noviStadij{{ $kind->value }}" class="form-control" required maxlength="80">
                     </div>
-                    <button class="btn btn-outline-secondary btn-sm" type="submit">Dodaj</button>
+                    <x-ikona znak="plus" label="Dodaj" />
                 </form>
             </div>
             <div class="col-lg-6">
@@ -52,11 +52,11 @@
                         @if(in_array($category->name, $statutoryNames, true))
                             <p class="small text-muted mb-1">Zakonski rok traži točno ovaj naziv. Ako ga promijenite, rok više neće iskociti.</p>
                         @endif
-                        <button class="btn btn-primary btn-sm" type="submit">Spremi</button>
+                        <x-ikona znak="check" label="Spremi" />
                     </form>
                     <form method="POST" action="{{ route('organization.settings.catalog.categories.destroy', [$organization->slug, $category->id]) }}" class="mb-3">
                         @csrf @method('DELETE')
-                        <button class="btn btn-outline-danger btn-sm" type="submit">Obriši</button>
+                        <x-ikona znak="trash" label="Obriši" />
                     </form>
                 @endforeach
                 <form method="POST" action="{{ route('organization.settings.catalog.categories.store', $organization->slug) }}" class="d-flex gap-2 align-items-end">
@@ -66,7 +66,7 @@
                         <label class="form-label" for="noviSpor{{ $kind->value }}">Novi predmet spora</label>
                         <input name="name" id="noviSpor{{ $kind->value }}" class="form-control" required maxlength="160">
                     </div>
-                    <button class="btn btn-outline-secondary btn-sm" type="submit">Dodaj</button>
+                    <x-ikona znak="plus" label="Dodaj" />
                 </form>
             </div>
         </div>

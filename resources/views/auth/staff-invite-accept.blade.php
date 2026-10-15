@@ -10,7 +10,7 @@
         <div class="mb-3"><label class="form-label">E-mail</label><input type="email" class="form-control" value="{{ $invite->email }}" disabled></div>
         <div class="mb-3"><label class="form-label" for="password">Lozinka</label><input type="password" name="password" id="password" class="form-control" required></div>
         <div class="mb-3"><label class="form-label" for="password_confirmation">Potvrda lozinke</label><input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required></div>
-        <button type="submit" class="btn btn-primary w-100">Prihvati pozivnicu</button>
+        <x-ikona znak="check" label="Prihvati pozivnicu" />
     </form>
 </div></div>
 @endsection

@@ -23,7 +23,7 @@
         <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-outline-secondary btn-sm" href="{{ route('organization.invoices.index', $org->slug) }}">Financije</a>
             @planFeature('tariff_hok')
-                <a class="btn btn-outline-secondary btn-sm" href="{{ route('organization.cost-bills.pdf', [$org->slug, $matter->id]) }}">Troškovnik PDF</a>
+                <x-ikona znak="file" label="Troškovnik PDF" :href="route('organization.cost-bills.pdf', [$org->slug, $matter->id])" />
             @endplanFeature
         </div>
     </div>
@@ -50,7 +50,7 @@
             <form class="d-inline" method="POST" action="{{ route('organization.time.stop', [$org->slug, $runningEntry->id]) }}">
                 @csrf
                 <input type="hidden" name="return_to" value="matter">
-                <button class="btn btn-sm btn-dark" type="submit">Zaustavi</button>
+                <x-ikona znak="stop" label="Zaustavi" />
             </form>
         </div>
     @endif
@@ -91,13 +91,13 @@
                                     @if(!$entry->isRunning() && !$entry->invoice_id && in_array($entry->status->value, ['draft', 'approved', 'non_billable'], true))
                                         <div class="d-flex gap-1">
                                             @if($entry->status->value !== 'approved')
-                                                <form method="POST" action="{{ route('organization.time.approve', [$org->slug, $entry->id]) }}">@csrf<input type="hidden" name="return_to" value="matter"><button class="btn btn-sm btn-outline-success" type="submit">Odobri</button></form>
+                                                <form method="POST" action="{{ route('organization.time.approve', [$org->slug, $entry->id]) }}">@csrf<input type="hidden" name="return_to" value="matter"><x-ikona znak="check" label="Odobri" /></form>
                                             @endif
                                             @if($entry->status->value !== 'written_off')
-                                                <form method="POST" action="{{ route('organization.time.write-off', [$org->slug, $entry->id]) }}">@csrf<input type="hidden" name="return_to" value="matter"><button class="btn btn-sm btn-outline-secondary" type="submit">Otpis</button></form>
+                                                <form method="POST" action="{{ route('organization.time.write-off', [$org->slug, $entry->id]) }}">@csrf<input type="hidden" name="return_to" value="matter"><x-ikona znak="minus" label="Otpis" /></form>
                                             @endif
                                             @if($entry->status->value !== 'non_billable')
-                                                <form method="POST" action="{{ route('organization.time.non-billable', [$org->slug, $entry->id]) }}">@csrf<input type="hidden" name="return_to" value="matter"><button class="btn btn-sm btn-outline-secondary" type="submit">Nenaplativo</button></form>
+                                                <form method="POST" action="{{ route('organization.time.non-billable', [$org->slug, $entry->id]) }}">@csrf<input type="hidden" name="return_to" value="matter"><x-ikona znak="ban" label="Nenaplativo" /></form>
                                             @endif
                                         </div>
                                     @endif
@@ -119,7 +119,7 @@
                     <label class="form-label" for="opisStoperice">Štoperica</label>
                     <input name="description" id="opisStoperice" class="form-control" placeholder="Opis radnje" required>
                 </div>
-                <button class="btn btn-primary btn-sm" type="submit">Pokreni</button>
+                <x-ikona znak="play" label="Pokreni" />
             </form>
             <form method="POST" action="{{ route('organization.time.store', $org->slug) }}" class="d-flex flex-wrap gap-2 align-items-end">
                 @csrf
@@ -133,7 +133,7 @@
                     <label class="form-label" for="minuteRucnogUnosa">Minute</label>
                     <input name="minutes" id="minuteRucnogUnosa" type="number" min="1" max="1440" class="form-control" required>
                 </div>
-                <button class="btn btn-primary btn-sm" type="submit">Unesi sate</button>
+                <x-ikona znak="check" label="Unesi sate" />
             </form>
         </div>
     @endif
@@ -198,7 +198,7 @@
                     <option value="opposing">Protivna strana</option>
                 </select>
             </div>
-            <button class="btn btn-primary btn-sm" type="submit">Unesi</button>
+            <x-ikona znak="check" label="Unesi" />
         </form>
     @endif
 </div>
@@ -251,7 +251,7 @@
                 <label class="form-label" for="namjenaTarife">Kome</label>
                 <select name="audience" id="namjenaTarife" class="form-select">@foreach(\App\Enums\FeeAudience::cases() as $audience)<option value="{{ $audience->value }}">{{ $audience->label() }}</option>@endforeach</select>
             </div>
-            <button class="btn btn-primary btn-sm" type="submit">Obračunaj</button>
+            <x-ikona znak="check" label="Obračunaj" />
         </form>
     @endif
 </div>
@@ -297,7 +297,7 @@
                         @endforeach
                     </select>
                 </div>
-                <button class="btn btn-primary btn-sm" type="submit">Izdaj račun</button>
+                <x-ikona znak="check" label="Izdaj račun" />
             </form>
             @unless($imaStavke)
                 <p class="small text-muted mb-0 mt-2">Nema stavki za račun.</p>
@@ -349,7 +349,7 @@
                 <label class="form-label" for="svrhaDepozita">Svrha</label>
                 <input name="purpose" id="svrhaDepozita" class="form-control" required>
             </div>
-            <button class="btn btn-primary btn-sm" type="submit">Upiši</button>
+            <x-ikona znak="check" label="Upiši" />
         </form>
     @endif
 </div>

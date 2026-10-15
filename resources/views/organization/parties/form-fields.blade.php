@@ -31,7 +31,7 @@
         <label class="form-check-label" for="sms-consent">Privola za SMS. Bez privole se poruka ne šalje i ne naplaćuje.</label>
     </div>
     @perm('parties.manage')
-    <button class="btn btn-primary btn-sm" type="submit">Spremi</button>
+    <x-ikona znak="check" label="Spremi" />
     @endperm
 </form>
 @if($party->exists && $party->kind?->value === 'company')
@@ -40,7 +40,7 @@
     @csrf
     <h2 class="h6 text-tema">Sudski registar</h2>
     <p class="text-muted">Dohvat po OIB-u ili MBS-u. Osobni OIB se ne traži.</p>
-    <button class="btn btn-outline-success btn-sm" type="submit">Dohvati podatke tvrtke</button>
+    <x-ikona znak="download" label="Dohvati podatke tvrtke" />
 </form>
 @endperm
 @endif
@@ -53,7 +53,7 @@
     <div class="row">
         <div class="col-md-6 mb-2"><label class="form-label" for="portalEmail">E-mail za prijavu</label><input name="email" id="portalEmail" type="email" class="form-control" value="{{ old('email', $party->email) }}" required></div>
         <div class="col-md-4 mb-2"><label class="form-label" for="portalLozinka">Lozinka</label><input name="password" id="portalLozinka" type="text" class="form-control" required></div>
-        <div class="col-md-2 mb-2 d-flex align-items-end"><button class="btn btn-primary btn-sm" type="submit">Otvori</button></div>
+        <div class="col-md-2 mb-2 d-flex align-items-end"><x-ikona znak="check" label="Otvori" /></div>
     </div>
     <div class="form-text">Lozinka ima najmanje 8 znakova.</div>
 </form>

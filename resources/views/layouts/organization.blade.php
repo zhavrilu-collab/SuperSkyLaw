@@ -17,7 +17,7 @@
             @endif
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button class="btn btn-outline-light btn-sm" type="submit">Odjava</button>
+                <x-ikona znak="logout" label="Odjava" />
             </form>
         </div>
     </div>

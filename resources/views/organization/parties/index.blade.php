@@ -15,7 +15,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h5 text-tema mb-0">Stranke</h1>
     @perm('parties.manage')
-    <a class="btn btn-primary btn-sm" href="{{ route('organization.parties.create', $org->slug) }}">Nova stranka</a>
+    <x-ikona znak="plus" label="Nova stranka" :href="route('organization.parties.create', $org->slug)" />
     @endperm
 </div>
 <div class="kartica-kontejner">
@@ -35,9 +35,9 @@
                 <option value="{{ $city }}" @selected($filters['city'] === $city)>{{ $city }}</option>
             @endforeach
         </select>
-        <button class="btn btn-primary btn-sm" type="submit">Traži</button>
+        <x-ikona znak="search" label="Traži" />
         @if($filtersActive)
-            <a class="btn btn-outline-secondary btn-sm" href="{{ route('organization.parties.index', $org->slug) }}">Poništi</a>
+            <x-ikona znak="x" label="Poništi" :href="route('organization.parties.index', $org->slug)" />
         @endif
     </form>
     <div class="table-responsive">

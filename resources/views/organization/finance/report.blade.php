@@ -7,7 +7,7 @@
 <h2 class="h5 text-tema mb-3">Izvještaj naplate</h2>
 <form method="GET" class="mb-3">
     <input type="month" name="month" value="{{ $report['month'] }}" class="form-control d-inline-block w-auto">
-    <button class="btn btn-primary btn-sm" type="submit">Prikaži</button>
+    <x-ikona znak="search" label="Prikaži" />
 </form>
 <div class="row g-3">
     <div class="col-md-3"><div class="kartica-kontejner"><div class="text-muted">Utilizacija</div><strong>{{ number_format($report['utilization'] * 100, 1, ',', '.') }} %</strong><div class="small text-muted">{{ $report['billable_minutes'] }} / {{ $report['available_minutes'] }} min</div></div></div>

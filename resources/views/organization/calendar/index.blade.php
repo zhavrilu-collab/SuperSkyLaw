@@ -64,7 +64,7 @@
                             <td>
                                 @perm('calendar.manage')
                                 @if(!$event->completed_at)
-                                <form method="POST" action="{{ route('organization.calendar.complete', [$org->slug, $event->id]) }}">@csrf<button class="btn btn-sm btn-outline-success" type="submit">Obavljeno</button></form>
+                                <form method="POST" action="{{ route('organization.calendar.complete', [$org->slug, $event->id]) }}">@csrf<x-ikona znak="check" label="Obavljeno" /></form>
                                 @endif
                                 @if($event->matter && $event->matter->parties->isNotEmpty())
                                 <form method="POST" action="{{ route('organization.calendar.sms', [$org->slug, $event->id]) }}" class="mt-1">
@@ -74,7 +74,7 @@
                                             <option value="{{ $link->party_id }}">{{ $link->party->name }}{{ $link->party->sms_consent_at ? '' : ' (nema privole)' }}</option>
                                         @endforeach
                                     </select>
-                                    <button class="btn btn-sm btn-outline-secondary" type="submit">SMS</button>
+                                    <x-ikona znak="chat" label="SMS" />
                                 </form>
                                 @endif
                                 @endperm
@@ -112,7 +112,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3"><button class="btn btn-primary btn-sm" type="submit">Upiši stavku</button></div>
+            <div class="col-md-3"><x-ikona znak="check" label="Upiši stavku" /></div>
         </div>
     </form>
     @endif
@@ -127,7 +127,7 @@
             @csrf
             <div class="modal-header">
                 <h2 class="modal-title h6 text-tema" id="noviTerminNaslov">Novi termin</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Zatvori" aria-label="Zatvori"></button>
             </div>
             <div class="modal-body">
                 @if($terminGreske)
@@ -196,8 +196,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Odustani</button>
-                <button class="btn btn-primary btn-sm" type="submit">Spremi</button>
+                <x-ikona znak="x" label="Odustani" type="button" data-bs-dismiss="modal" />
+                <x-ikona znak="check" label="Spremi" />
             </div>
         </form>
     </div>
@@ -214,7 +214,7 @@
             <form method="POST" action="{{ route('organization.calendar.import', $org->slug) }}" class="row g-2">
                 @csrf
                 <div class="col-md-8"><input name="feed_url" type="url" class="form-control" placeholder="Adresa vanjskog ICS feeda" required></div>
-                <div class="col-md-4"><button class="btn btn-primary btn-sm" type="submit">Uvezi</button></div>
+                <div class="col-md-4"><x-ikona znak="download" label="Uvezi" /></div>
             </form>
             @endperm
         </div>

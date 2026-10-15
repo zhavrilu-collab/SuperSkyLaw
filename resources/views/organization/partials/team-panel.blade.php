@@ -50,7 +50,7 @@
                                             <form method="POST" action="{{ route('organization.team.destroy', [$organization->slug, $member]) }}" onsubmit="return confirm('Ukloniti člana iz tima?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-outline-danger btn-sm">Ukloni</button>
+                                                <x-ikona znak="trash" label="Ukloni" />
                                             </form>
                                         @endunless
                                     </td>
@@ -81,7 +81,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Pošalji pozivnicu</button>
+                        <x-ikona znak="send" label="Pošalji pozivnicu" />
                     </form>
                 </div>
             </div>

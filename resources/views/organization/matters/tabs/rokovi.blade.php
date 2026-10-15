@@ -51,8 +51,8 @@
                         <input type="date" name="receipt_on" id="primitak{{ $rule['key'] }}" class="form-control" required value="{{ old('rule') === $rule['key'] ? old('receipt_on') : '' }}">
                     </div>
                     <div class="col-md-6 d-flex gap-2 align-items-end">
-                        <button class="btn btn-outline-secondary btn-sm" name="intent" value="preview" type="submit">Izračunaj</button>
-                        <button class="btn btn-primary btn-sm" name="intent" value="save" type="submit">Upiši rok</button>
+                        <x-ikona znak="calculator" label="Izračunaj" name="intent" value="preview" />
+                        <x-ikona znak="check" label="Upiši rok" name="intent" value="save" />
                     </div>
                 </div>
             </form>
@@ -75,7 +75,7 @@
         </select>
         <label class="form-label" for="pocetakZastare">Početak</label>
         <input type="date" name="starts_on" id="pocetakZastare" class="form-control mb-2" required>
-        <button class="btn btn-primary btn-sm" type="submit">Izračunaj i upiši rok</button>
+        <x-ikona znak="check" label="Izračunaj i upiši rok" />
     </form>
     @endperm
 </div>

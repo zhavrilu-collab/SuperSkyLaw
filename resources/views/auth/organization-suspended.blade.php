@@ -5,6 +5,6 @@
     <h1 class="h5 text-tema mb-3">Pristup suspendiran</h1>
     <p class="text-muted">Pristup uredu <strong>{{ $organization->name }}</strong> je privremeno onemogućen.</p>
     <a href="{{ route('organization.pick') }}" class="btn btn-outline-success">Odaberi drugi ured</a>
-    <form method="POST" action="{{ route('logout') }}" class="d-inline">@csrf<button type="submit" class="btn btn-primary">Odjava</button></form>
+    <form method="POST" action="{{ route('logout') }}" class="d-inline">@csrf<x-ikona znak="logout" label="Odjava" /></form>
 </div></div>
 @endsection

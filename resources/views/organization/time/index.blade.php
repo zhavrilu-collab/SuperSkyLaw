@@ -10,7 +10,7 @@
 </div>
 @if($running)
     <div class="alert alert-success">Štoperica radi od {{ $running->started_at->timezone(config('app.timezone'))->format('H:i') }} — {{ $running->description }}
-        <form class="d-inline" method="POST" action="{{ route('organization.time.stop', [$org->slug, $running->id]) }}">@csrf<button class="btn btn-sm btn-dark" type="submit">Zaustavi</button></form>
+        <form class="d-inline" method="POST" action="{{ route('organization.time.stop', [$org->slug, $running->id]) }}">@csrf<x-ikona znak="stop" label="Zaustavi" /></form>
     </div>
 @endif
 <p class="text-muted">Sati se upisuju na predmetu, u Obračunu. Ovdje je pregled ureda.</p>
@@ -33,13 +33,13 @@
                                 @if(!$entry->isRunning() && !$entry->invoice_id && in_array($entry->status->value, ['draft', 'approved', 'non_billable']))
                                 <div class="d-flex gap-1">
                                     @if($entry->status->value !== 'approved')
-                                    <form method="POST" action="{{ route('organization.time.approve', [$org->slug, $entry->id]) }}">@csrf<button class="btn btn-sm btn-outline-success" type="submit">Odobri</button></form>
+                                    <form method="POST" action="{{ route('organization.time.approve', [$org->slug, $entry->id]) }}">@csrf<x-ikona znak="check" label="Odobri" /></form>
                                     @endif
                                     @if($entry->status->value !== 'written_off')
-                                    <form method="POST" action="{{ route('organization.time.write-off', [$org->slug, $entry->id]) }}">@csrf<button class="btn btn-sm btn-outline-secondary" type="submit">Otpis</button></form>
+                                    <form method="POST" action="{{ route('organization.time.write-off', [$org->slug, $entry->id]) }}">@csrf<x-ikona znak="minus" label="Otpis" /></form>
                                     @endif
                                     @if($entry->status->value !== 'non_billable')
-                                    <form method="POST" action="{{ route('organization.time.non-billable', [$org->slug, $entry->id]) }}">@csrf<button class="btn btn-sm btn-outline-secondary" type="submit">Nenaplativo</button></form>
+                                    <form method="POST" action="{{ route('organization.time.non-billable', [$org->slug, $entry->id]) }}">@csrf<x-ikona znak="ban" label="Nenaplativo" /></form>
                                     @endif
                                 </div>
                                 @endif

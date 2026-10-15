@@ -61,7 +61,7 @@
                 <input type="file" name="file" id="datotekaPredmeta" class="form-control" required>
             </div>
         </div>
-        <button class="btn btn-primary btn-sm mt-2" type="submit">Spremi dokument</button>
+        <x-ikona znak="check" label="Spremi dokument" class="mt-2" />
     </form>
     @endperm
 </div>

@@ -6,10 +6,10 @@
 @include('organization.finance-areas')
 <div class="d-flex justify-content-between mb-3">
     <h2 class="h5 text-tema mb-0">Račun {{ $invoice->number }}</h2>
-    <a class="btn btn-outline-success btn-sm" href="{{ route('organization.invoices.pdf', [$org->slug, $invoice->id]) }}">PDF</a>
+    <x-ikona znak="file" label="PDF" :href="route('organization.invoices.pdf', [$org->slug, $invoice->id])" />
     @planFeature('e_invoice')
     @perm('finance.manage')
-    <form method="POST" action="{{ route('organization.invoices.einvoice', [$org->slug, $invoice->id]) }}">@csrf<button class="btn btn-primary btn-sm" type="submit">e-Račun</button></form>
+    <form method="POST" action="{{ route('organization.invoices.einvoice', [$org->slug, $invoice->id]) }}">@csrf<x-ikona znak="send" label="e-Račun" /></form>
     @endperm
     @endplanFeature
 </div>
@@ -39,7 +39,7 @@
         <div class="col-md-4 mb-2"><input type="date" name="paid_on" class="form-control" value="{{ now()->toDateString() }}" required></div>
         <div class="col-md-4 mb-2"><input name="note" class="form-control" placeholder="Napomena"></div>
     </div>
-    <button class="btn btn-primary btn-sm" type="submit">Evidentiraj uplatu</button>
+    <x-ikona znak="check" label="Evidentiraj uplatu" />
 </form>
 @endperm
 @endsection

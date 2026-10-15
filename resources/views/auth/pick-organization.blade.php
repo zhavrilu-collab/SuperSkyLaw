@@ -14,7 +14,7 @@
                 </label>
             @endforeach
         </div>
-        <button type="submit" class="btn btn-primary">Nastavi</button>
+        <x-ikona znak="check" label="Nastavi" />
     </form>
 </div></div>
 @endsection

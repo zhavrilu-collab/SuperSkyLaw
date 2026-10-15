@@ -11,7 +11,7 @@
         <div class="col-md-4"><label class="form-label">Predmet</label><select name="matter_id" class="form-select" required>@foreach($matters as $matter)<option value="{{ $matter->id }}">{{ $matter->internal_number }}</option>@endforeach</select></div>
         <div class="col-md-3"><label class="form-label">Mapa</label><input name="folder" class="form-control" value="Podnesci"></div>
         <div class="col-md-3"><label class="form-label">Datoteka</label><input type="file" name="file" class="form-control" required></div>
-        <div class="col-md-2"><button class="btn btn-primary" type="submit">Spremi</button></div>
+        <div class="col-md-2"><x-ikona znak="check" label="Spremi" /></div>
     </div>
 </form>
 @endperm
@@ -26,15 +26,15 @@
                     <td>{{ $document->folder }}</td>
                     <td>{{ $document->original_name }}@if($versioning) <span class="text-muted">v{{ $document->version }}</span>@endif</td>
                     <td class="text-end">
-                        <a href="{{ route('organization.documents.download', [$org->slug, $document->id]) }}">Preuzmi</a>
+                        <x-ikona znak="download" label="Preuzmi" :href="route('organization.documents.download', [$org->slug, $document->id])" />
                         @planFeature('esign')
                         @perm('documents.manage')
-                        <form class="d-inline" method="POST" action="{{ route('organization.documents.sign', [$org->slug, $document->id]) }}">@csrf<button class="btn btn-link btn-sm" type="submit">e-Potpis</button></form>
+                        <form class="d-inline" method="POST" action="{{ route('organization.documents.sign', [$org->slug, $document->id]) }}">@csrf<x-ikona znak="pencil" label="e-Potpis" /></form>
                         @if($document->signatureRequest)<span class="text-muted">{{ $document->signatureRequest->status->label() }}</span>@endif
                         @endperm
                         @endplanFeature
                         @perm('documents.manage')
-                        <form class="d-inline" method="POST" action="{{ route('organization.documents.share', [$org->slug, $document->id]) }}">@csrf<button class="btn btn-link btn-sm" type="submit">{{ $document->shared_with_client ? 'Sakrij od klijenta' : 'Pokaži klijentu' }}</button></form>
+                        <form class="d-inline" method="POST" action="{{ route('organization.documents.share', [$org->slug, $document->id]) }}">@csrf<x-ikona :znak="$document->shared_with_client ? 'eye-off' : 'eye'" :label="$document->shared_with_client ? 'Sakrij od klijenta' : 'Pokaži klijentu'" /></form>
                         @endperm
                         @if($versioning)
                             @foreach($document->versions as $version)
@@ -44,12 +44,12 @@
                             <form class="d-inline" method="POST" action="{{ route('organization.documents.version', [$org->slug, $document->id]) }}" enctype="multipart/form-data">
                                 @csrf
                                 <input type="file" name="file" class="form-control form-control-sm d-inline-block w-auto" required>
-                                <button class="btn btn-sm btn-outline-success" type="submit">Nova verzija</button>
+                                <x-ikona znak="upload" label="Nova verzija" />
                             </form>
                             @endperm
                         @endif
                         @perm('documents.delete')
-                        <form class="d-inline" method="POST" action="{{ route('organization.documents.destroy', [$org->slug, $document->id]) }}">@csrf @method('DELETE')<button class="btn btn-link btn-sm text-danger" type="submit">Obriši</button></form>
+                        <form class="d-inline" method="POST" action="{{ route('organization.documents.destroy', [$org->slug, $document->id]) }}">@csrf @method('DELETE')<x-ikona znak="trash" label="Obriši" /></form>
                         @endperm
                     </td>
                 </tr>

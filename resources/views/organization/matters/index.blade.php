@@ -19,7 +19,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h5 text-tema mb-0">Predmeti</h1>
     @perm('matters.manage')
-    <a class="btn btn-primary btn-sm" href="{{ route('organization.matters.create', $org->slug) }}">Novi predmet</a>
+    <x-ikona znak="plus" label="Novi predmet" :href="route('organization.matters.create', $org->slug)" />
     @endperm
 </div>
 <div class="kartica-kontejner">
@@ -62,9 +62,9 @@
                 <option value="{{ $phase->value }}" @selected($filters['status'] === $phase->value)>{{ $phase->label() }}</option>
             @endforeach
         </select>
-        <button class="btn btn-primary btn-sm" type="submit">Traži</button>
+        <x-ikona znak="search" label="Traži" />
         @if($filtersActive)
-            <a class="btn btn-outline-secondary btn-sm" href="{{ route('organization.matters.index', $org->slug) }}">Poništi</a>
+            <x-ikona znak="x" label="Poništi" :href="route('organization.matters.index', $org->slug)" />
         @endif
     </form>
     <div class="table-responsive">
