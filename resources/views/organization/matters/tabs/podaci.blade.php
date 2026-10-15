@@ -311,9 +311,14 @@
                     <label class="form-label" for="zapisStadija">Zapis</label>
                     <input name="body" id="zapisStadija" class="form-control form-control-sm" value="{{ old('_stage') ? '' : old('body') }}" placeholder="Kratki zapis uz stadij">
                 </div>
-                <button class="ikona odluka" type="submit" title="Otvori stadij" aria-label="Otvori stadij">
-                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
-                </button>
+                <div class="novi-stadij-akcije">
+                    <button type="button" class="ikona odluka" id="odustaniNoviStadij" title="Odustani" aria-label="Odustani">
+                        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
+                    </button>
+                    <button class="ikona odluka" type="submit" title="Otvori stadij" aria-label="Otvori stadij">
+                        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                    </button>
+                </div>
                 @if($nextStageName === null)
                     <p class="form-text novi-stadij-napomena">Predložak je iskorišten. Upišite svoj naziv.</p>
                 @endif
@@ -664,6 +669,16 @@
                 const polje = document.getElementById('nazivStadija');
                 if (polje) polje.focus();
             }
+        });
+    }
+    const odustaniNoviStadij = document.getElementById('odustaniNoviStadij');
+    if (odustaniNoviStadij && noviStadij) {
+        odustaniNoviStadij.addEventListener('click', function () {
+            noviStadij.querySelectorAll('input').forEach(function (polje) {
+                if (polje.type === 'hidden') return;
+                polje.value = polje.defaultValue;
+            });
+            noviStadij.hidden = true;
         });
     }
     document.querySelectorAll('.predlozak-korak.ceka').forEach(function (gumb) {

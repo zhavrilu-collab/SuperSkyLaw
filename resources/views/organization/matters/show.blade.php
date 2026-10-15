@@ -46,6 +46,7 @@
     button.predlozak-korak.ceka { cursor: pointer; }
     .predlozak-strelica { color: #8b9374; font-size: 12px; }
     .novi-stadij { display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr) auto; gap: 8px; align-items: end; margin-bottom: 12px; }
+    .novi-stadij-akcije { display: flex; gap: 2px; align-items: center; }
     .novi-stadij-napomena { grid-column: 1 / -1; margin: 0; }
     .stadij-red { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) auto auto; gap: 8px 12px; align-items: center; padding: 11px 0; border-top: 1px solid #e6eadc; }
     .stadij-zapis { min-width: 0; }
