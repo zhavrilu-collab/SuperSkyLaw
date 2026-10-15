@@ -27,6 +27,7 @@ use App\Http\Controllers\MailIntakeController;
 use App\Http\Controllers\MatterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfficeCatalogController;
+use App\Http\Controllers\OfficeEntryController;
 use App\Http\Controllers\OfficeSettingsController;
 use App\Http\Controllers\OrganizationDashboardController;
 use App\Http\Controllers\OrganizationPickerController;
@@ -106,6 +107,7 @@ Route::prefix('{slug}')
         Route::get('/ured', [OfficeSettingsController::class, 'edit'])->name('organization.settings.edit');
         Route::put('/ured', [OfficeSettingsController::class, 'update'])->name('organization.settings.update');
         Route::get('/postavke', [OfficeSettingsController::class, 'appearance'])->name('organization.settings.appearance');
+        Route::get('/postavke/kalendar', [OfficeSettingsController::class, 'calendar'])->name('organization.settings.calendar');
         Route::put('/postavke/tema', [OfficeSettingsController::class, 'updateTheme'])->name('organization.settings.theme');
         Route::get('/postavke/katalog', [OfficeCatalogController::class, 'index'])->name('organization.settings.catalog');
         Route::post('/postavke/katalog/stadiji', [OfficeCatalogController::class, 'storeStage'])->name('organization.settings.catalog.stages.store');
@@ -158,6 +160,8 @@ Route::prefix('{slug}')
 
         Route::get('/kalendar', [CalendarController::class, 'index'])->name('organization.calendar.index');
         Route::post('/kalendar', [CalendarController::class, 'store'])->name('organization.calendar.store');
+        Route::post('/unos', [OfficeEntryController::class, 'store'])->name('organization.entries.store');
+        Route::post('/zadaci/{task}/zavrsi', [OfficeEntryController::class, 'completeTask'])->whereNumber('task')->name('organization.tasks.complete');
         Route::post('/kalendar/{event}/zavrsi', [CalendarController::class, 'complete'])->whereNumber('event')->name('organization.calendar.complete');
         Route::post('/kalendar/{event}/tarifa', [CalendarController::class, 'charge'])->whereNumber('event')->name('organization.calendar.charge');
         Route::post('/kalendar/{event}/sms', [SmsNoticeController::class, 'store'])->whereNumber('event')->name('organization.calendar.sms');

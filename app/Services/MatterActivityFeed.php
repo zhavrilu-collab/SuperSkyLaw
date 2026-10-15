@@ -9,6 +9,7 @@ use App\Models\Matter;
 use App\Models\MatterDocument;
 use App\Models\MatterNote;
 use App\Models\MatterStage;
+use App\Models\OfficeTask;
 use App\Models\Payment;
 use App\Models\TariffCharge;
 use App\Models\TimeEntry;
@@ -43,7 +44,12 @@ class MatterActivityFeed
         });
 
         MatterNote::query()->with('user')->where('matter_id', $matter->id)->get()->each(function (MatterNote $note) use ($items): void {
-            $this->push($items, $note->created_at, 'Bilješka', $note->body, $note->user?->name);
+            $this->push($items, $note->noted_on ?? $note->created_at, 'Bilješka', $note->body, $note->user?->name);
+        });
+
+        OfficeTask::query()->with('assignee')->where('matter_id', $matter->id)->get()->each(function (OfficeTask $task) use ($items): void {
+            $text = $task->title.($task->completed_at ? ' · obavljeno' : '');
+            $this->push($items, $task->due_at ?? $task->created_at, 'Zadatak', $text, $task->assignee?->name);
         });
 
         MatterStage::query()->where('matter_id', $matter->id)->get()->each(function (MatterStage $stage) use ($items): void {

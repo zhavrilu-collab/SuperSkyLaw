@@ -1,5 +1,10 @@
 <div class="kartica-kontejner">
-    <h2 class="h6 text-tema">Rokovi i ročišta</h2>
+    <div class="d-flex justify-content-between align-items-center gap-2">
+        <h2 class="h6 text-tema mb-0">Rokovi i ročišta</h2>
+        @perm('calendar.manage')
+        <x-ikona znak="plus" label="Dodaj" type="button" data-unos-otvori data-kind="termin" data-matter="{{ $matter->id }}" />
+        @endperm
+    </div>
     @if($matter->courtEvents->isEmpty())
         <p class="text-muted">Nema upisanih rokova.</p>
     @else

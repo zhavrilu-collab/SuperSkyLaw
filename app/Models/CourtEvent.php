@@ -15,6 +15,7 @@ class CourtEvent extends Model
     protected $fillable = [
         'organization_id',
         'matter_id',
+        'stage_id',
         'type',
         'title',
         'court_name',
@@ -47,6 +48,11 @@ class CourtEvent extends Model
     public function matter(): BelongsTo
     {
         return $this->belongsTo(Matter::class);
+    }
+
+    public function stage(): BelongsTo
+    {
+        return $this->belongsTo(MatterStage::class, 'stage_id');
     }
 
     public function responsible(): BelongsTo

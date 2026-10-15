@@ -40,6 +40,6 @@
     @endperm
 
     @perm('settings.manage')
-    <a class="app-sidebar-link @if(request()->routeIs('organization.settings.appearance', 'organization.settings.catalog*')) active @endif" href="{{ route('organization.settings.appearance', $slug) }}">@include('partials.nav-icon', ['name' => 'gear'])Postavke</a>
+    <a class="app-sidebar-link @if(request()->routeIs('organization.settings.appearance', 'organization.settings.catalog*', 'organization.settings.calendar')) active @endif" href="{{ route('organization.settings.appearance', $slug) }}">@include('partials.nav-icon', ['name' => 'gear'])Postavke</a>
     @endperm
 </nav>

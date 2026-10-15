@@ -46,6 +46,9 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
+                                        @perm('calendar.manage')
+                                        <x-ikona znak="plus" label="Dodaj zadatak" type="button" data-unos-otvori data-kind="zadatak" data-user="{{ $member->user_id }}" />
+                                        @endperm
                                         @unless($member->isOwner())
                                             <form method="POST" action="{{ route('organization.team.destroy', [$organization->slug, $member]) }}" onsubmit="return confirm('Ukloniti člana iz tima?')">
                                                 @csrf

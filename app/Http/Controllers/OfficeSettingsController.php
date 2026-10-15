@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Enums\OrganizationRole;
 use App\Http\Controllers\Concerns\ResolvesOffice;
+use App\Models\Matter;
+use App\Models\MatterStage;
 use App\Models\OrganizationUser;
 use App\Models\StaffInvite;
 use App\Support\IconStyles;
@@ -36,6 +38,18 @@ class OfficeSettingsController extends Controller
                 ->orderByDesc('created_at')
                 ->get(),
             'roles' => OrganizationRole::cases(),
+            'entryMatters' => Matter::query()->visibleTo($this->membership())->orderBy('internal_number')->get(),
+            'entryStages' => MatterStage::query()->orderBy('name')->get(['id', 'matter_id', 'name']),
+        ]);
+    }
+
+    public function calendar(string $slug): View
+    {
+        $this->authorizePerm('settings.manage');
+        $this->authorizeFeature('calendar_sync');
+
+        return view('organization.settings-calendar', [
+            'organization' => $this->office(),
         ]);
     }
 

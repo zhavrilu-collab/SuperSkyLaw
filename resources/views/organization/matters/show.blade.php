@@ -150,4 +150,9 @@
     @endif
 </ul>
 @include('organization.matters.tabs.'.$tab)
+@include('organization.partials.unos-stavke', [
+    'unosMatters' => collect([$matter]),
+    'unosStages' => $matter->stages,
+    'unosMembers' => $members,
+])
 @endsection

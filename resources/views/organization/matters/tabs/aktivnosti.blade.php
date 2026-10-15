@@ -1,5 +1,10 @@
 <div class="kartica-kontejner">
-    <h2 class="h6 text-tema">Aktivnosti</h2>
+    <div class="d-flex justify-content-between align-items-center gap-2">
+        <h2 class="h6 text-tema mb-0">Aktivnosti</h2>
+        @perm('matters.manage')
+        <x-ikona znak="plus" label="Dodaj" type="button" data-unos-otvori data-kind="zapis" data-matter="{{ $matter->id }}" />
+        @endperm
+    </div>
     <p class="text-muted">Sve što je na predmetu nastalo: zapisi, rokovi, dokumenti, bilješke, stadiji, sati i novac.</p>
     @forelse($activities as $activity)
         <div class="border-top py-3">

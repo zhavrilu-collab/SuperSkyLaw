@@ -120,6 +120,11 @@ class Matter extends Model
         return $this->hasMany(MatterNote::class)->latest();
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(OfficeTask::class);
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);

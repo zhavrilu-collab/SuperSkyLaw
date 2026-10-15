@@ -382,7 +382,7 @@
                                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/></svg>
                             </button>
                             @endperm
-                            <button type="button" class="ikona odluka ikona-pregled" data-otvori=".dodatak-aktivnost" title="Dodaj aktivnost" aria-label="Dodaj aktivnost">
+                            <button type="button" class="ikona odluka ikona-pregled" data-unos-otvori data-kind="termin" data-matter="{{ $matter->id }}" data-stage="{{ $stage->id }}" title="Dodaj uz stadij" aria-label="Dodaj uz stadij">
                                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-11A1.5 1.5 0 0 0 13.5 1zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
                             </button>
                             @if($mozeObrisati)

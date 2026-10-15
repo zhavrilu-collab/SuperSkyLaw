@@ -354,12 +354,16 @@ class MatterController extends Controller
         $model = $this->findVisibleMatter($matter);
         $data = $request->validate([
             'body' => ['required', 'string', 'max:5000'],
+            'stage_id' => ['nullable', 'integer'],
+            'noted_on' => ['nullable', 'date'],
         ]);
 
         MatterNote::query()->create([
             'matter_id' => $model->id,
+            'stage_id' => $this->stageOnMatter($model, $data['stage_id'] ?? null),
             'user_id' => auth()->id(),
             'body' => $data['body'],
+            'noted_on' => $data['noted_on'] ?? null,
         ]);
 
         return redirect()
@@ -602,10 +606,13 @@ class MatterController extends Controller
             'body' => ['required', 'string', 'max:5000'],
             'occurred_at' => ['required', 'date'],
             'visible_to_client' => ['nullable', 'boolean'],
+            'stage_id' => ['nullable', 'integer'],
         ]);
+        $stageId = $data['stage_id'] ?? $request->input('stage_context');
 
         TimelineEntry::query()->create([
             'matter_id' => $model->id,
+            'stage_id' => $this->stageOnMatter($model, $stageId),
             'type' => $data['type'],
             'body' => $data['body'],
             'occurred_at' => $data['occurred_at'],
@@ -868,6 +875,20 @@ class MatterController extends Controller
             'status' => $matter->phase()->label(),
             default => (string) $matter->internal_number,
         };
+    }
+
+    private function stageOnMatter(Matter $matter, mixed $stageId): ?int
+    {
+        if ($stageId === null || $stageId === '') {
+            return null;
+        }
+
+        $stage = MatterStage::query()->where('matter_id', $matter->id)->find($stageId);
+        if ($stage === null) {
+            throw ValidationException::withMessages(['stage_id' => 'Stadij ne pripada ovom predmetu.']);
+        }
+
+        return $stage->id;
     }
 
     private function lawyers()

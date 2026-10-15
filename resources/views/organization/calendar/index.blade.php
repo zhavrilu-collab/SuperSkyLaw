@@ -6,7 +6,7 @@
     <h1 class="h5 text-tema mb-0">Kalendar</h1>
 </div>
 
-<div id="officeKalendar" data-can-manage="{{ app(\App\Services\OrganizationRbacService::class)->can($org->id, (int) auth()->id(), 'calendar.manage') ? '1' : '0' }}">
+<div id="officeKalendar" data-can-manage="{{ app(\App\Services\OrganizationRbacService::class)->can($org->id, (int) auth()->id(), 'calendar.manage') ? '1' : '0' }}" data-kalendar-url="{{ url('/'.$org->slug.'/kalendar') }}" data-zadaci-url="{{ url('/'.$org->slug.'/zadaci') }}">
     <div class="events-board-toolbar mb-2">
         <div class="events-board-filters">
             <input type="search" id="pretragaTermina" class="form-control form-control-sm events-board-search" placeholder="Pretraži termine...">
@@ -30,16 +30,21 @@
     </div>
 
     <div id="viewKalendar" class="events-kalendar-view">
-        <div class="kalendar-nav-row">
-            <div class="kalendar-nav">
-                <x-ikona znak="chevron-left" label="Prethodni" type="button" id="btnKalPrethodni" />
-                <h2 id="naslovKalendara" class="mb-0 kal-nav-naslov" title="Prikaži termine ovog razdoblja u listi"></h2>
-                <x-ikona znak="chevron-right" label="Sljedeći" type="button" id="btnKalSljedeci" />
+        <div class="kalendar-split">
+            <div class="kalendar-lijevo">
+                <div class="kalendar-nav-row">
+                    <div class="kalendar-nav">
+                        <x-ikona znak="chevron-left" label="Prethodni" type="button" id="btnKalPrethodni" />
+                        <h2 id="naslovKalendara" class="mb-0 kal-nav-naslov" title="Prikaži nadolazeće"></h2>
+                        <x-ikona znak="chevron-right" label="Sljedeći" type="button" id="btnKalSljedeci" />
+                    </div>
+                </div>
+                <div class="kalendar-kontejner">
+                    <div class="kalendar-grid kal-layout-mjesec" id="kalendarGrid"></div>
+                    <div class="mt-3 d-flex gap-3 flex-wrap events-kalendar-legenda" id="kalendarLegenda"></div>
+                </div>
             </div>
-        </div>
-        <div class="kalendar-kontejner">
-            <div class="kalendar-grid kal-layout-mjesec" id="kalendarGrid"></div>
-            <div class="mt-3 d-flex gap-3 flex-wrap events-kalendar-legenda" id="kalendarLegenda"></div>
+            <aside class="kalendar-desno" id="kalendarPanel" aria-live="polite"></aside>
         </div>
     </div>
 
@@ -117,111 +122,12 @@
     </form>
     @endif
 @endif
-@perm('calendar.manage')
-@php
-    $terminGreske = $errors->hasAny(['title', 'type', 'matter_id', 'court_name', 'starts_at', 'receipt_on', 'term_days', 'responsible_user_id', 'is_preclusive', 'e_oglasna_url']);
-@endphp
-<div class="modal fade" id="noviTerminProzor" tabindex="-1" aria-labelledby="noviTerminNaslov" aria-hidden="true" data-otvori="{{ $terminGreske ? '1' : '0' }}">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <form method="POST" action="{{ route('organization.calendar.store', $org->slug) }}" id="noviTerminForm" class="modal-content">
-            @csrf
-            <div class="modal-header">
-                <h2 class="modal-title h6 text-tema" id="noviTerminNaslov">Novi termin</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Zatvori" aria-label="Zatvori"></button>
-            </div>
-            <div class="modal-body">
-                @if($terminGreske)
-                    <div class="alert alert-danger py-2 small">
-                        @foreach(['title', 'type', 'matter_id', 'court_name', 'starts_at', 'receipt_on', 'term_days', 'responsible_user_id', 'e_oglasna_url'] as $polje)
-                            @error($polje)<div>{{ $message }}</div>@enderror
-                        @endforeach
-                    </div>
-                @endif
-                <div class="mb-2">
-                    <label class="form-label" for="noviTerminNaziv">Naziv</label>
-                    <input name="title" id="noviTerminNaziv" class="form-control form-control-sm" value="{{ old('title') }}" required>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label" for="noviTerminVrsta">Vrsta</label>
-                    <select name="type" id="noviTerminVrsta" class="form-select form-select-sm">
-                        @foreach(\App\Enums\CourtEventType::cases() as $type)
-                            <option value="{{ $type->value }}" @selected(old('type', 'hearing') === $type->value)>{{ $type->label() }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label" for="noviTerminPredmet">Predmet</label>
-                    <select name="matter_id" id="noviTerminPredmet" class="form-select form-select-sm">
-                        <option value="">Bez predmeta</option>
-                        @foreach($matters as $matter)
-                            <option value="{{ $matter->id }}" @selected((string) old('matter_id') === (string) $matter->id)>{{ $matter->internal_number }} — {{ $matter->title }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label" for="noviTerminSud">Sud</label>
-                    <input name="court_name" id="noviTerminSud" class="form-control form-control-sm" value="{{ old('court_name') }}">
-                </div>
-                <div class="mb-2">
-                    <label class="form-label" for="noviTerminOglasna">Poveznica na e-Oglasnu</label>
-                    <input name="e_oglasna_url" id="noviTerminOglasna" type="url" class="form-control form-control-sm" value="{{ old('e_oglasna_url') }}" placeholder="https://">
-                    <div class="form-text">Aplikacija poveznicu ne dohvaća. Ured je upisuje ručno.</div>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label" for="noviTerminPocetak">Datum i vrijeme</label>
-                    <input type="datetime-local" name="starts_at" id="noviTerminPocetak" class="form-control form-control-sm" value="{{ old('starts_at') }}">
-                </div>
-                <p class="small text-muted mb-1">Sudski rok, ako sud odredi broj dana od zaprimanja. Taj izračun zamjenjuje datum i vrijeme iznad.</p>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6">
-                        <label class="form-label" for="noviTerminZaprimanje">Datum zaprimanja</label>
-                        <input type="date" name="receipt_on" id="noviTerminZaprimanje" class="form-control form-control-sm" value="{{ old('receipt_on') }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="noviTerminDani">Broj dana</label>
-                        <input type="number" name="term_days" id="noviTerminDani" min="1" class="form-control form-control-sm" value="{{ old('term_days') }}">
-                    </div>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label" for="noviTerminOdgovorni">Odgovorna osoba</label>
-                    <select name="responsible_user_id" id="noviTerminOdgovorni" class="form-select form-select-sm">
-                        @foreach($members as $member)
-                            <option value="{{ $member->user_id }}" @selected((string) old('responsible_user_id', auth()->id()) === (string) $member->user_id)>{{ $member->user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="is_preclusive" value="1" id="pre" @checked(old('is_preclusive'))>
-                    <label class="form-check-label" for="pre">Prekluzivni rok</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <x-ikona znak="x" label="Odustani" type="button" data-bs-dismiss="modal" />
-                <x-ikona znak="check" label="Spremi" />
-            </div>
-        </form>
-    </div>
-</div>
-@endperm
-<div class="row g-3 mt-1">
-    @planFeature('calendar_sync')
-    <div class="col-lg-5">
-        <div class="kartica-kontejner">
-            <h2 class="h6 text-tema">Vanjski kalendar</h2>
-            <p class="mb-2"><a href="{{ route('organization.calendar.export', $org->slug) }}">Preuzmi ICS</a></p>
-            <p class="small text-muted">Google ili Outlook mogu se pretplatiti na: {{ route('calendar.feed', $org->feedToken('calendar_feed_token')) }}</p>
-            @perm('calendar.manage')
-            <form method="POST" action="{{ route('organization.calendar.import', $org->slug) }}" class="row g-2">
-                @csrf
-                <div class="col-md-8"><input name="feed_url" type="url" class="form-control" placeholder="Adresa vanjskog ICS feeda" required></div>
-                <div class="col-md-4"><x-ikona znak="download" label="Uvezi" /></div>
-            </form>
-            @endperm
-        </div>
-    </div>
-    @endplanFeature
-</div>
-<script type="application/json" id="kalendarPodaci">@json($calendarEvents)</script>
+@include('organization.partials.unos-stavke', [
+    'unosMatters' => $matters,
+    'unosStages' => $stages,
+    'unosMembers' => $members,
+])
+<script type="application/json" id="kalendarPodaci">@json($calendarBoard)</script>
 @endsection
 
 @push('styles')
@@ -230,8 +136,9 @@
     .events-board-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: 1 1 420px; min-width: 0; }
     .events-board-search { flex: 1 1 220px; min-width: 180px; max-width: 320px; }
     .events-board-filter { flex: 0 1 190px; min-width: 150px; max-width: 210px; }
-    .events-view-toolbar { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: auto; }
-    .events-view-toggle, .kal-layout-toolbar { display: flex; gap: 2px; justify-content: flex-end; }
+    .events-view-toolbar { flex: 0 0 auto; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 8px; margin-left: auto; }
+    .events-view-toggle, .kal-layout-toolbar { display: flex; flex-direction: row; gap: 2px; align-items: center; }
+    .events-view-toolbar .ikona { width: 28px; height: 28px; }
     .events-view-toolbar .ikona.active {
         background: var(--primarna-zelena);
         color: var(--tekst-na-primarnoj);
@@ -247,6 +154,22 @@
         box-shadow: inset 0 0 0 1px var(--tekst-na-primarnoj);
     }
     .events-kalendar-view { margin-top: 12px; }
+    .kalendar-split { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.9fr); gap: 16px; align-items: start; }
+    .kalendar-desno { background: white; border-radius: 16px; padding: 14px 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1px solid rgba(var(--tema-rgb), 0.12); max-height: calc(100vh - 160px); overflow: auto; position: sticky; top: 12px; }
+    .kal-panel-naslov { font-size: 14px; font-weight: 700; color: var(--primarna-tamna); margin: 0 0 8px; }
+    .kal-panel-veza { border: 0; background: transparent; color: var(--primarna-zelena); font-size: 12px; font-weight: 700; padding: 0; cursor: pointer; }
+    .kal-panel-dan { font-size: 11px; font-weight: 700; color: #5c6540; margin: 10px 0 4px; }
+    .kal-panel-stavka { display: block; width: 100%; text-align: left; border: 0; border-left: 3px solid var(--kal-bar, var(--primarna-zelena)); background: #f7f8f4; border-radius: 6px; padding: 6px 8px; margin: 0 0 4px; cursor: pointer; }
+    .kal-panel-stavka .vrijeme { font-size: 11px; color: #666; margin-right: 4px; }
+    .kal-panel-stavka .naziv { font-size: 12px; font-weight: 700; }
+    .kal-panel-stavka .meta { display: block; font-size: 11px; color: #5c6540; }
+    .kal-panel-stavka.gotovo { opacity: 0.55; }
+    .kal-detalj { display: grid; grid-template-columns: 92px 1fr; gap: 4px 8px; margin: 0; font-size: 12px; }
+    .kal-detalj dt { margin: 0; font-weight: 700; color: #5c6540; }
+    .kal-detalj dd { margin: 0; }
+    .kal-akcija { border: 0; background: var(--primarna-zelena); color: #fff; border-radius: 6px; font-size: 12px; font-weight: 700; padding: 4px 10px; cursor: pointer; }
+    .kal-dan.odabran, .kal-dan-stupac.odabran, .kal-dan-puna.odabran { box-shadow: inset 0 0 0 2px var(--primarna-zelena); }
+    .kal-event-bar.istaknuto, .kal-dogadjaj.istaknuto { outline: 2px solid var(--primarna-tamna); }
     .kalendar-kontejner { background: white; border-radius: 16px; padding: 14px 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1px solid rgba(var(--tema-rgb), 0.12); }
     .kalendar-nav-row { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 8px; }
     .kalendar-nav { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
@@ -282,6 +205,8 @@
     .kal-tocka { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     #listaTermina tr.istaknuto td { background: rgba(var(--tema-rgb), 0.12); }
     @@media (max-width: 900px) {
+        .kalendar-split { grid-template-columns: 1fr; }
+        .kalendar-desno { position: static; max-height: none; }
         .kalendar-grid.kal-layout-tjedan { grid-template-columns: 1fr; }
         .kal-mjesec-head { display: none; }
     }

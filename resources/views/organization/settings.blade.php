@@ -33,5 +33,10 @@
 <div class="mt-4">
     @include('organization.partials.team-panel')
 </div>
+@include('organization.partials.unos-stavke', [
+    'unosMatters' => $entryMatters,
+    'unosStages' => $entryStages,
+    'unosMembers' => $members,
+])
 @endperm
 @endsection
