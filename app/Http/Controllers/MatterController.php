@@ -244,6 +244,7 @@ class MatterController extends Controller
             'vrsta' => DocumentKind::tryFrom($request->string('vrsta')->toString())?->value ?? '',
             'stageShares' => $this->stages->shares($model->stages),
             'nextStageName' => $this->stages->suggestion($model),
+            'stageTemplate' => $this->stages->names($model),
             'lawyers' => $this->lawyers(),
             'parties' => Party::query()->orderBy('name')->get(),
             'members' => OrganizationUser::query()->with('user')->where('organization_id', $this->office()->id)->get(),

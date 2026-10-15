@@ -12,7 +12,41 @@
     .traka-stadija { display: flex; height: 16px; gap: 3px; }
     .traka-stadija span { display: block; height: 100%; min-width: 12px; border-radius: 3px; }
     .stadij-naslov { font-size: 13px; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+    .stadij-naslov input { text-transform: none; letter-spacing: 0; font-weight: 400; }
     .krug-osobe { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 10px; font-weight: 700; background: var(--svijetlo-zelena); border: 1px solid rgba(var(--tema-rgb), .35); color: var(--primarna-tamna); }
+    .predmet-cinjenice dd { min-width: 0; }
+    .predmet-cinjenice dt label { font-size: inherit; font-weight: inherit; color: inherit; margin: 0; }
+    .ikona { width: 28px; height: 28px; border: 0; background: transparent; border-radius: 6px; color: #5c6540; display: inline-grid; place-items: center; padding: 0; }
+    .ikona:hover { background: #f3f6ea; color: var(--primarna-tamna); }
+    .ikona.opasno { color: #9b1c1c; }
+    .ikona.opasno:hover { background: #fdecec; }
+    .ikona svg { width: 15px; height: 15px; display: block; }
+    .podaci-kartica #drugiSud { display: none; }
+    .podaci-kartica.ureduje #drugiSud.vidljiv { display: block; }
+    .podaci-kartica .akcije-uredivanja { display: none; }
+    .podaci-kartica.ureduje .moze .prikaz, .stadij-red.ureduje .prikaz { display: none; }
+    .podaci-kartica.ureduje .moze .unos, .stadij-red.ureduje .unos { display: block; }
+    .podaci-kartica.ureduje .akcije-uredivanja { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+    .podaci-kartica.ureduje .olovka-kartice, .stadij-red.ureduje .ikona-pregled { display: none; }
+    .stadij-red.ureduje .unos.datumi { display: flex; gap: 6px; align-items: center; }
+    .stadij-red.ureduje .unos.datumi input { width: 132px; }
+    .predlozak { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 12px; }
+    .predlozak-korak { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; font-weight: 700; background: none; border: 0; padding: 0; color: #5c6540; }
+    .predlozak-korak.aktivan { color: var(--primarna-tamna); }
+    .predlozak-korak.ceka { font-weight: 400; color: #8b9374; }
+    button.predlozak-korak.ceka { cursor: pointer; }
+    .predlozak-strelica { color: #8b9374; font-size: 12px; }
+    .novi-stadij { display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr) auto; gap: 8px; align-items: end; margin-bottom: 12px; }
+    .stadij-red { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) auto auto; gap: 8px 12px; align-items: center; padding: 11px 0; border-top: 1px solid #e6eadc; }
+    .stadij-zapis { min-width: 0; }
+    .stadij-zapis .prazno { color: #8b9374; }
+    .stadij-kad { font-size: 12px; color: #5c6540; font-weight: 700; white-space: nowrap; }
+    .stadij-akcije { display: flex; gap: 2px; justify-content: flex-end; align-items: center; }
+    .stadij-prilog { grid-column: 1 / -1; }
+    @media (max-width: 900px) {
+        .novi-stadij, .stadij-red { grid-template-columns: 1fr; }
+        .stadij-kad, .stadij-akcije { justify-self: start; }
+    }
     @media (max-width: 576px) {
         .predmet-cinjenice { grid-template-columns: 110px 1fr; }
     }

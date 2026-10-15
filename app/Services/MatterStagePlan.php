@@ -21,6 +21,14 @@ class MatterStagePlan
         ]);
     }
 
+    /**
+     * @return list<string>
+     */
+    public function names(Matter $matter): array
+    {
+        return array_column($this->templates($matter), 'name');
+    }
+
     public function suggestion(Matter $matter): ?string
     {
         $used = $matter->stages->pluck('name');

@@ -37,6 +37,20 @@ class MatterCardTest extends TestCase
             ->assertOk()
             ->assertSee('Podaci predmeta')
             ->assertSee('Stadij rada')
+            ->assertSee('Naplata')
+            ->assertSee('Satnica')
+            ->assertSee('Paušal')
+            ->assertSee('Napomena o uspjehu')
+            ->assertSee('Ugovorena satnica')
+            ->assertSee('12345678903')
+            ->assertSee('Fizička osoba')
+            ->assertSee('Podnošenje')
+            ->assertSee('Postupak')
+            ->assertSee('Odluka')
+            ->assertSee('aria-label="Uredi podatke"', false)
+            ->assertSee('aria-label="Uredi stadij"', false)
+            ->assertSee('aria-label="Obriši stadij"', false)
+            ->assertDontSee('Aktivni stadij')
             ->assertSee('Priprema')
             ->assertSee('Ured');
 
@@ -46,6 +60,12 @@ class MatterCardTest extends TestCase
                 'body' => 'Usuglašena je cijena.',
             ])
             ->assertRedirect(route('organization.matters.show', [$org->slug, $matter->id, 'tab' => 'podaci']));
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id]))
+            ->assertOk()
+            ->assertSee('Usuglašena je cijena.')
+            ->assertSee('Pregovori');
 
         $stages = $matter->stages()->reorder()->orderBy('position')->get();
         $this->assertNotNull($stages->first()->ended_on);
