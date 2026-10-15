@@ -9,9 +9,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     @include('partials.siletici-styles')
     @include('partials.office-theme')
+    @include('partials.icon-styles')
     @stack('styles')
 </head>
-<body>
+<body class="ikone-{{ $iconStyle ?? 'ispuna' }}">
 @php
     $org = app()->bound('currentOrganization') ? app('currentOrganization') : null;
     $orgUser = app()->bound('currentOrganizationUser') ? app('currentOrganizationUser') : null;

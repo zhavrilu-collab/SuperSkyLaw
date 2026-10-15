@@ -6,6 +6,7 @@ use App\Enums\OrganizationRole;
 use App\Http\Controllers\Concerns\ResolvesOffice;
 use App\Models\OrganizationUser;
 use App\Models\StaffInvite;
+use App\Support\IconStyles;
 use App\Support\OfficeThemes;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -73,15 +74,21 @@ class OfficeSettingsController extends Controller
         $data = $request->validate([
             'theme_color' => ['required', 'string', Rule::in(OfficeThemes::keys())],
             'theme_style' => ['nullable', 'string', Rule::in(OfficeThemes::styleKeys())],
+            'icon_style' => ['sometimes', 'required', 'string', Rule::in(IconStyles::keys())],
         ], [
             'theme_color.required' => 'Odaberite boju ureda.',
             'theme_color.in' => 'Odaberite jednu od službenih boja.',
             'theme_style.in' => 'Odaberite jednu od ponuđenih tema.',
+            'icon_style.required' => 'Odaberite stil ikona.',
+            'icon_style.in' => 'Odaberite jedan od ponuđenih stilova ikona.',
         ]);
 
         $update = ['theme_color' => $data['theme_color']];
         if ($request->exists('theme_style')) {
             $update['theme_style'] = $data['theme_style'] ?? null;
+        }
+        if ($request->exists('icon_style')) {
+            $update['icon_style'] = $data['icon_style'];
         }
 
         $this->office()->update($update);

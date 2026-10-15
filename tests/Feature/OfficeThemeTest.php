@@ -40,7 +40,28 @@ class OfficeThemeTest extends TestCase
             ->assertSee('Početna', false)
             ->assertDontSee('data-stil="tiha"', false)
             ->assertDontSee('data-stil="obrnuto"', false)
-            ->assertSee('BOJA TEME');
+            ->assertSee('BOJA TEME')
+            ->assertSee('IKONE')
+            ->assertSee('data-ikone="ispuna"', false)
+            ->assertSee('data-ikone="tanka"', false)
+            ->assertSee('data-ikone="krug"', false)
+            ->assertSee('data-ikone="plocica"', false)
+            ->assertSee('data-ikone="prijelaz"', false)
+            ->assertSee('data-ikone="krupno"', false)
+            ->assertSee('data-ikone="negativ"', false)
+            ->assertSee('data-ikone="kvadrat"', false)
+            ->assertSee('data-ikone="dijamant"', false)
+            ->assertSee('data-ikone="prsten"', false)
+            ->assertSee('Ispuna')
+            ->assertSee('Tanka linija')
+            ->assertSee('Znak u krugu')
+            ->assertSee('Pločica')
+            ->assertSee('Prijelaz mišem')
+            ->assertSee('Krupniji znak')
+            ->assertSee('Negativ')
+            ->assertSee('Oštri kvadrat')
+            ->assertSee('Dijamant')
+            ->assertSee('Dvostruki prsten');
 
         $this->actingAs($owner)
             ->get(route('organization.settings.edit', $organization->slug))
@@ -56,6 +77,7 @@ class OfficeThemeTest extends TestCase
 
         $this->assertSame('plava', $organization->fresh()->theme_color);
         $this->assertNull($organization->fresh()->theme_style);
+        $this->assertSame('ispuna', $organization->fresh()->icon_style);
 
         $this->actingAs($owner)
             ->get(route('organization.dashboard', $organization->slug))
@@ -89,6 +111,47 @@ class OfficeThemeTest extends TestCase
             ->assertSessionHasErrors('theme_style');
 
         $this->assertSame('kreda', $organization->fresh()->theme_style);
+    }
+
+    public function test_owner_can_choose_an_icon_style(): void
+    {
+        [$owner, $organization] = $this->office();
+
+        $this->actingAs($owner)
+            ->put(route('organization.settings.theme', $organization->slug), [
+                'theme_color' => 'zelena',
+                'theme_style' => 'kreda',
+                'icon_style' => 'prsten',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('prsten', $organization->fresh()->icon_style);
+
+        $this->actingAs($owner)
+            ->get(route('organization.dashboard', $organization->slug))
+            ->assertOk()
+            ->assertSee('ikone-prsten', false);
+
+        $this->actingAs($owner)
+            ->put(route('organization.settings.theme', $organization->slug), [
+                'theme_color' => 'plava',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('prsten', $organization->fresh()->icon_style);
+
+        $this->actingAs($owner)
+            ->from(route('organization.settings.appearance', $organization->slug))
+            ->put(route('organization.settings.theme', $organization->slug), [
+                'theme_color' => 'zelena',
+                'icon_style' => 'slova',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasErrors('icon_style');
+
+        $this->assertSame('prsten', $organization->fresh()->icon_style);
     }
 
     public function test_settings_areas_stay_on_the_page_and_out_of_the_menu(): void

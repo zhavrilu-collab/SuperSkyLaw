@@ -16,13 +16,6 @@
     .krug-osobe { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 10px; font-weight: 700; background: var(--svijetlo-zelena); border: 1px solid rgba(var(--tema-rgb), .35); color: var(--primarna-tamna); }
     .predmet-cinjenice dd { min-width: 0; }
     .predmet-cinjenice dt label { font-size: inherit; font-weight: inherit; color: inherit; margin: 0; }
-    .ikona { width: 28px; height: 28px; border: 0; background: transparent; border-radius: 6px; color: #5c6540; display: inline-grid; place-items: center; padding: 0; }
-    .ikona:hover { background: #f3f6ea; color: var(--primarna-tamna); }
-    .ikona.opasno { color: #9b1c1c; }
-    .ikona.opasno:hover { background: #fdecec; }
-    .ikona svg { width: 15px; height: 15px; display: block; }
-    .ikona:disabled { color: #c5cbb0; cursor: not-allowed; }
-    .ikona:disabled:hover { background: transparent; color: #c5cbb0; }
     .stranka-prikaz { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
     .stranka-akcije { display: none; gap: 2px; }
     .podaci-kartica.ureduje .stranka-akcije { display: flex; }
@@ -41,7 +34,6 @@
     .podaci-kartica.ureduje .moze .unos,
     .stadij-red.ureduje .unos { display: block; }
     .stadij-red.ureduje .stadij-akcije .ikona.unos { display: inline-grid; }
-    .ikona.gotovo { color: #2f6b3a; }
     .podaci-kartica.ureduje .akcije-uredivanja { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
     .podaci-kartica.ureduje .olovka-kartice, .stadij-red.ureduje .ikona-pregled { display: none; }
     .stadij-red.ureduje .unos.datumi { display: flex; gap: 6px; align-items: center; }

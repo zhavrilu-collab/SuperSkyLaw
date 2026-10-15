@@ -36,6 +36,7 @@ class Organization extends Model
         'mail_intake_token',
         'theme_color',
         'theme_style',
+        'icon_style',
     ];
 
     protected function casts(): array

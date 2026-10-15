@@ -67,10 +67,32 @@
         </div>
         <div class="form-text">Tema bira kako se nijanse slažu. Klik odmah pokazuje cijeli zaslon.</div>
     </div>
+    @php($activeIcon = \App\Support\IconStyles::resolve(old('icon_style', $organization->icon_style)))
+    <input type="hidden" name="icon_style" id="iconStyleInput" value="{{ $activeIcon }}">
+    <div class="mb-3">
+        <span class="fw-bold text-muted small d-block mb-2">IKONE</span>
+        <div class="ikona-izbori" id="ikonaIzbor">
+            @foreach(\App\Support\IconStyles::all() as $key => $style)
+                <button type="button"
+                        class="ikona-izbor @if($key === $activeIcon) aktivna @endif"
+                        data-ikone="{{ $key }}"
+                        aria-label="{{ $style['label'] }}">
+                    <span class="ikona-izbor-naziv">{{ $style['label'] }}</span>
+                    <span class="ikona-izbor-red ikone-{{ $key }}">
+                        @include('partials.icon-style-sample')
+                    </span>
+                </button>
+            @endforeach
+        </div>
+        <div class="form-text">Ikone biraju crtež radnji na kartici predmeta.</div>
+    </div>
     @error('theme_color')
         <div class="text-danger small mb-2">{{ $message }}</div>
     @enderror
     @error('theme_style')
+        <div class="text-danger small mb-2">{{ $message }}</div>
+    @enderror
+    @error('icon_style')
         <div class="text-danger small mb-2">{{ $message }}</div>
     @enderror
     <button type="submit" class="btn btn-success btn-sm btn-spremi">Spremi temu</button>
@@ -83,4 +105,15 @@
 window.THEME_PREVIEW = @json(\App\Support\OfficeThemes::clientPreview($organization->theme_color, $organization->theme_style));
 </script>
 <script src="{{ asset('js/theme-preview.js') }}?v={{ filemtime(public_path('js/theme-preview.js')) }}"></script>
+<script>
+document.querySelectorAll('[data-ikone]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var input = document.getElementById('iconStyleInput');
+        if (input) input.value = btn.getAttribute('data-ikone');
+        document.querySelectorAll('[data-ikone]').forEach(function (other) {
+            other.classList.toggle('aktivna', other === btn);
+        });
+    });
+});
+</script>
 @endpush

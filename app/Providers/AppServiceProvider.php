@@ -6,6 +6,7 @@ use App\Models\Organization;
 use App\Services\OfficeCatalog;
 use App\Services\OrganizationRbacService;
 use App\Services\PlanFeatureService;
+use App\Support\IconStyles;
 use App\Support\OfficeThemes;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -61,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('officeThemeKey', $key);
             $style = $office ? \App\Support\ThemeRecipes::effectiveStyle($office->theme_style) : null;
             $view->with('officeTheme', OfficeThemes::palette($key, $style));
+            $view->with('iconStyle', IconStyles::resolve($office?->icon_style));
         });
     }
 
