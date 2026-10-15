@@ -179,7 +179,11 @@ class PhaseFourComplianceTest extends TestCase
         $this->actingAs($owner)
             ->get(route('organization.calendar.index', $organization->slug))
             ->assertOk()
-            ->assertSee('https://e-oglasna.pravosudje.hr/notice/1');
+            ->assertSee('https://e-oglasna.pravosudje.hr/notice/1')
+            ->assertSee('data-events-view="lista"', false)
+            ->assertSee('data-kal-layout="dan"', false)
+            ->assertSee('aria-label="Mjesec"', false)
+            ->assertDontSee('☰ Lista', false);
     }
 
     public function test_qualified_signature_is_not_marked_signed_without_provider_confirmation(): void

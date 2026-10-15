@@ -45,6 +45,7 @@
         stroke-linejoin: var(--ikona-linejoin, round);
         transform: rotate(var(--ikona-glyph-rotate, 0deg));
     }
+    .ikona.slozen svg { fill-rule: evenodd; }
     .ikona.odluka svg {
         width: calc(var(--ikona-glyph, 15px) + 5px);
         height: calc(var(--ikona-glyph, 15px) + 5px);

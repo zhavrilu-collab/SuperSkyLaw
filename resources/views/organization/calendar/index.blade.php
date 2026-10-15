@@ -17,14 +17,14 @@
             </select>
         </div>
         <div class="events-view-toolbar">
-            <div class="btn-group btn-group-sm events-view-toggle" role="group">
-                <button type="button" class="btn btn-outline-secondary" data-events-view="lista" title="Lista">☰ Lista</button>
-                <button type="button" class="btn btn-outline-secondary active" data-events-view="kalendar" title="Kalendar">▦ Kalendar</button>
+            <div class="events-view-toggle" role="group" aria-label="Prikaz">
+                <x-ikona znak="list" label="Lista" type="button" data-events-view="lista" />
+                <x-ikona znak="calendar" label="Kalendar" type="button" class="active" data-events-view="kalendar" />
             </div>
-            <div class="btn-group btn-group-sm kal-layout-toolbar" role="group" id="kalLayoutToolbarWrap">
-                <button type="button" class="btn btn-outline-secondary" data-kal-layout="dan">Dan</button>
-                <button type="button" class="btn btn-outline-secondary" data-kal-layout="tjedan">Tjedan</button>
-                <button type="button" class="btn btn-outline-secondary active" data-kal-layout="mjesec">Mjesec</button>
+            <div class="kal-layout-toolbar" role="group" id="kalLayoutToolbarWrap" aria-label="Razdoblje">
+                <x-ikona znak="cal-dan" label="Dan" type="button" data-kal-layout="dan" />
+                <x-ikona znak="cal-tjedan" label="Tjedan" type="button" data-kal-layout="tjedan" />
+                <x-ikona znak="cal-mjesec" label="Mjesec" type="button" class="active" data-kal-layout="mjesec" />
             </div>
         </div>
     </div>
@@ -32,9 +32,9 @@
     <div id="viewKalendar" class="events-kalendar-view">
         <div class="kalendar-nav-row">
             <div class="kalendar-nav">
-                <button type="button" class="btn btn-outline-secondary btn-sm kal-nav-btn" id="btnKalPrethodni" title="Prethodni">‹</button>
+                <x-ikona znak="chevron-left" label="Prethodni" type="button" id="btnKalPrethodni" />
                 <h2 id="naslovKalendara" class="mb-0 kal-nav-naslov" title="Prikaži termine ovog razdoblja u listi"></h2>
-                <button type="button" class="btn btn-outline-secondary btn-sm kal-nav-btn" id="btnKalSljedeci" title="Sljedeći">›</button>
+                <x-ikona znak="chevron-right" label="Sljedeći" type="button" id="btnKalSljedeci" />
             </div>
         </div>
         <div class="kalendar-kontejner">
@@ -231,13 +231,26 @@
     .events-board-search { flex: 1 1 220px; min-width: 180px; max-width: 320px; }
     .events-board-filter { flex: 0 1 190px; min-width: 150px; max-width: 210px; }
     .events-view-toolbar { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: auto; }
-    .events-view-toggle .btn, .kal-layout-toolbar .btn { margin: 0; white-space: nowrap; }
+    .events-view-toggle, .kal-layout-toolbar { display: flex; gap: 2px; justify-content: flex-end; }
+    .events-view-toolbar .ikona.active {
+        background: var(--primarna-zelena);
+        color: var(--tekst-na-primarnoj);
+        border-color: transparent;
+        box-shadow: none;
+    }
+    .events-view-toolbar .ikona.active:hover {
+        background: var(--primarna-tamna);
+        color: #fff;
+    }
+    body.ikone-negativ .events-view-toolbar .ikona.active {
+        background: var(--primarna-tamna);
+        box-shadow: inset 0 0 0 1px var(--tekst-na-primarnoj);
+    }
     .events-kalendar-view { margin-top: 12px; }
     .kalendar-kontejner { background: white; border-radius: 16px; padding: 14px 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border: 1px solid rgba(var(--tema-rgb), 0.12); }
     .kalendar-nav-row { display: flex; justify-content: center; align-items: center; width: 100%; margin-bottom: 8px; }
     .kalendar-nav { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .kalendar-nav .kal-nav-naslov { font-weight: 700; color: var(--primarna-zelena); font-size: 1.1rem; cursor: pointer; margin: 0; text-align: center; white-space: nowrap; padding: 0 4px; }
-    .kalendar-nav .kal-nav-btn { width: 32px; min-width: 32px; padding: 2px 0; font-size: 1.15rem; line-height: 1; }
     .kalendar-grid.kal-layout-mjesec { display: flex; flex-direction: column; gap: 4px; }
     .kal-mjesec-head, .kal-mjesec-dani, .kal-mjesec-lanes, .kal-mjesec-more { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px 4px; }
     .kal-dan-naziv { text-align: center; font-size: 11px; font-weight: 700; color: #888; padding: 2px 0; }
