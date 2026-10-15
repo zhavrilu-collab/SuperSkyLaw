@@ -21,6 +21,13 @@
     .ikona.opasno { color: #9b1c1c; }
     .ikona.opasno:hover { background: #fdecec; }
     .ikona svg { width: 15px; height: 15px; display: block; }
+    .ikona:disabled { color: #c5cbb0; cursor: not-allowed; }
+    .ikona:disabled:hover { background: transparent; color: #c5cbb0; }
+    .povezi-formu { display: none; }
+    .podaci-kartica.povezuje .povezi-formu { display: block; }
+    .stadij-blok { border-top: 1px solid #e6eadc; }
+    .stadij-blok .stadij-red { border-top: 0; }
+    .stadij-dodatak { padding: 0 0 12px; }
     .podaci-kartica #drugiSud { display: none; }
     .podaci-kartica.ureduje #drugiSud.vidljiv { display: block; }
     .podaci-kartica .unos,

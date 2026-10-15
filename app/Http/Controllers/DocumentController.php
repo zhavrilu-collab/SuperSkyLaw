@@ -82,9 +82,9 @@ class DocumentController extends Controller
 
         AuditLog::record(AuditAction::Create, $document, 'Upload '.$document->original_name);
 
-        if ($request->input('return_to') === 'matter') {
+        if (in_array($request->input('return_to'), ['matter', 'podaci'], true)) {
             return redirect()
-                ->route('organization.matters.show', [$this->office()->slug, $matter->id, 'tab' => 'dokumenti'])
+                ->route('organization.matters.show', [$this->office()->slug, $matter->id, 'tab' => $request->input('return_to') === 'podaci' ? 'podaci' : 'dokumenti'])
                 ->with('status', 'Dokument je spremljen u mapu predmeta.');
         }
 

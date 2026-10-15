@@ -8,6 +8,8 @@ use App\Models\DisputeCategory;
 use App\Models\Invoice;
 use App\Models\Matter;
 use App\Models\MatterDocument;
+use App\Models\MatterParty;
+use App\Models\Party;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\TimeEntry;
@@ -67,7 +69,11 @@ class MatterCardTest extends TestCase
             ->get(route('organization.matters.show', [$org->slug, $matter->id]))
             ->assertOk()
             ->assertSee('Usuglašena je cijena.')
-            ->assertSee('Pregovori');
+            ->assertSee('Pregovori')
+            ->assertSee('aria-label="Poveži stranku"', false)
+            ->assertSee('aria-label="Dodaj dokument"', false)
+            ->assertSee('aria-label="Dodaj aktivnost"', false)
+            ->assertSee('title="Brisati se može samo zadnji stadij."', false);
 
         $stages = $matter->stages()->reorder()->orderBy('position')->get();
         $this->assertNotNull($stages->first()->ended_on);
@@ -329,23 +335,76 @@ class MatterCardTest extends TestCase
         $matter = Matter::query()->first();
         $this->actingAs($user)
             ->post(route('organization.matters.stages.store', [$org->slug, $matter->id]), [
-                'name' => 'EFED',
+                'name' => 'Postupak',
             ])
             ->assertRedirect();
 
-        $shades = \App\Support\OfficeThemes::stageShades(2, \App\Support\OfficeThemes::palette('plava', 'obrub'));
-        $this->assertNotSame($shades[0], $shades[1]);
-        $this->assertGreaterThan(hexdec(substr($shades[1], 1)), hexdec(substr($shades[0], 1)));
+        $shades = \App\Support\OfficeThemes::stageShades(4, \App\Support\OfficeThemes::palette('plava', 'obrub'));
+        $openedScale = \App\Support\OfficeThemes::stageShades(2, \App\Support\OfficeThemes::palette('plava', 'obrub'));
+        $this->assertNotSame($shades[0], $shades[2]);
+        $this->assertNotSame($shades[2], $openedScale[1]);
 
         $this->actingAs($user)
             ->get(route('organization.matters.show', [$org->slug, $matter->id]))
             ->assertOk()
             ->assertSee('Novi stadij', false)
             ->assertSee('background: '.$shades[0], false)
-            ->assertSee('background: '.$shades[1], false)
+            ->assertSee('background: '.$shades[2], false)
+            ->assertSee('color: '.$shades[1], false)
+            ->assertDontSee('background: '.$openedScale[1], false)
             ->assertDontSee('stadij-lime', false)
             ->assertDontSee('#c5d48a', false)
             ->assertDontSee('#d4af37', false);
+    }
+
+    public function test_linked_parties_of_every_side_are_visible_and_editable_on_the_card(): void
+    {
+        [$user, $org] = $this->office();
+        $this->actingAs($user)
+            ->post(route('organization.matters.store', $org->slug), $this->payload())
+            ->assertRedirect();
+
+        $matter = Matter::query()->first();
+        $expert = Party::query()->create([
+            'organization_id' => $org->id,
+            'kind' => 'person',
+            'name' => 'Ana Vještak',
+        ]);
+        MatterParty::query()->create([
+            'organization_id' => $org->id,
+            'matter_id' => $matter->id,
+            'party_id' => $expert->id,
+            'role' => 'expert',
+            'side' => 'other',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('organization.matters.show', [$org->slug, $matter->id]))
+            ->assertOk()
+            ->assertSee('Ana Vještak')
+            ->assertSee('Vještak');
+
+        $client = $matter->parties()->where('side', 'client')->first();
+        $this->actingAs($user)
+            ->put(route('organization.matters.update', [$org->slug, $matter->id]), [
+                'title' => 'Novi predmet',
+                'kind' => 'civil',
+                'office_position' => 'plaintiff',
+                'billing_method' => 'hourly',
+                'links' => [
+                    $client->id => [
+                        'name' => 'Marina Božić',
+                        'oib' => '12345678903',
+                        'kind' => 'person',
+                        'role' => 'plaintiff',
+                        'side' => 'client',
+                    ],
+                ],
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('Marina Božić', $client->party->fresh()->name);
+        $this->assertSame('plaintiff', $client->fresh()->role->value);
     }
 
     public function test_office_can_add_a_dispute_category_and_see_it_on_the_matter_form(): void

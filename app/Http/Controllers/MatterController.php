@@ -47,6 +47,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class MatterController extends Controller
@@ -381,6 +382,8 @@ class MatterController extends Controller
             $model->assignees()->sync($data['assignee_ids']);
         }
 
+        $this->syncLinkedParties($request, $model);
+
         AuditLog::record(AuditAction::Update, $model, 'Izmjena predmeta '.$model->internal_number);
 
         return back()->with('status', 'Predmet je ažuriran.');
@@ -476,6 +479,85 @@ class MatterController extends Controller
         return back()->with('status', 'Stranka je povezana s predmetom.');
     }
 
+    private function syncLinkedParties(Request $request, Matter $model): void
+    {
+        $links = $request->input('links');
+        if (! is_array($links) || $links === []) {
+            return;
+        }
+
+        $request->validate([
+            'links' => ['array'],
+            'links.*.name' => ['required', 'string', 'max:255'],
+            'links.*.oib' => ['nullable', 'string'],
+            'links.*.kind' => ['required', Rule::enum(PartyKind::class)],
+            'links.*.role' => ['required', Rule::enum(MatterPartyRole::class)],
+            'links.*.side' => ['required', Rule::enum(PartySide::class)],
+        ]);
+
+        foreach ($links as $id => $row) {
+            $link = MatterParty::query()->where('matter_id', $model->id)->find($id);
+            $party = $link?->party;
+            if ($link === null || $party === null) {
+                continue;
+            }
+
+            $oib = $row['oib'] ?? null;
+            $oib = $oib !== '' ? $oib : null;
+            $request->validate([
+                'links.'.$id.'.oib' => ['nullable', 'string', new ValidOib, Rule::unique('parties', 'oib')->where('organization_id', $this->office()->id)->ignore($party->id)],
+            ]);
+
+            $side = PartySide::from($row['side']);
+            $changed = $link->side !== $side || $party->name !== $row['name'] || ($party->oib ?? null) !== $oib;
+            if ($changed) {
+                $this->assertPartyLinkAllowed($model, $row['name'], $oib, $side, $request);
+            }
+
+            $party->update([
+                'name' => $row['name'],
+                'oib' => $oib,
+                'kind' => $row['kind'],
+            ]);
+            $link->update([
+                'role' => $row['role'],
+                'side' => $side,
+            ]);
+        }
+    }
+
+    private function assertPartyLinkAllowed(Matter $model, string $name, ?string $oib, PartySide $side, Request $request): void
+    {
+        $evaluation = $this->conflicts->evaluate([[
+            'name' => $name,
+            'oib' => $oib,
+            'side' => $side,
+        ]]);
+
+        if ($evaluation['result'] !== ConflictResult::Clear && ! $request->boolean('acknowledge_conflict')) {
+            throw ValidationException::withMessages([
+                'links' => 'Provjera sukoba traži potvrdu partnera prije izmjene stranke.',
+            ]);
+        }
+
+        if ($evaluation['result'] !== ConflictResult::Clear && $this->membership()->role !== OrganizationRole::Owner) {
+            throw ValidationException::withMessages([
+                'links' => 'Sukob može potvrditi samo partner.',
+            ]);
+        }
+
+        if ($evaluation['result'] !== ConflictResult::Clear) {
+            ConflictCheck::query()->create([
+                'matter_id' => $model->id,
+                'result' => $evaluation['result'],
+                'matches' => $evaluation['matches'],
+                'checked_by_user_id' => auth()->id(),
+                'acknowledged_by_user_id' => auth()->id(),
+                'acknowledged_at' => now(),
+            ]);
+        }
+    }
+
     public function storeTimeline(Request $request, string $slug, int $matter): RedirectResponse
     {
         $this->authorizePerm('matters.manage');
@@ -496,8 +578,10 @@ class MatterController extends Controller
             'visible_to_client' => $request->boolean('visible_to_client'),
         ]);
 
+        $tab = $request->input('return_to') === 'podaci' ? 'podaci' : 'aktivnosti';
+
         return redirect()
-            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => 'aktivnosti'])
+            ->route('organization.matters.show', [$this->office()->slug, $model->id, 'tab' => $tab])
             ->with('status', 'Zapis je dodan u kronologiju.');
     }
 
