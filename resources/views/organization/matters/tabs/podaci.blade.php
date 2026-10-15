@@ -218,6 +218,9 @@
                 <form id="urediStranku{{ $veza->id }}" method="POST" action="{{ route('organization.matters.parties.update', [$org->slug, $matter->id, $veza->id]) }}" class="d-none">
                     @csrf @method('PUT')
                 </form>
+                <form id="brisiStranku{{ $veza->id }}" method="POST" action="{{ route('organization.matters.parties.destroy', [$org->slug, $matter->id, $veza->id]) }}" class="d-none" onsubmit="return confirm('Ukloniti stranku s predmeta?')">
+                    @csrf @method('DELETE')
+                </form>
             @endforeach
             @endperm
             @if($matter->conflictChecks->isNotEmpty())

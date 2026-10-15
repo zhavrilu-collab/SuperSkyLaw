@@ -129,6 +129,7 @@ Route::prefix('{slug}')
         Route::post('/predmeti/{matter}/vrati', [MatterController::class, 'reopen'])->whereNumber('matter')->name('organization.matters.reopen');
         Route::post('/predmeti/{matter}/stranke', [MatterController::class, 'attachParty'])->whereNumber('matter')->name('organization.matters.parties.store');
         Route::put('/predmeti/{matter}/stranke/{link}', [MatterController::class, 'updateParty'])->whereNumber('matter')->whereNumber('link')->name('organization.matters.parties.update');
+        Route::delete('/predmeti/{matter}/stranke/{link}', [MatterController::class, 'destroyParty'])->whereNumber('matter')->whereNumber('link')->name('organization.matters.parties.destroy');
         Route::post('/predmeti/{matter}/kronologija', [MatterController::class, 'storeTimeline'])->whereNumber('matter')->name('organization.matters.timeline.store');
         Route::post('/predmeti/{matter}/stadij', [MatterController::class, 'storeStage'])->whereNumber('matter')->name('organization.matters.stages.store');
         Route::put('/predmeti/{matter}/stadij/{stage}', [MatterController::class, 'updateStage'])->whereNumber('matter')->whereNumber('stage')->name('organization.matters.stages.update');

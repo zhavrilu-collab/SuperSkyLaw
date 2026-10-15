@@ -495,6 +495,17 @@ class MatterController extends Controller
         return back()->with('status', 'Stranka na predmetu je spremljena.');
     }
 
+    public function destroyParty(string $slug, int $matter, int $link): RedirectResponse
+    {
+        $this->authorizePerm('matters.manage');
+        $model = $this->findVisibleMatter($matter);
+        $record = MatterParty::query()->where('matter_id', $model->id)->with('party')->findOrFail($link);
+        $name = $record->party?->name;
+        $record->delete();
+
+        return back()->with('status', ($name ?: 'Stranka').' je uklonjena s predmeta.');
+    }
+
     private function syncLinkedParties(Request $request, Matter $model): void
     {
         $links = $request->input('links');

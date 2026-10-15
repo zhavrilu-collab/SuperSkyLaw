@@ -79,6 +79,8 @@ class MatterCardTest extends TestCase
             ->assertSee('title="Obriši stadij"', false)
             ->assertSee('id="poveziStrankuProzor"', false)
             ->assertSee('.stranka-unos { display: none; }', false)
+            ->assertSee('.stranka-akcije { display: none; gap: 2px; }', false)
+            ->assertSee('title="Ukloni stranku s predmeta"', false)
             ->assertSee('title="Brisati se može samo zadnji stadij."', false);
 
         $stages = $matter->stages()->reorder()->orderBy('position')->get();
@@ -376,7 +378,7 @@ class MatterCardTest extends TestCase
             'kind' => 'person',
             'name' => 'Ana Vještak',
         ]);
-        MatterParty::query()->create([
+        $veza = MatterParty::query()->create([
             'organization_id' => $org->id,
             'matter_id' => $matter->id,
             'party_id' => $expert->id,
@@ -408,6 +410,13 @@ class MatterCardTest extends TestCase
         $this->assertSame($marina->id, $client->party_id);
         $this->assertSame('plaintiff', $client->role->value);
         $this->assertSame('Klijent', Party::query()->where('oib', '12345678903')->first()->name);
+
+        $this->actingAs($user)
+            ->delete(route('organization.matters.parties.destroy', [$org->slug, $matter->id, $veza->id]))
+            ->assertRedirect();
+
+        $this->assertNull(MatterParty::query()->where('party_id', $expert->id)->first());
+        $this->assertNotNull(Party::query()->find($expert->id));
 
         $this->actingAs($user)
             ->get(route('organization.matters.show', [$org->slug, $matter->id]))

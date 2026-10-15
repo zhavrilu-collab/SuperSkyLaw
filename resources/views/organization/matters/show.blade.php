@@ -24,6 +24,8 @@
     .ikona:disabled { color: #c5cbb0; cursor: not-allowed; }
     .ikona:disabled:hover { background: transparent; color: #c5cbb0; }
     .stranka-prikaz { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .stranka-akcije { display: none; gap: 2px; }
+    .podaci-kartica.ureduje .stranka-akcije { display: flex; }
     .stranka-unos { display: none; }
     .stranka-red.ureduje .stranka-prikaz { display: none; }
     .stranka-red.ureduje .stranka-unos { display: block; }
