@@ -23,9 +23,13 @@
     .ikona svg { width: 15px; height: 15px; display: block; }
     .podaci-kartica #drugiSud { display: none; }
     .podaci-kartica.ureduje #drugiSud.vidljiv { display: block; }
+    .podaci-kartica .unos,
+    .stadij-red .unos { display: none; }
     .podaci-kartica .akcije-uredivanja { display: none; }
     .podaci-kartica.ureduje .moze .prikaz, .stadij-red.ureduje .prikaz { display: none; }
-    .podaci-kartica.ureduje .moze .unos, .stadij-red.ureduje .unos { display: block; }
+    .podaci-kartica.ureduje .moze .unos,
+    .stadij-red.ureduje .unos { display: block; }
+    .stadij-red.ureduje .stadij-akcije .btn.unos { display: inline-block; }
     .podaci-kartica.ureduje .akcije-uredivanja { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
     .podaci-kartica.ureduje .olovka-kartice, .stadij-red.ureduje .ikona-pregled { display: none; }
     .stadij-red.ureduje .unos.datumi { display: flex; gap: 6px; align-items: center; }

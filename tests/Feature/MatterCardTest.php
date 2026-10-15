@@ -51,6 +51,8 @@ class MatterCardTest extends TestCase
             ->assertSee('aria-label="Uredi stadij"', false)
             ->assertSee('aria-label="Obriši stadij"', false)
             ->assertDontSee('Aktivni stadij')
+            ->assertSee('.podaci-kartica .unos', false)
+            ->assertSee('.stadij-red .unos { display: none; }', false)
             ->assertSee('Priprema')
             ->assertSee('Ured');
 
