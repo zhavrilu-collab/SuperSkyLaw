@@ -40,7 +40,8 @@
     .podaci-kartica.ureduje .moze .prikaz, .stadij-red.ureduje .prikaz { display: none; }
     .podaci-kartica.ureduje .moze .unos,
     .stadij-red.ureduje .unos { display: block; }
-    .stadij-red.ureduje .stadij-akcije .btn.unos { display: inline-block; }
+    .stadij-red.ureduje .stadij-akcije .ikona.unos { display: inline-grid; }
+    .ikona.gotovo { color: #2f6b3a; }
     .podaci-kartica.ureduje .akcije-uredivanja { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
     .podaci-kartica.ureduje .olovka-kartice, .stadij-red.ureduje .ikona-pregled { display: none; }
     .stadij-red.ureduje .unos.datumi { display: flex; gap: 6px; align-items: center; }
@@ -87,17 +88,27 @@
         @if($matter->status->value !== 'archived')
         <form method="POST" action="{{ route('organization.matters.pause', [$org->slug, $matter->id]) }}">
             @csrf
-            <button class="btn btn-outline-secondary btn-sm" type="submit">{{ $matter->status->value === 'paused' ? 'Nastavi' : 'Pauziraj' }}</button>
+            <button class="ikona" type="submit" title="{{ $matter->status->value === 'paused' ? 'Nastavi' : 'Pauziraj' }}" aria-label="{{ $matter->status->value === 'paused' ? 'Nastavi' : 'Pauziraj' }}">
+                @if($matter->status->value === 'paused')
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393"/></svg>
+                @else
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5m5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5"/></svg>
+                @endif
+            </button>
         </form>
         @endif
         @endperm
         @perm('matters.delete')
         @if($matter->status->value !== 'archived')
-        <button class="btn btn-outline-danger btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#arhivaPredmeta">Arhiviraj</button>
+        <button class="ikona opasno" type="button" data-bs-toggle="modal" data-bs-target="#arhivaPredmeta" title="Arhiviraj" aria-label="Arhiviraj">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5zm13-3H1v2h14zM6 8.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5"/></svg>
+        </button>
         @else
         <form method="POST" action="{{ route('organization.matters.reopen', [$org->slug, $matter->id]) }}">
             @csrf
-            <button class="btn btn-outline-secondary btn-sm" type="submit">Vrati u rad</button>
+            <button class="ikona" type="submit" title="Vrati u rad" aria-label="Vrati u rad">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/></svg>
+            </button>
         </form>
         @endif
         @endperm
@@ -110,7 +121,7 @@
             @csrf @method('DELETE')
             <div class="modal-header">
                 <h2 class="modal-title h6" id="arhivaPredmetaNaslov">Arhiviranje predmeta</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Zatvori" aria-label="Zatvori"></button>
             </div>
             <div class="modal-body">
                 <label class="form-label" for="ishodArhive">Ishod</label>
@@ -122,8 +133,12 @@
                 </select>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-dismiss="modal">Odustani</button>
-                <button class="btn btn-danger btn-sm" type="submit">Arhiviraj</button>
+                <button class="ikona" type="button" data-bs-dismiss="modal" title="Odustani" aria-label="Odustani">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
+                </button>
+                <button class="ikona opasno" type="submit" title="Arhiviraj" aria-label="Arhiviraj">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5zm13-3H1v2h14zM6 8.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5"/></svg>
+                </button>
             </div>
         </form>
     </div>

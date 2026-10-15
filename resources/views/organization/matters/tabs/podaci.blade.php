@@ -208,8 +208,12 @@
                 </dl>
                 @perm('matters.manage')
                 <div class="akcije-uredivanja">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="odustaniPodaci">Odustani</button>
-                    <button class="btn btn-primary btn-sm" type="submit">Spremi</button>
+                    <button type="button" class="ikona" id="odustaniPodaci" title="Odustani" aria-label="Odustani">
+                        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
+                    </button>
+                    <button class="ikona" type="submit" title="Spremi" aria-label="Spremi">
+                        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                    </button>
                 </div>
                 @endperm
             </form>
@@ -252,8 +256,12 @@
                             <div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="acknowledge_conflict" value="1" id="ack2" @checked(old('acknowledge_conflict'))><label class="form-check-label" for="ack2">Potvrđujem provjeru sukoba</label></div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Odustani</button>
-                            <button class="btn btn-primary btn-sm" type="submit">Poveži</button>
+                            <button type="button" class="ikona" data-bs-dismiss="modal" title="Odustani" aria-label="Odustani">
+                                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
+                            </button>
+                            <button class="ikona" type="submit" title="Poveži" aria-label="Poveži">
+                                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -381,8 +389,12 @@
                                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3h11V2h-11v1z"/></svg>
                             </button>
                             @endif
-                            <button type="button" class="btn btn-outline-secondary btn-sm unos odustani-stadij">Odustani</button>
-                            <button class="btn btn-primary btn-sm unos" type="submit">Spremi</button>
+                            <button type="button" class="ikona unos odustani-stadij" title="Odustani" aria-label="Odustani">
+                                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
+                            </button>
+                            <button class="ikona unos" type="submit" title="Spremi" aria-label="Spremi">
+                                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                            </button>
                             @endperm
                         </div>
                         @foreach($stage->documents as $document)
@@ -416,7 +428,9 @@
                                 <input type="file" name="file" id="datotekaStadija{{ $stage->id }}" class="form-control form-control-sm" required>
                             </div>
                             <div class="col-md-3 d-flex align-items-end">
-                                <button class="btn btn-primary btn-sm" type="submit">Spremi dokument</button>
+                                <button class="ikona" type="submit" title="Spremi dokument" aria-label="Spremi dokument">
+                                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                                </button>
                             </div>
                         </div>
                         @if($otvoriDokument)
@@ -449,8 +463,12 @@
                             </div>
                             <div class="col-12"><label class="form-check-label"><input class="form-check-input" type="checkbox" name="visible_to_client" value="1"> Vidljivo klijentu na portalu</label></div>
                             <div class="col-12 d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm zatvori-dodatak">Odustani</button>
-                                <button class="btn btn-primary btn-sm" type="submit">Dodaj zapis</button>
+                                <button type="button" class="ikona zatvori-dodatak" title="Odustani" aria-label="Odustani">
+                                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
+                                </button>
+                                <button class="ikona" type="submit" title="Dodaj zapis" aria-label="Dodaj zapis">
+                                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -489,7 +507,9 @@
                     <form method="POST" action="{{ route('organization.matters.spnft.toggle', [$org->slug, $matter->id]) }}" class="mb-1">
                         @csrf
                         <input type="hidden" name="item" value="{{ $key }}">
-                        <button class="btn btn-sm {{ $done ? 'btn-success' : 'btn-outline-secondary' }}" type="submit" @disabled(!auth()->user() || !app(\App\Services\OrganizationRbacService::class)->can($org->id, auth()->id(), 'matters.manage'))>{{ $done ? 'Potvrđeno' : 'Potvrdi' }}</button>
+                        <button class="ikona {{ $done ? 'gotovo' : '' }}" type="submit" title="{{ $done ? 'Potvrđeno' : 'Potvrdi' }}" aria-label="{{ $done ? 'Potvrđeno' : 'Potvrdi' }}" @disabled(!auth()->user() || !app(\App\Services\OrganizationRbacService::class)->can($org->id, auth()->id(), 'matters.manage'))>
+                            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
+                        </button>
                         <span class="ms-1">{{ $label }}</span>
                     </form>
                 @endforeach
@@ -502,7 +522,7 @@
             @forelse($matter->ethicalWalls as $wall)
                 <div class="d-flex justify-content-between py-1">
                     <span>{{ $wall->user->name }} · {{ $wall->reason }}</span>
-                    <form method="POST" action="{{ route('organization.matters.walls.destroy', [$org->slug, $matter->id, $wall->id]) }}">@csrf @method('DELETE')<button class="btn btn-link btn-sm" type="submit">Ukloni</button></form>
+                    <form method="POST" action="{{ route('organization.matters.walls.destroy', [$org->slug, $matter->id, $wall->id]) }}">@csrf @method('DELETE')<button class="ikona opasno" type="submit" title="Ukloni" aria-label="Ukloni"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3h11V2h-11z"/></svg></button></form>
                 </div>
             @empty
                 <p class="mb-2">Nitko nije isključen.</p>
@@ -519,7 +539,9 @@
                 </select>
                 <label class="form-label" for="zidRazlog">Razlog</label>
                 <input name="reason" id="zidRazlog" class="form-control mb-2" required>
-                <button class="btn btn-outline-danger btn-sm" type="submit">Zatvori pristup</button>
+                <button class="ikona opasno" type="submit" title="Zatvori pristup" aria-label="Zatvori pristup">
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg>
+                </button>
             </form>
         </div>
         @endperm
@@ -532,7 +554,7 @@
         <div class="d-flex justify-content-between py-1 gap-2">
             <a href="{{ route('organization.statutes.show', [$org->slug, $statute->id]) }}">{{ $statute->citation }} · {{ $statute->title }}</a>
             @perm('matters.manage')
-            <form method="POST" action="{{ route('organization.matters.statutes.destroy', [$org->slug, $matter->id, $statute->id]) }}">@csrf @method('DELETE')<button class="btn btn-link btn-sm" type="submit">Ukloni</button></form>
+            <form method="POST" action="{{ route('organization.matters.statutes.destroy', [$org->slug, $matter->id, $statute->id]) }}">@csrf @method('DELETE')<button class="ikona opasno" type="submit" title="Ukloni" aria-label="Ukloni"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3h11V2h-11z"/></svg></button></form>
             @endperm
         </div>
     @empty
@@ -542,14 +564,14 @@
     <form method="GET" action="{{ route('organization.matters.show', [$org->slug, $matter->id]) }}" class="row g-2 mt-2">
         <input type="hidden" name="tab" value="podaci">
         <div class="col-md-8"><label class="form-label" for="traziZakon">Naziv ili NN broj</label><input id="traziZakon" name="zakon" value="{{ request('zakon') }}" class="form-control form-control-sm" placeholder="npr. obveznim ili NN 34/2023"></div>
-        <div class="col-md-4 d-flex align-items-end"><button class="btn btn-primary btn-sm" type="submit">Traži zakon</button></div>
+        <div class="col-md-4 d-flex align-items-end"><button class="ikona" type="submit" title="Traži zakon" aria-label="Traži zakon"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg></button></div>
     </form>
     @foreach($statuteMatches as $statute)
         <form method="POST" action="{{ route('organization.matters.statutes.store', [$org->slug, $matter->id]) }}" class="d-flex justify-content-between align-items-center py-1">
             @csrf
             <input type="hidden" name="statute_id" value="{{ $statute->id }}">
             <span>{{ $statute->citation }} · {{ $statute->title }}</span>
-            <button class="btn btn-outline-success btn-sm" type="submit">Poveži</button>
+            <button class="ikona" type="submit" title="Poveži" aria-label="Poveži"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9q-.13 0-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z"/><path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4 4 0 0 1-.82 1H12a3 3 0 1 0 0-6z"/></svg></button>
         </form>
     @endforeach
     @endperm
