@@ -78,6 +78,8 @@ class MatterCardTest extends TestCase
             ->assertSee('title="Dodaj aktivnost"', false)
             ->assertSee('title="Obriši stadij"', false)
             ->assertSee('title="Dodaj stadij"', false)
+            ->assertSee('class="ikona odluka predlozak-dodaj"', false)
+            ->assertSee('class="ikona odluka ikona-pregled" data-otvori=".dodatak-aktivnost"', false)
             ->assertSee('aria-label="Otvori stadij"', false)
             ->assertSee('id="poveziStrankuProzor"', false)
             ->assertSee('.stranka-unos { display: none; }', false)

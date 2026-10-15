@@ -5,7 +5,7 @@
         border: var(--ikona-border, 0);
         background: var(--ikona-bg, transparent);
         border-radius: var(--ikona-radius, 6px);
-        color: var(--ikona-fg, #5c6540);
+        color: var(--ikona-fg, var(--crta-zaglavlja));
         display: inline-grid;
         place-items: center;
         padding: 0;
@@ -15,24 +15,24 @@
         flex-shrink: 0;
     }
     .ikona:hover {
-        background: var(--ikona-bg-hover, #f3f6ea);
+        background: var(--ikona-bg-hover, var(--svijetlo-zelena));
         color: var(--ikona-fg-hover, var(--primarna-tamna));
     }
     .ikona.opasno {
-        color: var(--ikona-opasno-fg, #9b1c1c);
+        color: var(--ikona-opasno-fg, var(--sustav-greska));
         background: var(--ikona-opasno-bg, transparent);
     }
     .ikona.opasno:hover {
-        background: var(--ikona-opasno-hover-bg, #fdecec);
-        color: var(--ikona-opasno-hover-fg, #9b1c1c);
+        background: var(--ikona-opasno-hover-bg, var(--tema-greska-svijetla));
+        color: var(--ikona-opasno-hover-fg, var(--sustav-greska-tinta));
     }
     .ikona.gotovo {
-        color: var(--ikona-gotovo-fg, #2f6b3a);
+        color: var(--ikona-gotovo-fg, var(--primarna-tamna));
         background: var(--ikona-gotovo-bg, transparent);
     }
     .ikona.gotovo:hover {
-        background: var(--ikona-gotovo-hover-bg, #f3f6ea);
-        color: var(--ikona-gotovo-hover-fg, #2f6b3a);
+        background: var(--ikona-gotovo-hover-bg, var(--svijetlo-zelena));
+        color: var(--ikona-gotovo-hover-fg, var(--primarna-tamna));
     }
     .ikona svg {
         width: var(--ikona-glyph, 15px);
@@ -45,13 +45,17 @@
         stroke-linejoin: var(--ikona-linejoin, round);
         transform: rotate(var(--ikona-glyph-rotate, 0deg));
     }
+    .ikona.odluka svg {
+        width: calc(var(--ikona-glyph, 15px) + 5px);
+        height: calc(var(--ikona-glyph, 15px) + 5px);
+    }
     .ikona:disabled,
     .ikona:disabled:hover,
     .ikona.opasno:disabled,
     .ikona.opasno:disabled:hover,
     .ikona.gotovo:disabled,
     .ikona.gotovo:disabled:hover {
-        color: var(--ikona-disabled-fg, #c5cbb0);
+        color: var(--ikona-disabled-fg, color-mix(in srgb, var(--crta-zaglavlja) 40%, #b9b9b4));
         background: var(--ikona-disabled-bg, transparent);
         cursor: not-allowed;
     }

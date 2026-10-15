@@ -47,10 +47,10 @@
             @error('party_id')<p class="text-danger small mb-2">{{ $message }}</p>@enderror
         @endif
         <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="ikona odustani-stranku" title="Odustani" aria-label="Odustani">
+            <button type="button" class="ikona odluka odustani-stranku" title="Odustani" aria-label="Odustani">
                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
             </button>
-            <button class="ikona" type="submit" form="urediStranku{{ $veza->id }}" title="Spremi" aria-label="Spremi">
+            <button class="ikona odluka" type="submit" form="urediStranku{{ $veza->id }}" title="Spremi" aria-label="Spremi">
                 <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/></svg>
             </button>
         </div>
